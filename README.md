@@ -1,6 +1,6 @@
 <a id="readme-top"></a>
 
-<p align="center">
+<p align="left">
   <a href="#license-url" style="text-decoration: none;">
     <img 
       src="https://img.shields.io/github/license/SunSinD/Projet-DO2-NixOS.svg?style=for-the-badge&color=0078D4&logo=github&logoColor=white&labelColor=333" 
