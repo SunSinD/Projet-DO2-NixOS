@@ -24,7 +24,7 @@
     Ce dépôt contient l'image Linux personnalisée, les scripts d'installation et la documentation technique<br/>
     pour la revalorisation des ordinateurs destinés à la communauté du Collège Montmorency.
   </p>
-  <a href="https://sunSinD.github.io/Projet-DO2-NixOS"><strong>🌐 Site web du projet →</strong></a>
+  <a href="https://sunSinD.github.io/Projet-DO2-NixOS"><strong>Site Web du Projet</strong></a>
 </div>
 
 <br/>
