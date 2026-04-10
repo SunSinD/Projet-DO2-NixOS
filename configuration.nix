@@ -3,6 +3,8 @@
 {
   imports = [ ./hardware-configuration.nix ];
 
+  nixpkgs.config.allowUnfree = true;
+
   boot.loader = {
     efi.canTouchEfiVariables = false;
     efi.efiSysMountPoint     = "/boot";
