@@ -3,7 +3,7 @@
 {
   imports = [ ./hardware-configuration.nix ];
 
-boot.loader = {
+  boot.loader = {
     efi.canTouchEfiVariables = false;
     efi.efiSysMountPoint     = "/boot";
     grub = {
@@ -88,12 +88,15 @@ boot.loader = {
 
   nixpkgs.config.allowUnfree = true;
 
-  environment.systemPackages = with pkgs; [
+  environment.systemPackages = with pkgs;
+  [
     google-chrome
     libreoffice-fresh
     dialect
     vlc
-    thunderbird
+    gnomeExtensions.dash-to-dock # Added to provide a permanent app dock
+    
+    # Microsoft Teams Web App
     (pkgs.makeDesktopItem {
       name        = "microsoft-teams-web";
       desktopName = "Microsoft Teams";
@@ -102,9 +105,50 @@ boot.loader = {
       categories  = [ "Network" "InstantMessaging" ];
       comment     = "Microsoft Teams (web)";
     })
+    
+    # Gmail Web App
+    (pkgs.makeDesktopItem {
+      name        = "gmail-web";
+      desktopName = "Gmail";
+      exec        = "${pkgs.google-chrome}/bin/google-chrome-stable --app=https://mail.google.com";
+      icon        = "google-chrome";
+      categories  = [ "Network" "Email" ];
+      comment     = "Gmail (Web)";
+    })
   ];
 
-  environment.gnome.excludePackages = with pkgs; [ gnome-tour ];
+  # Remove unwanted default GNOME applications
+  environment.gnome.excludePackages = with pkgs; [ 
+    gnome-tour 
+    epiphany       # "Web" browser
+    geary          # Email client
+    gnome-calendar # "Agenda"
+    gnome-music    # "Musique"
+  ];
+
+  # Force GNOME settings (Enable the dock and pin favorite apps)
+  programs.dconf.profiles.user.databases = [{
+    settings = {
+      "org/gnome/shell" = {
+        disable-user-extensions = false;
+        enabled-extensions = [ "dash-to-dock@micxgx.gmail.com" ];
+        favorite-apps = [
+          "google-chrome.desktop"
+          "gmail-web.desktop"
+          "microsoft-teams-web.desktop"
+          "libreoffice-start.desktop"
+          "org.gnome.Nautilus.desktop" # Fichiers
+        ];
+      };
+      
+      # UNCOMMENT the section below to set a default wallpaper automatically. 
+      # Note: The image must exist at the path you specify before you rebuild.
+      # "org/gnome/desktop/background" = {
+      #   picture-uri = "file:///home/user/Images/your-wallpaper.jpg";
+      #   picture-uri-dark = "file:///home/user/Images/your-wallpaper.jpg";
+      # };
+    };
+  }];
 
   fonts.packages = with pkgs; [
     noto-fonts
