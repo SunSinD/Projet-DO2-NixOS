@@ -4,426 +4,548 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>DO2 — Dons d'ordinateurs, 2e vie</title>
+  <link rel="icon" type="image/png" href="https://www.cmontmorency.qc.ca/wp-content/themes/cmontmorency/img/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg: #050505;
-      --surface: rgba(20, 20, 25, 0.6);
-      --border: rgba(255, 255, 255, 0.1);
-      --accent: #5e81ac;
-      --accent-glow: rgba(94, 129, 172, 0.4);
-      --accent2: #88c0d0;
-      --text: #eceff4;
-      --muted: #a3be8c;
-      --radius: 16px;
+      --bg: #060608;
+      --surface: rgba(255,255,255,0.03);
+      --surface-hover: rgba(255,255,255,0.06);
+      --border: rgba(255,255,255,0.07);
+      --border-hover: rgba(255,255,255,0.15);
+      --accent: #4e7ac7;
+      --accent2: #7eb8c9;
+      --text: #f0f2f5;
+      --muted: #6b7280;
+      --muted2: #9ca3af;
+      --radius: 12px;
+      --font-display: 'Syne', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
 
     body {
-      background-color: var(--bg);
+      background: var(--bg);
       color: var(--text);
-      font-family: 'Inter', system-ui, sans-serif;
+      font-family: var(--font-body);
+      font-size: 16px;
       line-height: 1.7;
       overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      cursor: none;
     }
 
-    /* Interactive Canvas Background */
-    #canvas-bg {
+    /* ─── Custom cursor ─── */
+    #cursor {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: -1;
-      pointer-events: auto;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: rgba(126,184,201,0.7);
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: width 0.15s, height 0.15s, opacity 0.15s;
+    }
+    #cursor-ring { display: none; }
+    .cursor-hover #cursor { width: 14px; height: 14px; background: rgba(126,184,201,0.9); }
+
+    @media (hover: none) {
+      #cursor { display: none; }
+      body { cursor: auto; }
     }
 
-    header {
-      padding: 12vh 24px 10vh;
-      text-align: center;
-      position: relative;
+    /* ─── Canvas ─── */
+    #canvas-bg {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    }
+
+    /* ─── Nav ─── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 32px; height: 56px;
       border-bottom: 1px solid var(--border);
-      background: linear-gradient(180deg, rgba(5,5,5,0) 0%, rgba(15,15,20,0.8) 100%);
-      backdrop-filter: blur(10px);
+      background: rgba(6,6,8,0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
     }
-
-    .logo-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 12px;
+    .nav-brand {
+      font-family: var(--font-display);
+      font-weight: 700; font-size: 15px;
+      letter-spacing: 0.02em;
+      color: var(--text); text-decoration: none;
+    }
+    .nav-github {
+      display: inline-flex; align-items: center; gap: 8px;
       background: var(--surface);
-      border: 1px solid var(--accent);
+      border: 1px solid var(--border);
+      color: var(--muted2); text-decoration: none;
+      font-size: 13px; font-weight: 500;
+      padding: 6px 14px; border-radius: 6px;
+      transition: color 0.2s, border-color 0.2s, background 0.2s;
+    }
+    .nav-github:hover { color: var(--text); border-color: var(--border-hover); background: var(--surface-hover); }
+    .nav-github svg { width: 15px; height: 15px; fill: currentColor; flex-shrink: 0; }
+
+    /* ─── Hero ─── */
+    header {
+      position: relative; z-index: 1;
+      min-height: 100svh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 120px 24px 80px;
+    }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
       border-radius: 999px;
-      padding: 8px 24px;
-      font-size: 14px;
-      color: var(--text);
-      margin-bottom: 32px;
-      box-shadow: 0 0 20px var(--accent-glow);
-      backdrop-filter: blur(10px);
+      padding: 6px 16px;
+      font-size: 12px; font-weight: 500;
+      color: var(--muted2);
+      letter-spacing: 0.04em; text-transform: uppercase;
+      margin-bottom: 36px;
     }
+    .badge-sep { color: rgba(255,255,255,0.18); }
 
-    .logo-badge span { color: var(--accent2); font-weight: 600; }
-
-    h1 {
-      font-size: clamp(2.5rem, 6vw, 4.5rem);
-      font-weight: 800;
-      letter-spacing: -1px;
-      margin-bottom: 24px;
-      line-height: 1.1;
-    }
-
-    h1 em {
-      font-style: normal;
-      background: linear-gradient(135deg, var(--accent2), #b48ead);
+    /* Montmorency gradient */
+    .cm-gradient {
+      background: linear-gradient(90deg, #4a90d9 0%, #2e8b57 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
+      font-weight: 600;
     }
+
+    h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2.2rem, 5.5vw, 4.2rem);
+      font-weight: 800; letter-spacing: -0.03em;
+      line-height: 1.1; margin-bottom: 28px;
+      max-width: 680px;
+      word-break: break-word;
+      overflow-wrap: break-word;
+    }
+    h1 em { font-style: normal; color: var(--accent2); }
 
     .subtitle {
-      color: #d8dee9;
-      font-size: 1.2rem;
-      max-width: 600px;
-      margin: 0 auto 48px;
+      color: var(--muted2);
+      font-size: clamp(1rem, 2vw, 1.15rem);
+      font-weight: 300; max-width: 520px;
+      margin: 0 auto 40px; line-height: 1.8;
     }
 
-    .btn {
-      display: inline-block;
-      background: var(--accent);
-      color: #fff;
-      padding: 14px 32px;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 1rem;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      border: 1px solid transparent;
+    /* Scroll arrow */
+    .scroll-arrow {
+      display: inline-flex; flex-direction: column;
+      align-items: center; gap: 5px;
+      color: var(--muted);
+      font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+      text-decoration: none; margin-top: 16px;
+      transition: color 0.2s;
+      animation: bobble 2.4s ease-in-out infinite;
+    }
+    .scroll-arrow:hover { color: var(--muted2); }
+    .scroll-arrow svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 1.5; fill: none; }
+
+    @keyframes bobble {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(6px); }
     }
 
-    .btn:hover {
-      box-shadow: 0 0 25px var(--accent-glow);
-      transform: translateY(-2px);
+    /* ─── Main ─── */
+    main {
+      position: relative; z-index: 1;
+      max-width: 960px; margin: 0 auto; padding: 0 24px 100px;
+    }
+    section { margin-bottom: 96px; }
+
+    .section-eyebrow {
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--accent2); margin-bottom: 20px;
     }
 
-    .btn-ghost {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid var(--border);
-      backdrop-filter: blur(5px);
-      margin-left: 16px;
+    h2 {
+      font-family: var(--font-display);
+      font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+      font-weight: 700; letter-spacing: -0.02em;
+      line-height: 1.15; margin-bottom: 20px;
     }
 
-    .btn-ghost:hover {
-      background: rgba(255,255,255,0.1);
-      border-color: var(--accent2);
-    }
+    p { color: var(--muted2); font-size: 1.05rem; line-height: 1.85; margin-bottom: 16px; }
 
-    main { max-width: 1000px; margin: 0 auto; padding: 80px 24px; }
-
-    .section-label {
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: var(--accent2);
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .section-label::after {
-      content: "";
-      height: 1px;
-      width: 40px;
-      background: var(--accent2);
-    }
-
-    h2 { font-size: 2.2rem; font-weight: 700; margin-bottom: 24px; }
-    p { color: #e5e9f0; margin-bottom: 20px; font-size: 1.1rem; }
-
-    /* Glassmorphism Cards */
+    /* ─── Cards ─── */
     .cards {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 24px;
-      margin: 48px 0;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px; margin-top: 40px;
     }
-
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 32px;
-      backdrop-filter: blur(12px);
-      transition: all 0.4s ease;
-      position: relative;
-      overflow: hidden;
+      padding: 28px 24px;
+      transition: border-color 0.25s, background 0.25s;
+      transform-style: preserve-3d;
+      will-change: transform;
     }
-
-    .card::before {
-      content: "";
-      position: absolute;
-      top: 0; left: 0; width: 100%; height: 2px;
-      background: linear-gradient(90deg, transparent, var(--accent), transparent);
-      opacity: 0;
-      transition: opacity 0.4s;
+    .card:hover { border-color: var(--border-hover); background: var(--surface-hover); }
+    .card-label {
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--accent2); margin-bottom: 10px;
     }
-
-    .card:hover {
-      transform: translateY(-5px);
-      border-color: rgba(136, 192, 208, 0.4);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    .card h3 {
+      font-family: var(--font-display);
+      font-size: 1.1rem; font-weight: 700;
+      color: var(--text); margin-bottom: 8px; letter-spacing: -0.01em;
     }
-    .card:hover::before { opacity: 1; }
+    .card p { font-size: 0.9rem; margin: 0; line-height: 1.65; }
 
-    .card-icon { font-size: 2.5rem; margin-bottom: 16px; }
-    .card h3 { font-size: 1.2rem; margin-bottom: 8px; color: #fff; }
-    .card p { font-size: 0.95rem; color: #d8dee9; margin: 0; }
-
-    /* Terminal/Install Box */
+    /* ─── Install box ─── */
     .install-box {
-      background: rgba(10, 12, 16, 0.8);
-      border: 1px solid #2e3440;
+      background: #0a0b0e;
+      border: 1px solid rgba(255,255,255,0.06);
       border-radius: var(--radius);
-      padding: 40px;
-      margin: 48px 0;
-      box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
-      position: relative;
+      overflow: hidden; margin-top: 40px;
     }
-    
-    .install-box::before {
-      content: "Terminal - root@nixos";
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      background: #2e3440;
-      padding: 8px 16px;
-      font-family: monospace;
-      font-size: 12px;
-      color: #d8dee9;
-      border-top-left-radius: var(--radius);
-      border-top-right-radius: var(--radius);
+    .terminal-bar {
+      background: rgba(255,255,255,0.02);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 9px 16px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 12px; color: var(--muted);
+      letter-spacing: 0.02em;
     }
+    .install-body { padding: 32px; }
 
-    .install-box ol { padding-left: 20px; margin-top: 20px; }
-    .install-box li { color: #e5e9f0; margin-bottom: 24px; font-size: 1.05rem; }
-
-    code {
-      background: rgba(191, 97, 106, 0.15);
-      border: 1px solid rgba(191, 97, 106, 0.3);
-      border-radius: 6px;
-      padding: 2px 8px;
-      font-family: 'Fira Code', 'Courier New', monospace;
-      font-size: 0.9rem;
-      color: #bf616a;
+    .step { display: flex; gap: 20px; margin-bottom: 32px; }
+    .step:last-child { margin-bottom: 0; }
+    .step-number {
+      flex-shrink: 0; width: 28px; height: 28px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 600;
+      color: var(--muted2); font-family: var(--font-display);
+      margin-top: 2px;
+    }
+    .step-content { flex: 1; min-width: 0; }
+    .step-title {
+      font-size: 14px; font-weight: 600;
+      color: var(--text); margin-bottom: 10px;
+      font-family: var(--font-display);
     }
 
     pre {
-      background: #000;
-      border: 1px solid #3b4252;
-      border-radius: 8px;
-      padding: 20px;
-      overflow-x: auto;
-      margin: 16px 0;
-    }
-
-    pre code {
-      background: none; border: none; padding: 0;
-      color: var(--accent2);
-    }
-
-    /* Scroll Animations */
-    .fade-up {
-      opacity: 0;
-      transform: translateY(30px);
-      transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-    }
-    .fade-up.visible { opacity: 1; transform: translateY(0); }
-
-    .divider {
-      border: none;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--border), transparent);
-      margin: 80px 0;
-    }
-
-    footer {
-      border-top: 1px solid var(--border);
-      text-align: center;
-      padding: 40px 24px;
-      color: #4c566a;
-      font-size: 0.9rem;
-      background: #050505;
+      background: rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px; padding: 16px 20px;
+      overflow-x: auto; margin: 10px 0 0;
+      -webkit-overflow-scrolling: touch;
       position: relative;
-      z-index: 10;
     }
+    pre code {
+      font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+      font-size: 0.82rem; color: var(--accent2); white-space: pre;
+    }
+
+    .copy-btn {
+      position: absolute; top: 8px; right: 8px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 5px;
+      color: var(--muted);
+      font-size: 11px; font-family: var(--font-body);
+      padding: 4px 10px; cursor: pointer;
+      transition: color 0.2s, background 0.2s;
+    }
+    .copy-btn:hover { color: var(--text); background: rgba(255,255,255,0.08); }
+    .copy-btn.copied { color: #2e8b57; border-color: rgba(46,139,87,0.3); }
+
+    code {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.82rem;
+      background: rgba(78,122,199,0.12);
+      border: 1px solid rgba(78,122,199,0.2);
+      border-radius: 4px; padding: 2px 7px; color: #a5c8e1;
+    }
+
+    /* ─── Footer ─── */
+    footer {
+      position: relative; z-index: 1;
+      border-top: 1px solid var(--border);
+      text-align: center; padding: 36px 24px;
+      color: var(--muted); font-size: 13px;
+    }
+    footer a { color: var(--muted2); text-decoration: none; transition: color 0.2s; }
+    footer a:hover { color: var(--text); }
+
+    /* ─── Reveal ─── */
+    .reveal {
+      opacity: 0; transform: translateY(24px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ─── Mobile ─── */
+    @media (max-width: 640px) {
+      nav { padding: 0 20px; }
+      header { padding: 100px 20px 60px; min-height: 100svh; }
+      h1 { font-size: 2.4rem; }
+      main { padding: 0 20px 80px; }
+      section { margin-bottom: 72px; }
+      .cards { grid-template-columns: 1fr; }
+      .install-body { padding: 20px; }
+      .step { gap: 14px; }
+      pre { font-size: 0.75rem; }
+      .scroll-arrow { display: none; }
+    }
+    @media (max-width: 400px) { h1 { font-size: 2rem; } }
   </style>
 </head>
 <body>
 
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
 <canvas id="canvas-bg"></canvas>
 
+<!-- ─── Nav ─── -->
+<nav>
+  <a href="#" class="nav-brand">DO2</a>
+  <a href="https://github.com/SunSinD/Projet-DO2-NixOS" class="nav-github">
+    <svg viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/></svg>
+    GitHub
+  </a>
+</nav>
+
+<!-- ─── Hero ─── -->
 <header>
-  <div class="fade-up">
-    <div class="logo-badge">
-      ❄️ NixOS &nbsp;·&nbsp; <span>Collège Montmorency</span> &nbsp;·&nbsp; Hiver 2026
+  <div class="reveal">
+    <div class="badge">
+      NixOS
+      <span class="badge-sep">·</span>
+      <span class="cm-gradient">Collège Montmorency</span>
+      <span class="badge-sep">·</span>
+      Hiver 2026
     </div>
-    <h1>DO2 — Dons d'ordinateurs,<br/><em>Deuxième vie</em></h1>
+    <h1 id="hero-title">Dons d'ordinateurs,<br/><em>deuxième vie</em></h1>
     <p class="subtitle">
-      Un projet étudiant de génie électrique qui redonne vie à des ordinateurs usagés pour les remettre gratuitement à la communauté.
+      Un projet étudiant qui redonne vie à des ordinateurs usagés pour les remettre gratuitement à la communauté.
     </p>
-    <a href="https://github.com/SunSinD/Projet-DO2-NixOS" class="btn">Voir le Code Source</a>
-    <a href="#installer" class="btn btn-ghost">Instructions d'Installation</a>
+    <a href="#installer" class="scroll-arrow" aria-label="Aller aux instructions">
+      <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+    </a>
   </div>
 </header>
 
+<!-- ─── Content ─── -->
 <main>
-  <section class="section fade-up">
-    <div class="section-label">Le projet</div>
-    <h2>Revaloriser. Redonner.</h2>
-    <p>
-      Le projet DO2 est une initiative du Département de technologie de génie électrique. 
-      Nous remettons en état des ordinateurs en fin de vie utile pour le collège, 
-      puis les distribuons à des personnes dans le besoin, notamment des immigrants en francisation.
-    </p>
 
+  <section id="projet" class="reveal">
+    <div class="section-eyebrow">Le projet</div>
+    <h2>Revaloriser.<br/>Redonner.</h2>
+    <p>
+      Le projet DO2 est une initiative du Département de technologie de génie électrique du Collège Montmorency.
+      Nous remettons en état des ordinateurs en fin de vie utile pour le collège, puis les distribuons à des personnes dans le besoin, notamment des immigrants en francisation.
+    </p>
+    <p>
+      Chaque ordinateur portatif est remis en état et fourni gratuitement à son futur utilisateur.
+    </p>
     <div class="cards">
-      <div class="card">
-        <div class="card-icon">🖥️</div>
-        <h3>~50 Machines</h3>
-        <p>Entièrement reconditionnées, incluant écran, clavier et souris.</p>
+      <div class="card" data-tilt>
+        <div class="card-label">Matériel</div>
+        <h3>Complet à la sortie</h3>
+        <p>Chaque portatif est remis à neuf et prêt à l'emploi dès la remise.</p>
       </div>
-      <div class="card">
-        <div class="card-icon">⚡</div>
-        <h3>Déploiement NixOS</h3>
-        <p>Configuration déclarative garantissant une flotte 100% identique.</p>
+      <div class="card" data-tilt>
+        <div class="card-label">Déploiement</div>
+        <h3>NixOS déclaratif</h3>
+        <p>Configuration reproducible garantissant une flotte 100 % identique sur chaque machine.</p>
       </div>
-      <div class="card">
-        <div class="card-icon">🇫🇷</div>
+      <div class="card" data-tilt>
+        <div class="card-label">Communauté</div>
         <h3>Francisation</h3>
-        <p>Interface GNOME optimisée et préconfigurée en français canadien.</p>
+        <p>Interface GNOME préconfigurée en français canadien pour les nouveaux arrivants.</p>
       </div>
     </div>
   </section>
 
-  <hr class="divider fade-up" />
-
-  <section class="section fade-up" id="installer">
-    <div class="section-label">Protocole de Déploiement</div>
-    <h2>Installation Automatisée</h2>
-    <p>
-      Le processus a été optimisé pour flasher une machine en moins de 15 minutes avec une seule ligne de commande.
-    </p>
+  <section id="installer" class="reveal">
+    <div class="section-eyebrow">Protocole de déploiement</div>
+    <h2>Installation automatisée</h2>
+    <p>Le processus a été optimisé pour flasher une machine en moins de 15 minutes avec une seule ligne de commande.</p>
 
     <div class="install-box">
-      <ol>
-        <li>
-          <strong>Séquence d'amorçage</strong><br/>
-          Insérez la clé USB NixOS. Appuyez sur <code>F12</code> au démarrage pour booter sur l'ISO live.
-        </li>
-        <li>
-          <strong>Établir la connexion réseau</strong><br/>
-          <pre><code>nmcli device wifi connect "WIFI_NAME" password "SECRET"</code></pre>
-        </li>
-        <li>
-          <strong>Exécuter le script de déploiement</strong><br/>
-          <pre><code>sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/SunSinD/Projet-DO2-NixOS/main/install.sh)"</code></pre>
-        </li>
-      </ol>
+      <div class="terminal-bar">Terminal &mdash; root@nixos</div>
+      <div class="install-body">
+
+        <div class="step">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <div class="step-title">Séquence d'amorçage</div>
+            <p style="font-size:0.9rem;margin:0;">Insérez la clé USB NixOS. Appuyez sur <code>F12</code> au démarrage pour booter sur l'ISO live.</p>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <div class="step-title">Établir la connexion réseau</div>
+            <pre><code id="cmd-wifi">nmcli device wifi connect "WIFI_NAME" password "SECRET"</code><button class="copy-btn" data-target="cmd-wifi">Copier</button></pre>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <div class="step-title">Exécuter le script de déploiement</div>
+            <pre><code id="cmd-install">sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/SunSinD/Projet-DO2-NixOS/main/install.sh)"</code><button class="copy-btn" data-target="cmd-install">Copier</button></pre>
+          </div>
+        </div>
+
+      </div>
     </div>
   </section>
+
 </main>
 
 <footer>
-  Projet DO2 · Collège Montmorency · 243-44A-MO · 
-  <a href="https://github.com/SunSinD/Projet-DO2-NixOS" style="color:var(--accent2); text-decoration:none;">GitHub</a>
+  Projet DO2 &nbsp;·&nbsp; Collège Montmorency &nbsp;·&nbsp; 243-44A-MO &nbsp;·&nbsp;
+  <a href="https://github.com/SunSinD/Projet-DO2-NixOS">GitHub</a>
 </footer>
 
 <script>
-  // --- Scroll Animations ---
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-      }
-    });
-  }, { threshold: 0.1 });
-
-  document.querySelectorAll('.fade-up').forEach((el) => observer.observe(el));
-
-  // --- Interactive Particle Canvas ---
-  const canvas = document.getElementById('canvas-bg');
-  const ctx = canvas.getContext('2d');
-  let width, height, particles;
-  
-  const mouse = { x: null, y: null, radius: 150 };
-
-  window.addEventListener('mousemove', (e) => {
-    mouse.x = e.x;
-    mouse.y = e.y;
+  // ─── Custom cursor ───
+  const dot = document.getElementById('cursor');
+  document.addEventListener('mousemove', e => {
+    dot.style.left = e.clientX + 'px';
+    dot.style.top  = e.clientY + 'px';
+  });
+  document.querySelectorAll('a, button, [data-tilt]').forEach(el => {
+    el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+    el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
   });
 
-  function init() {
-    width = canvas.width = window.innerWidth;
-    height = canvas.height = window.innerHeight;
-    particles = [];
-    let numParticles = (width * height) / 15000; // Density
-    
-    for (let i = 0; i < numParticles; i++) {
-      particles.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: (Math.random() - 0.5) * 0.5,
-        size: Math.random() * 2 + 1
-      });
-    }
+  // ─── Scroll reveal ───
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // ─── Title scramble ───
+  const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+  function scrambleNode(node, original) {
+    let frame = 0, total = 26;
+    const tick = setInterval(() => {
+      frame++;
+      const reveal = Math.floor((frame / total) * original.length);
+      let out = '';
+      for (let i = 0; i < original.length; i++) {
+        const c = original[i];
+        if (!c.trim() || c === ',' || i < reveal) { out += c; continue; }
+        out += CHARS[Math.floor(Math.random() * CHARS.length)];
+      }
+      node.textContent = out;
+      if (frame >= total) { clearInterval(tick); node.textContent = original; }
+    }, 38);
   }
 
-  function animate() {
-    ctx.clearRect(0, 0, width, height);
-    
-    particles.forEach((p) => {
-      p.x += p.vx;
-      p.y += p.vy;
-
-      // Bounce off walls
-      if (p.x < 0 || p.x > width) p.vx *= -1;
-      if (p.y < 0 || p.y > height) p.vy *= -1;
-
-      // Mouse interaction
-      let dx = mouse.x - p.x;
-      let dy = mouse.y - p.y;
-      let distance = Math.sqrt(dx * dx + dy * dy);
-      
-      if (distance < mouse.radius) {
-        ctx.fillStyle = 'rgba(136, 192, 208, 0.8)'; // Accent2 glow near mouse
-      } else {
-        ctx.fillStyle = 'rgba(94, 129, 172, 0.3)'; // Accent normal
-      }
-
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Connect particles
-      particles.forEach((p2) => {
-        let dist = Math.sqrt(Math.pow(p.x - p2.x, 2) + Math.pow(p.y - p2.y, 2));
-        if (dist < 100) {
-          ctx.beginPath();
-          ctx.strokeStyle = `rgba(94, 129, 172, ${0.2 - dist/500})`;
-          ctx.lineWidth = 1;
-          ctx.moveTo(p.x, p.y);
-          ctx.lineTo(p2.x, p2.y);
-          ctx.stroke();
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      const h1 = document.getElementById('hero-title');
+      h1.childNodes.forEach(node => {
+        if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
+          scrambleNode(node, node.textContent);
+        } else if (node.tagName === 'EM' && node.firstChild) {
+          scrambleNode(node.firstChild, node.firstChild.textContent);
         }
       });
+    }, 280);
+  });
+
+  // ─── Card 3D tilt ───
+  document.querySelectorAll('[data-tilt]').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const r = card.getBoundingClientRect();
+      const x = (e.clientX - r.left  - r.width  / 2) / (r.width  / 2);
+      const y = (e.clientY - r.top   - r.height / 2) / (r.height / 2);
+      card.style.transform = `perspective(700px) rotateX(${-y * 5}deg) rotateY(${x * 5}deg) translateZ(4px)`;
     });
-    
-    requestAnimationFrame(animate);
+    card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+  });
+
+  // ─── Copy buttons ───
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const el = document.getElementById(btn.dataset.target);
+      if (!el) return;
+      navigator.clipboard.writeText(el.textContent.trim()).then(() => {
+        btn.textContent = 'Copié';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'Copier'; btn.classList.remove('copied'); }, 1800);
+      });
+    });
+  });
+
+  // ─── Particle canvas ───
+  const canvas = document.getElementById('canvas-bg');
+  const ctx    = canvas.getContext('2d');
+  const mobile = () => window.innerWidth < 768;
+  let pts = [], W, H;
+  const mouse = { x: -9999, y: -9999 };
+
+  document.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+
+  function init() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    pts = [];
+    if (mobile()) return;
+    const n = Math.floor(W * H / 18000);
+    for (let i = 0; i < n; i++) pts.push({
+      x: Math.random() * W, y: Math.random() * H,
+      vx: (Math.random() - .5) * .35, vy: (Math.random() - .5) * .35,
+      r: Math.random() * 1.5 + .5
+    });
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    if (!mobile()) {
+      for (let i = 0; i < pts.length; i++) {
+        const p = pts[i];
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0 || p.x > W) p.vx *= -1;
+        if (p.y < 0 || p.y > H) p.vy *= -1;
+        const d = Math.hypot(mouse.x - p.x, mouse.y - p.y);
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = d < 140 ? 'rgba(126,184,201,0.7)' : 'rgba(78,122,199,0.2)';
+        ctx.fill();
+        for (let j = i + 1; j < pts.length; j++) {
+          const q = pts[j], dist = Math.hypot(p.x - q.x, p.y - q.y);
+          if (dist < 90) {
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y);
+            ctx.strokeStyle = `rgba(78,122,199,${.15 * (1 - dist / 90)})`;
+            ctx.lineWidth = .5; ctx.stroke();
+          }
+        }
+      }
+    }
+    requestAnimationFrame(draw);
   }
 
   window.addEventListener('resize', init);
-  init();
-  animate();
+  init(); draw();
 </script>
 </body>
 </html>
