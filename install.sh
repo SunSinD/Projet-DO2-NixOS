@@ -12,6 +12,11 @@ echo "  Installation automatique de NixOS"
 echo "========================================"
 echo ""
 
+# Step 0 — Cleanup previous attempts to fix "target busy"
+echo "Nettoyage des montages précédents..."
+sudo umount -lR /mnt 2>/dev/null || true
+sudo swapoff -a 2>/dev/null || true
+
 # Step 1 — Clone the config
 echo "[1/5] Téléchargement de la configuration..."
 rm -rf /tmp/do2config
@@ -53,6 +58,7 @@ fi
 echo ""
 echo "[2/5] Partitionnement du disque..."
 sed -i "s|device = \".*\"; # Default|device = \"$DEV\"; # Default|" flake.nix
+
 sudo nix --experimental-features "nix-command flakes" run \
     github:nix-community/disko/latest -- \
     --mode destroy,format,mount \
@@ -60,12 +66,15 @@ sudo nix --experimental-features "nix-command flakes" run \
     ./disko-config.nix \
     --argstr device "$DEV"
 
-# Step 4 — Generate hardware config for this specific laptop
+# Step 4 — Generate hardware config and clean the Git tree
 echo ""
 echo "[3/5] Détection du matériel..."
 sudo nixos-generate-config --root /mnt --no-filesystems
 sudo cp /mnt/etc/nixos/hardware-configuration.nix /tmp/do2config/hardware-configuration.nix
-git -C /tmp/do2config add hardware-configuration.nix
+
+# Fixes the "Git tree is dirty" warning
+git add .
+git -c user.email="do2@montmorency.qc.ca" -c user.name="DO2-Installer" commit -m "Local hardware config"
 
 # Step 5 — Swap
 echo ""
@@ -77,17 +86,12 @@ sudo swapon /mnt/swapfile
 
 # Step 6 — Install
 echo ""
-echo "[5/5] Installation de NixOS... (10 à 30 minutes selon la connexion internet)"
+echo "[5/5] Installation de NixOS..."
 sudo nixos-install --root /mnt --flake "/tmp/do2config#$FLAKE_ATTR" --no-root-passwd
 
 echo ""
 echo "========================================"
 echo "  Installation terminée !"
-echo ""
-echo "  Utilisateur : user"
-echo "  Mot de passe : pass"
-echo ""
-echo "  Le bureau s'ouvre automatiquement."
 echo "========================================"
 echo ""
 sudo reboot
