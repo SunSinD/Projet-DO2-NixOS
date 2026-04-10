@@ -61,6 +61,8 @@ echo ""
 echo "[2/5] Partitionnement du disque..."
 sed -i "s|device = \".*\"; # Default|device = \"$DEV\"; # Default|" flake.nix
 git add flake.nix
+echo "{ }" > hardware-configuration.nix
+git add hardware-configuration.nix
 sudo nix --extra-experimental-features "nix-command flakes" run \
     github:nix-community/disko/latest -- \
     --mode destroy,format,mount \
