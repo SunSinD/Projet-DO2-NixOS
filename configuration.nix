@@ -17,7 +17,7 @@
     };
   };
 
-  # Firmware support for ThinkPad hardware (wifi cards, etc.)
+  # Firmware support for hardware (wifi cards, etc.)
   hardware.enableRedistributableFirmware = true;
 
   # Network
@@ -56,7 +56,7 @@
   systemd.services."getty@tty1".enable  = false;
   systemd.services."autovt@tty1".enable = false;
 
-  # Enable sound with PipeWire (fixes the PulseAudio warning)
+  # Enable sound with pipewire (modern fix)
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
@@ -65,9 +65,9 @@
     pulse.enable = true;
   };
 
-  # Enable touchscreen and touchpad support
+  # Touchscreen and touchpad support
   services.libinput.enable = true;
-  services.xserver.wacom.enable = true; # Added for Lenovo styluses
+  services.xserver.wacom.enable = true; 
 
   # Main user account
   users.users.user = {
@@ -83,13 +83,12 @@
     size   = 4096;
   }];
 
-  # Fixes "download buffer is full" and enables Flakes
+  # Fixes "download buffer is full" and enables Flakes globally
   nix.settings = {
     experimental-features = [ "nix-command" "flakes" ];
     download-buffer-size = 134217728; # 128MB
   };
 
-  # Allow installing proprietary packages (Chrome)
   nixpkgs.config.allowUnfree = true;
 
   environment.systemPackages = with pkgs; [
@@ -98,8 +97,6 @@
     dialect
     vlc
     thunderbird
-    
-    # Microsoft Teams shortcut
     (pkgs.makeDesktopItem {
       name        = "microsoft-teams-web";
       desktopName = "Microsoft Teams";
@@ -110,12 +107,8 @@
     })
   ];
 
-  # Only remove the GNOME welcome tour
-  environment.gnome.excludePackages = with pkgs; [
-    gnome-tour
-  ];
+  environment.gnome.excludePackages = with pkgs; [ gnome-tour ];
 
-  # Fonts — covers French accents and international characters
   fonts.packages = with pkgs; [
     noto-fonts
     noto-fonts-cjk-sans
