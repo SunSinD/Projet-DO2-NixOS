@@ -3,7 +3,6 @@
 {
   imports = [ ./hardware-configuration.nix ];
 
-  # Smart boot detection — works on both old BIOS laptops and modern UEFI ones
   boot.loader = let
     isUEFI = builtins.pathExists /sys/class/efivars;
   in {
