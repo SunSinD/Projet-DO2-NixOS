@@ -75,9 +75,8 @@ sudo nixos-generate-config --root /mnt --no-filesystems
 sudo cp /mnt/etc/nixos/hardware-configuration.nix /tmp/do2config/hardware-configuration.nix
 
 echo "Génération du fichier de verrouillage..."
-nix flake update
+nix --extra-experimental-features "nix-command flakes" flake update
 
-# Commit changes locally so Nix doesn't complain about a "dirty" tree
 git add .
 git -c user.email="do2@montmorency.qc.ca" -c user.name="DO2-Installer" commit -m "Local setup"
 
