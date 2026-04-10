@@ -1,9 +1,8 @@
-{ config, pkgs, inputs, ... }:
+{ config, pkgs, inputs, device, ... }: 
 
 {
   imports = [ ./hardware-configuration.nix ];
 
-  # Smart boot detection — works on both old BIOS laptops and modern UEFI ones
   boot.loader = let
     isUEFI = builtins.pathExists /sys/class/efivars;
   in {
@@ -12,6 +11,7 @@
     systemd-boot.enable      = isUEFI;
     grub = {
       enable     = !isUEFI;
+      device     = if !isUEFI then device else null; # This line is the fix
       efiSupport = false;
     };
   };
