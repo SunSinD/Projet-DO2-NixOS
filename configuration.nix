@@ -80,11 +80,8 @@
     size   = 4096;
   }];
 
-  # Fixes "download buffer is full" and enables Flakes globally
-  nix.settings = {
-    experimental-features = [ "nix-command" "flakes" ];
-    download-buffer-size = 134217728; # 128MB
-  };
+  # Enables Flakes globally
+  Nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
   nixpkgs.config.allowUnfree = true;
 
