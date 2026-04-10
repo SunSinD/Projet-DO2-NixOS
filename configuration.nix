@@ -3,7 +3,7 @@
 {
   imports = [ ./hardware-configuration.nix ];
 
-  boot.loader = let
+boot.loader = let
     isUEFI = builtins.pathExists /sys/class/efivars;
   in {
     efi.canTouchEfiVariables = isUEFI;
@@ -11,7 +11,6 @@
     systemd-boot.enable      = isUEFI;
     grub = {
       enable     = !isUEFI;
-      device     = if !isUEFI then device else null; 
       efiSupport = false;
     };
   };
