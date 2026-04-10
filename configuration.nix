@@ -1,20 +1,29 @@
 { config, pkgs, inputs, ... }:
 
 {
-  imports = [
-    ./hardware-configuration.nix
-  ];
+  imports = [ ./hardware-configuration.nix ];
 
-  # ── Boot ────────────────────────────────────────────────────
-  boot.loader.systemd-boot.enable      = true;
-  boot.loader.efi.canTouchEfiVariables = true;
+  # Smart boot detection — works on both old BIOS laptops and modern UEFI ones
+  boot.loader = let
+    isUEFI = builtins.pathExists /sys/class/efivars;
+  in {
+    efi.canTouchEfiVariables = isUEFI;
+    efi.efiSysMountPoint     = "/boot";
+    systemd-boot.enable      = isUEFI;
+    grub = {
+      enable     = !isUEFI;
+      efiSupport = false;
+    };
+  };
+
+  # Firmware support for ThinkPad hardware (wifi cards, etc.)
   hardware.enableRedistributableFirmware = true;
 
-  # ── Network ─────────────────────────────────────────────────
+  # Network
   networking.hostName          = "do2laptop";
   networking.networkmanager.enable = true;
 
-  # ── Language & Region (French Canadian) ─────────────────────
+  # French Canadian locale and timezone
   time.timeZone      = "America/Montreal";
   i18n.defaultLocale = "fr_CA.UTF-8";
   i18n.extraLocaleSettings = {
@@ -29,26 +38,24 @@
     LC_TIME           = "fr_CA.UTF-8";
   };
 
-  # Physical keyboard layout: QWERTY (matches ThinkPad keyboard)
-  # UI and language will still be French
+  # Physical keyboard layout matches ThinkPad keys (QWERTY)
   services.xserver.xkb.layout  = "us";
   services.xserver.xkb.variant = "";
 
-  # ── Desktop: GNOME ──────────────────────────────────────────
-  # GNOME is the simplest, most intuitive desktop for non-tech users
-  services.xserver.enable                = true;
-  services.displayManager.gdm.enable    = true;
-  services.desktopManager.gnome.enable  = true;
+  # GNOME desktop — simplest UI for non-technical users
+  services.xserver.enable              = true;
+  services.displayManager.gdm.enable  = true;
+  services.desktopManager.gnome.enable = true;
 
-  # Auto-login: laptop boots straight to the desktop, no password screen
+  # Auto-login: boots straight to desktop, no password screen
   services.displayManager.autoLogin.enable = true;
-  services.displayManager.autoLogin.user   = "utilisateur";
+  services.displayManager.autoLogin.user   = "user";
 
-  # Required workaround for GNOME auto-login to work
+  # Required fix for GNOME auto-login
   systemd.services."getty@tty1".enable  = false;
   systemd.services."autovt@tty1".enable = false;
 
-  # ── Audio ───────────────────────────────────────────────────
+  # Audio via PipeWire
   hardware.pulseaudio.enable = false;
   security.rtkit.enable      = true;
   services.pipewire = {
@@ -57,64 +64,66 @@
     pulse.enable = true;
   };
 
-  # ── User ────────────────────────────────────────────────────
-  users.users.utilisateur = {
+  # Main user account
+  users.users.user = {
     isNormalUser  = true;
     description   = "Utilisateur";
-    extraGroups   = [ "networkmanager" "wheel" ];
-    initialPassword = "do2projet";
+    extraGroups   = [ "networkmanager" "wheel" "video" "input" ];
+    initialPassword = "pass";
   };
 
-  # ── Swap (4GB virtual memory) ────────────────────────────────
+  # Swap — 4GB virtual memory
   swapDevices = [{
     device = "/var/lib/swapfile";
     size   = 4096;
   }];
 
-  # ── Enable Flakes ────────────────────────────────────────────
+  # Enable flakes
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
-  # ── Applications ────────────────────────────────────────────
+  # Allow installing proprietary packages (Chrome)
   nixpkgs.config.allowUnfree = true;
 
   environment.systemPackages = with pkgs; [
 
-    # Web browser (auto-switches UI to French)
-    firefox
+    # Browser — Chrome is familiar to most people worldwide
+    google-chrome
 
-    # Full office suite — opens .docx, .xlsx, .pptx files
-    #   Writer  = Word equivalent
-    #   Calc    = Excel equivalent
-    #   Impress = PowerPoint equivalent
+    # Full office suite — compatible with .docx, .xlsx, .pptx
     libreoffice-fresh
 
-    # Translation app (requires internet, uses Google Translate)
+    # Translation app — supports French and many other languages
     dialect
 
-    # Universal media player (videos, music, DVDs)
+    # Media player — plays any video or audio file
     vlc
 
     # Email client
     thunderbird
 
+    # Microsoft Teams shortcut — opens Teams in Chrome as a web app
+    (pkgs.makeDesktopItem {
+      name        = "microsoft-teams-web";
+      desktopName = "Microsoft Teams";
+      exec        = "${pkgs.google-chrome}/bin/google-chrome-stable --app=https://teams.microsoft.com";
+      icon        = "google-chrome";
+      categories  = [ "Network" "InstantMessaging" ];
+      comment     = "Microsoft Teams (web)";
+    })
+
   ];
 
-  # Remove default GNOME apps we don't need (keeps things simple and clean)
+  # Only remove the GNOME welcome tour — it's confusing for new users
   environment.gnome.excludePackages = with pkgs; [
-    gnome-tour    # Intro tour popup (annoying for new users)
-    epiphany      # GNOME's own browser (using Firefox instead)
-    geary         # GNOME's own email (using Thunderbird instead)
-    gnome-maps
-    gnome-weather
-    totem         # GNOME video player (using VLC instead)
+    gnome-tour
   ];
 
-  # ── Fonts ────────────────────────────────────────────────────
+  # Fonts — covers French accents and all international characters
   fonts.packages = with pkgs; [
-    noto-fonts           # Universal characters
-    noto-fonts-cjk-sans  # Asian characters
-    liberation_ttf       # Free equivalents to Arial, Times New Roman, etc.
+    noto-fonts
+    noto-fonts-cjk-sans
+    liberation_ttf  # Free equivalents to Arial, Times New Roman, etc.
   ];
 
-  system.stateVersion = "24.11";
+  system.stateVersion = "25.11";
 }
