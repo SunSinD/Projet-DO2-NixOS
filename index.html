@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DO2 — Dons d'ordinateurs, 2e vie</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --border: #2a2d3a;
+      --accent: #7c8cff;
+      --accent2: #5ee7c8;
+      --text: #e4e6f0;
+      --muted: #8b8fa8;
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      line-height: 1.7;
+    }
+
+    header {
+      background: linear-gradient(135deg, #1a1d27 0%, #0f1117 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 60px 24px 50px;
+      text-align: center;
+    }
+
+    .logo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 8px 20px;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+
+    .logo-badge span { color: var(--accent2); font-weight: 600; }
+
+    h1 {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 16px;
+    }
+
+    h1 em {
+      font-style: normal;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 1.1rem;
+      max-width: 560px;
+      margin: 0 auto 36px;
+    }
+
+    .btn {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      padding: 12px 28px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: opacity 0.2s;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+      margin-left: 12px;
+    }
+
+    main { max-width: 960px; margin: 0 auto; padding: 64px 24px; }
+
+    .section-label {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+
+    h2 {
+      font-size: 1.7rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    p { color: var(--muted); margin-bottom: 16px; }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin: 40px 0;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+
+    .card-icon { font-size: 1.8rem; margin-bottom: 12px; }
+    .card h3 { font-size: 1rem; margin-bottom: 6px; }
+    .card p { font-size: 0.88rem; margin: 0; }
+
+    .install-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      margin: 40px 0;
+    }
+
+    .install-box ol { padding-left: 20px; }
+    .install-box li { color: var(--muted); margin-bottom: 16px; font-size: 0.95rem; }
+    .install-box li strong { color: var(--text); }
+
+    code {
+      background: #0f1117;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      color: var(--accent2);
+    }
+
+    pre {
+      background: #0a0c12;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      overflow-x: auto;
+      margin: 12px 0;
+    }
+
+    pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      font-size: 0.9rem;
+      color: var(--accent2);
+    }
+
+    .apps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin: 24px 0;
+    }
+
+    .app-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .app-item .app-icon { font-size: 1.4rem; }
+    .app-item .app-name { font-size: 0.9rem; font-weight: 600; }
+    .app-item .app-desc { font-size: 0.78rem; color: var(--muted); }
+
+    .section { margin-bottom: 72px; }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 64px 0;
+    }
+
+    .nix-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #1e2a3a;
+      border: 1px solid #2d4a6a;
+      color: #5ba4cf;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      text-align: center;
+      padding: 32px 24px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    footer a { color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo-badge">
+    ❄️ NixOS &nbsp;·&nbsp; <span>Collège Montmorency</span> &nbsp;·&nbsp; Hiver 2026
+  </div>
+  <h1>DO2 — Dons d'ordinateurs,<br/><em>2e vie</em></h1>
+  <p class="subtitle">
+    Un projet étudiant qui redonne vie à des ordinateurs usagés pour les remettre
+    gratuitement à des immigrants en cours de francisation.
+  </p>
+  <a href="https://github.com/SunSinD/Projet-DO2-NixOS" class="btn">Voir sur GitHub</a>
+  <a href="#installer" class="btn btn-ghost">Comment installer</a>
+</header>
+
+<main>
+
+  <!-- About -->
+  <section class="section">
+    <div class="section-label">Le projet</div>
+    <h2>Qu'est-ce que DO2 ?</h2>
+    <p>
+      Le projet DO2 — Don d'ordinateur, Deuxième vie — est une initiative du 
+      Département de technologie de génie électrique du Collège Montmorency.
+      Les étudiants remettent en état des ordinateurs en fin de vie utile pour 
+      le collège, puis les distribuent gratuitement à des personnes dans le besoin,
+      notamment des immigrants en francisation.
+    </p>
+    <p>
+      Chaque ordinateur est livré avec un écran, un clavier et une souris,
+      et une version de Linux entièrement configurée en français, prête à l'emploi.
+    </p>
+
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">🖥️</div>
+        <h3>~50 ordinateurs</h3>
+        <p>Remis à neuf et distribués à la communauté</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🇫🇷</div>
+        <h3>Interface en français</h3>
+        <p>Conçu pour des utilisateurs en cours de francisation</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">⚡</div>
+        <h3>1 commande</h3>
+        <p>Installation complète et automatisée depuis GitHub</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔁</div>
+        <h3>Reproductible</h3>
+        <p>Chaque installation est identique grâce à NixOS</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- NixOS -->
+  <section class="section">
+    <div class="section-label">La distribution</div>
+    <div class="nix-badge">❄️ NixOS 25.11</div>
+    <h2>Pourquoi NixOS ?</h2>
+    <p>
+      NixOS est une distribution Linux unique : tout le système est décrit dans
+      des fichiers de configuration. Cela signifie qu'une seule commande suffit pour 
+      reproduire exactement la même installation sur tous les ordinateurs —
+      même configuration, mêmes applications, même langue.
+    </p>
+    <p>
+      C'est l'outil parfait pour un projet à grande échelle comme DO2,
+      où l'objectif est de standardiser l'expérience sur une cinquantaine de machines.
+    </p>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- Apps -->
+  <section class="section">
+    <div class="section-label">Applications incluses</div>
+    <h2>Ce qui est installé</h2>
+    <p>
+      Sélection minimaliste d'applications essentielles, pensée pour des utilisateurs
+      peu familiers avec l'informatique.
+    </p>
+
+    <div class="apps-grid">
+      <div class="app-item">
+        <div class="app-icon">🌐</div>
+        <div>
+          <div class="app-name">Google Chrome</div>
+          <div class="app-desc">Navigateur web</div>
+        </div>
+      </div>
+      <div class="app-item">
+        <div class="app-icon">📝</div>
+        <div>
+          <div class="app-name">LibreOffice</div>
+          <div class="app-desc">Writer, Calc, Impress</div>
+        </div>
+      </div>
+      <div class="app-item">
+        <div class="app-icon">🌍</div>
+        <div>
+          <div class="app-name">Dialect</div>
+          <div class="app-desc">Traducteur</div>
+        </div>
+      </div>
+      <div class="app-item">
+        <div class="app-icon">🎬</div>
+        <div>
+          <div class="app-name">VLC</div>
+          <div class="app-desc">Lecteur vidéo &amp; audio</div>
+        </div>
+      </div>
+      <div class="app-item">
+        <div class="app-icon">📧</div>
+        <div>
+          <div class="app-name">Thunderbird</div>
+          <div class="app-desc">Courriel</div>
+        </div>
+      </div>
+      <div class="app-item">
+        <div class="app-icon">💬</div>
+        <div>
+          <div class="app-name">Microsoft Teams</div>
+          <div class="app-desc">Raccourci web</div>
+        </div>
+      </div>
+      <div class="app-item">
+        <div class="app-icon">📁</div>
+        <div>
+          <div class="app-name">GNOME Fichiers</div>
+          <div class="app-desc">Gestionnaire de fichiers</div>
+        </div>
+      </div>
+      <div class="app-item">
+        <div class="app-icon">🖼️</div>
+        <div>
+          <div class="app-name">GNOME Photos</div>
+          <div class="app-desc">Visionneuse d'images</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- Install -->
+  <section class="section" id="installer">
+    <div class="section-label">Installation</div>
+    <h2>Installer sur un ordinateur</h2>
+
+    <div class="install-box">
+      <ol>
+        <li>
+          <strong>Booter depuis la clé USB NixOS</strong><br/>
+          Brancher la clé, allumer le laptop, appuyer sur <code>F12</code> (ThinkPad) 
+          pour choisir la clé USB.
+        </li>
+        <li>
+          <strong>Se connecter au Wi-Fi</strong> (si pas de câble Ethernet) :<br/>
+          <pre><code>nmcli device wifi connect "NOM_WIFI" password "MOT_DE_PASSE"</code></pre>
+        </li>
+        <li>
+          <strong>Lancer l'installation automatique :</strong><br/>
+          <pre><code>sudo bash &lt;(curl -sL https://raw.githubusercontent.com/SunSinD/Projet-DO2-NixOS/main/install.sh)</code></pre>
+          Le script détecte le disque, partitionne, installe et redémarre automatiquement.
+          Durée : <strong>10 à 30 minutes</strong>.
+        </li>
+      </ol>
+    </div>
+
+    <p style="margin-top:8px;">
+      Identifiants par défaut — Utilisateur : <code>user</code> &nbsp; Mot de passe : <code>pass</code>.
+      La connexion automatique est activée ; l'utilisateur n'a pas besoin de se connecter au démarrage.
+    </p>
+  </section>
+
+</main>
+
+<footer>
+  Projet DO2 · Collège Montmorency · 243-44A-MO Hiver 2026 ·
+  <a href="https://github.com/SunSinD/Projet-DO2-NixOS">GitHub</a>
+</footer>
+
+</body>
+</html>
