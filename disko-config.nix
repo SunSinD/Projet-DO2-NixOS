@@ -6,31 +6,31 @@
       type = "gpt";
       partitions = {
 
-        # Required for BIOS/legacy boot compatibility
+        # Required for BIOS/legacy boot
         boot = {
           size = "1M";
           type = "EF02";
         };
 
-        # EFI partition (for modern UEFI boot)
+        # EFI partition for UEFI boot
         ESP = {
           size = "1G";
           type = "EF00";
           content = {
-            type       = "filesystem";
-            format     = "vfat";
-            mountpoint = "/boot";
+            type        = "filesystem";
+            format      = "vfat";
+            mountpoint  = "/boot";
             mountOptions = [ "umask=0077" ];
           };
         };
 
-        # Main system partition (everything else)
+        # Root partition — everything else
         root = {
           size = "100%";
           content = {
-            type       = "filesystem";
-            format     = "ext4";
-            mountpoint = "/";
+            type        = "filesystem";
+            format      = "ext4";
+            mountpoint  = "/";
             mountOptions = [ "noatime" ];
           };
         };
