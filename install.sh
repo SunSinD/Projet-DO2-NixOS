@@ -60,25 +60,21 @@ fi
 echo ""
 echo "[2/5] Partitionnement du disque..."
 sed -i "s|device = \".*\"; # Default|device = \"$DEV\"; # Default|" flake.nix
-sed -i "s|device = \".*\";|device = \"$DEV\";|" disko-config.nix
-
+git add flake.nix
 sudo nix --extra-experimental-features "nix-command flakes" run \
     github:nix-community/disko/latest -- \
     --mode destroy,format,mount \
     --yes-wipe-all-disks \
-    ./disko-config.nix
+    --flake ".#$FLAKE_ATTR"
 
 # Step 4 — Generate hardware config and lock file
 echo ""
 echo "[3/5] Détection du matériel..."
 sudo nixos-generate-config --root /mnt --no-filesystems
 sudo cp /mnt/etc/nixos/hardware-configuration.nix /tmp/do2config/hardware-configuration.nix
-
 git add hardware-configuration.nix 
-
 echo "Génération du fichier de verrouillage..."
 nix --extra-experimental-features "nix-command flakes" flake update
-
 git add .
 git -c user.email="do2@montmorency.qc.ca" -c user.name="DO2-Installer" commit -m "Local setup for $(hostname)"
 
