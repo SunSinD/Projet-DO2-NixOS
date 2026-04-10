@@ -58,23 +58,25 @@ fi
 echo ""
 echo "[2/5] Partitionnement du disque..."
 sed -i "s|device = \".*\"; # Default|device = \"$DEV\"; # Default|" flake.nix
+sed -i "s|device = \".*\";|device = \"$DEV\";|" disko-config.nix
 
 sudo nix --experimental-features "nix-command flakes" run \
     github:nix-community/disko/latest -- \
     --mode destroy,format,mount \
     --yes-wipe-all-disks \
-    ./disko-config.nix \
-    --argstr device "$DEV"
+    ./disko-config.nix
 
-# Step 4 — Generate hardware config and clean the Git tree
+# Step 4 — Generate hardware config
 echo ""
 echo "[3/5] Détection du matériel..."
 sudo nixos-generate-config --root /mnt --no-filesystems
 sudo cp /mnt/etc/nixos/hardware-configuration.nix /tmp/do2config/hardware-configuration.nix
 
-# Fixes the "Git tree is dirty" warning
+echo "Génération du fichier de verrouillage (flake.lock)..."
+nix flake update --commit-lock-file 2>/dev/null || nix flake update
+
 git add .
-git -c user.email="do2@montmorency.qc.ca" -c user.name="DO2-Installer" commit -m "Local hardware config"
+git -c user.email="do2@montmorency.qc.ca" -c user.name="DO2-Installer" commit -m "Local hardware and lock config"
 
 # Step 5 — Swap
 echo ""
