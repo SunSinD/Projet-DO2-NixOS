@@ -161,7 +161,7 @@
         dynamic-workspaces = false;
       };
       "org/gnome/desktop/wm/preferences" = {
-        num-workspaces = 1;
+        num-workspaces = lib.gvariant.mkInt32 1;
       };
 
       # Set the wallpaper permanently
