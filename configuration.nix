@@ -55,7 +55,7 @@
   systemd.services."getty@tty1".enable  = false;
   systemd.services."autovt@tty1".enable = false;
 
-# Enable sound with pipewire
+  # Enable sound with pipewire
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
@@ -63,6 +63,9 @@
     alsa.support32Bit = true;
     pulse.enable = true;
   };
+
+  # Enable touchscreen and touchpad support
+  services.libinput.enable = true;
 
   # Main user account
   users.users.user = {
