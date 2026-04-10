@@ -6,18 +6,21 @@ set -euo pipefail
 REPO_URL="https://github.com/SunSinD/Projet-DO2-NixOS.git"
 FLAKE_ATTR="do2"
 
+# FIX: This enables experimental features for the whole script session
+export NIX_CONFIG="experimental-features = nix-command flakes"
+
 echo "========================================"
 echo "  DO2 - Dons d'ordinateurs, 2e vie"
 echo "  Installation automatique de NixOS"
 echo "========================================"
 echo ""
 
-# Step 0 — Cleanup previous attempts to fix "target busy"
+# Step 0 — Cleanup
 echo "Nettoyage des montages précédents..."
 sudo umount -lR /mnt 2>/dev/null || true
 sudo swapoff -a 2>/dev/null || true
 
-# Step 1 — Clone the config
+# Step 1 — Clone
 echo "[1/5] Téléchargement de la configuration..."
 rm -rf /tmp/do2config
 git clone "$REPO_URL" /tmp/do2config
@@ -28,7 +31,6 @@ echo ""
 echo "------------------------------------------------------------------------"
 echo "Disques physiques détectés :"
 echo ""
-
 mapfile -t DISK_NAMES < <(lsblk -dn -o NAME,TYPE,MOUNTPOINTS | grep disk | grep -v '/iso' | awk '{print $1}')
 
 i=0
@@ -54,29 +56,29 @@ if [[ "$CONFIRM" != "oui" ]]; then
     exit 1
 fi
 
-# Step 3 — Partition and format with Disko
+# Step 3 — Partition and format
 echo ""
 echo "[2/5] Partitionnement du disque..."
 sed -i "s|device = \".*\"; # Default|device = \"$DEV\"; # Default|" flake.nix
 sed -i "s|device = \".*\";|device = \"$DEV\";|" disko-config.nix
 
-sudo nix --experimental-features "nix-command flakes" run \
-    github:nix-community/disko/latest -- \
+sudo nix run github:nix-community/disko/latest -- \
     --mode destroy,format,mount \
     --yes-wipe-all-disks \
     ./disko-config.nix
 
-# Step 4 — Generate hardware config
+# Step 4 — Generate hardware config and lock file
 echo ""
 echo "[3/5] Détection du matériel..."
 sudo nixos-generate-config --root /mnt --no-filesystems
 sudo cp /mnt/etc/nixos/hardware-configuration.nix /tmp/do2config/hardware-configuration.nix
 
-echo "Génération du fichier de verrouillage (flake.lock)..."
-nix flake update --commit-lock-file 2>/dev/null || nix flake update
+echo "Génération du fichier de verrouillage..."
+nix flake update
 
+# Commit changes locally so Nix doesn't complain about a "dirty" tree
 git add .
-git -c user.email="do2@montmorency.qc.ca" -c user.name="DO2-Installer" commit -m "Local hardware and lock config"
+git -c user.email="do2@montmorency.qc.ca" -c user.name="DO2-Installer" commit -m "Local setup"
 
 # Step 5 — Swap
 echo ""
@@ -93,7 +95,7 @@ sudo nixos-install --root /mnt --flake "/tmp/do2config#$FLAKE_ATTR" --no-root-pa
 
 echo ""
 echo "========================================"
-echo "  Installation terminée !"
+echo "  Installation terminée ! Redémarrage..."
 echo "========================================"
 echo ""
 sudo reboot
