@@ -6,30 +6,45 @@
   <title>DO2 — Dons d'ordinateurs, 2e vie</title>
   <style>
     :root {
-      --bg: #0f1117;
-      --surface: #1a1d27;
-      --border: #2a2d3a;
-      --accent: #7c8cff;
-      --accent2: #5ee7c8;
-      --text: #e4e6f0;
-      --muted: #8b8fa8;
-      --radius: 12px;
+      --bg: #050505;
+      --surface: rgba(20, 20, 25, 0.6);
+      --border: rgba(255, 255, 255, 0.1);
+      --accent: #5e81ac;
+      --accent-glow: rgba(94, 129, 172, 0.4);
+      --accent2: #88c0d0;
+      --text: #eceff4;
+      --muted: #a3be8c;
+      --radius: 16px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background: var(--bg);
+      background-color: var(--bg);
       color: var(--text);
-      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-family: 'Inter', system-ui, sans-serif;
       line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* Interactive Canvas Background */
+    #canvas-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
+      pointer-events: auto;
     }
 
     header {
-      background: linear-gradient(135deg, #1a1d27 0%, #0f1117 100%);
-      border-bottom: 1px solid var(--border);
-      padding: 60px 24px 50px;
+      padding: 12vh 24px 10vh;
       text-align: center;
+      position: relative;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(5,5,5,0) 0%, rgba(15,15,20,0.8) 100%);
+      backdrop-filter: blur(10px);
     }
 
     .logo-badge {
@@ -37,373 +52,378 @@
       align-items: center;
       gap: 12px;
       background: var(--surface);
-      border: 1px solid var(--border);
+      border: 1px solid var(--accent);
       border-radius: 999px;
-      padding: 8px 20px;
-      font-size: 13px;
-      color: var(--muted);
-      margin-bottom: 28px;
+      padding: 8px 24px;
+      font-size: 14px;
+      color: var(--text);
+      margin-bottom: 32px;
+      box-shadow: 0 0 20px var(--accent-glow);
+      backdrop-filter: blur(10px);
     }
 
     .logo-badge span { color: var(--accent2); font-weight: 600; }
 
     h1 {
-      font-size: clamp(2rem, 5vw, 3.2rem);
-      font-weight: 700;
-      letter-spacing: -0.5px;
-      margin-bottom: 16px;
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 24px;
+      line-height: 1.1;
     }
 
     h1 em {
       font-style: normal;
-      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      background: linear-gradient(135deg, var(--accent2), #b48ead);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
 
     .subtitle {
-      color: var(--muted);
-      font-size: 1.1rem;
-      max-width: 560px;
-      margin: 0 auto 36px;
+      color: #d8dee9;
+      font-size: 1.2rem;
+      max-width: 600px;
+      margin: 0 auto 48px;
     }
 
     .btn {
       display: inline-block;
       background: var(--accent);
       color: #fff;
-      padding: 12px 28px;
+      padding: 14px 32px;
       border-radius: 8px;
       text-decoration: none;
       font-weight: 600;
-      font-size: 0.95rem;
-      transition: opacity 0.2s;
-    }
-    .btn:hover { opacity: 0.85; }
-    .btn-ghost {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--text);
-      margin-left: 12px;
+      font-size: 1rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid transparent;
     }
 
-    main { max-width: 960px; margin: 0 auto; padding: 64px 24px; }
+    .btn:hover {
+      box-shadow: 0 0 25px var(--accent-glow);
+      transform: translateY(-2px);
+    }
+
+    .btn-ghost {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(5px);
+      margin-left: 16px;
+    }
+
+    .btn-ghost:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: var(--accent2);
+    }
+
+    main { max-width: 1000px; margin: 0 auto; padding: 80px 24px; }
 
     .section-label {
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 700;
-      letter-spacing: 2px;
+      letter-spacing: 3px;
       text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 12px;
-    }
-
-    h2 {
-      font-size: 1.7rem;
-      font-weight: 700;
+      color: var(--accent2);
       margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .section-label::after {
+      content: "";
+      height: 1px;
+      width: 40px;
+      background: var(--accent2);
     }
 
-    p { color: var(--muted); margin-bottom: 16px; }
+    h2 { font-size: 2.2rem; font-weight: 700; margin-bottom: 24px; }
+    p { color: #e5e9f0; margin-bottom: 20px; font-size: 1.1rem; }
 
+    /* Glassmorphism Cards */
     .cards {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 16px;
-      margin: 40px 0;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 24px;
+      margin: 48px 0;
     }
 
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: 24px;
-    }
-
-    .card-icon { font-size: 1.8rem; margin-bottom: 12px; }
-    .card h3 { font-size: 1rem; margin-bottom: 6px; }
-    .card p { font-size: 0.88rem; margin: 0; }
-
-    .install-box {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
       padding: 32px;
-      margin: 40px 0;
+      backdrop-filter: blur(12px);
+      transition: all 0.4s ease;
+      position: relative;
+      overflow: hidden;
     }
 
-    .install-box ol { padding-left: 20px; }
-    .install-box li { color: var(--muted); margin-bottom: 16px; font-size: 0.95rem; }
-    .install-box li strong { color: var(--text); }
+    .card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(136, 192, 208, 0.4);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .card:hover::before { opacity: 1; }
+
+    .card-icon { font-size: 2.5rem; margin-bottom: 16px; }
+    .card h3 { font-size: 1.2rem; margin-bottom: 8px; color: #fff; }
+    .card p { font-size: 0.95rem; color: #d8dee9; margin: 0; }
+
+    /* Terminal/Install Box */
+    .install-box {
+      background: rgba(10, 12, 16, 0.8);
+      border: 1px solid #2e3440;
+      border-radius: var(--radius);
+      padding: 40px;
+      margin: 48px 0;
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+      position: relative;
+    }
+    
+    .install-box::before {
+      content: "Terminal - root@nixos";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      background: #2e3440;
+      padding: 8px 16px;
+      font-family: monospace;
+      font-size: 12px;
+      color: #d8dee9;
+      border-top-left-radius: var(--radius);
+      border-top-right-radius: var(--radius);
+    }
+
+    .install-box ol { padding-left: 20px; margin-top: 20px; }
+    .install-box li { color: #e5e9f0; margin-bottom: 24px; font-size: 1.05rem; }
 
     code {
-      background: #0f1117;
-      border: 1px solid var(--border);
+      background: rgba(191, 97, 106, 0.15);
+      border: 1px solid rgba(191, 97, 106, 0.3);
       border-radius: 6px;
       padding: 2px 8px;
-      font-family: 'Courier New', monospace;
-      font-size: 0.85rem;
-      color: var(--accent2);
+      font-family: 'Fira Code', 'Courier New', monospace;
+      font-size: 0.9rem;
+      color: #bf616a;
     }
 
     pre {
-      background: #0a0c12;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 20px 24px;
+      background: #000;
+      border: 1px solid #3b4252;
+      border-radius: 8px;
+      padding: 20px;
       overflow-x: auto;
-      margin: 12px 0;
+      margin: 16px 0;
     }
 
     pre code {
-      background: none;
-      border: none;
-      padding: 0;
-      font-size: 0.9rem;
+      background: none; border: none; padding: 0;
       color: var(--accent2);
     }
 
-    .apps-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 12px;
-      margin: 24px 0;
+    /* Scroll Animations */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s ease-out, transform 0.8s ease-out;
     }
-
-    .app-item {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 14px 16px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .app-item .app-icon { font-size: 1.4rem; }
-    .app-item .app-name { font-size: 0.9rem; font-weight: 600; }
-    .app-item .app-desc { font-size: 0.78rem; color: var(--muted); }
-
-    .section { margin-bottom: 72px; }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
 
     .divider {
       border: none;
-      border-top: 1px solid var(--border);
-      margin: 64px 0;
-    }
-
-    .nix-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: #1e2a3a;
-      border: 1px solid #2d4a6a;
-      color: #5ba4cf;
-      padding: 6px 14px;
-      border-radius: 6px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      margin-bottom: 20px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin: 80px 0;
     }
 
     footer {
       border-top: 1px solid var(--border);
       text-align: center;
-      padding: 32px 24px;
-      color: var(--muted);
-      font-size: 0.88rem;
+      padding: 40px 24px;
+      color: #4c566a;
+      font-size: 0.9rem;
+      background: #050505;
+      position: relative;
+      z-index: 10;
     }
-
-    footer a { color: var(--accent); text-decoration: none; }
   </style>
 </head>
 <body>
 
+<canvas id="canvas-bg"></canvas>
+
 <header>
-  <div class="logo-badge">
-    ❄️ NixOS &nbsp;·&nbsp; <span>Collège Montmorency</span> &nbsp;·&nbsp; Hiver 2026
+  <div class="fade-up">
+    <div class="logo-badge">
+      ❄️ NixOS &nbsp;·&nbsp; <span>Collège Montmorency</span> &nbsp;·&nbsp; Hiver 2026
+    </div>
+    <h1>DO2 — Dons d'ordinateurs,<br/><em>Deuxième vie</em></h1>
+    <p class="subtitle">
+      Un projet étudiant de génie électrique qui redonne vie à des ordinateurs usagés pour les remettre gratuitement à la communauté.
+    </p>
+    <a href="https://github.com/SunSinD/Projet-DO2-NixOS" class="btn">Voir le Code Source</a>
+    <a href="#installer" class="btn btn-ghost">Instructions d'Installation</a>
   </div>
-  <h1>DO2 — Dons d'ordinateurs,<br/><em>2e vie</em></h1>
-  <p class="subtitle">
-    Un projet étudiant qui redonne vie à des ordinateurs usagés pour les remettre
-    gratuitement à des immigrants en cours de francisation.
-  </p>
-  <a href="https://github.com/SunSinD/Projet-DO2-NixOS" class="btn">Voir sur GitHub</a>
-  <a href="#installer" class="btn btn-ghost">Comment installer</a>
 </header>
 
 <main>
-
-  <!-- About -->
-  <section class="section">
+  <section class="section fade-up">
     <div class="section-label">Le projet</div>
-    <h2>Qu'est-ce que DO2 ?</h2>
+    <h2>Revaloriser. Redonner.</h2>
     <p>
-      Le projet DO2, Don d'ordinateur, Deuxième vie, est une initiative du 
-      Département de technologie de génie électrique du Collège Montmorency.
-      Les étudiants remettent en état des ordinateurs en fin de vie utile pour 
-      le collège, puis les distribuent gratuitement à des personnes dans le besoin,
-      notamment des immigrants en francisation.
-    </p>
-    <p>
-      Chaque ordinateur est livré avec un écran, un clavier et une souris,
-      et une version de Linux entièrement configurée en français, prête à l'emploi.
+      Le projet DO2 est une initiative du Département de technologie de génie électrique. 
+      Nous remettons en état des ordinateurs en fin de vie utile pour le collège, 
+      puis les distribuons à des personnes dans le besoin, notamment des immigrants en francisation.
     </p>
 
     <div class="cards">
       <div class="card">
         <div class="card-icon">🖥️</div>
-        <h3>~50 ordinateurs</h3>
-        <p>Remis à neuf et distribués à la communauté</p>
-      </div>
-      <div class="card">
-        <div class="card-icon">🇫🇷</div>
-        <h3>Interface en français</h3>
-        <p>Conçu pour des utilisateurs en cours de francisation</p>
+        <h3>~50 Machines</h3>
+        <p>Entièrement reconditionnées, incluant écran, clavier et souris.</p>
       </div>
       <div class="card">
         <div class="card-icon">⚡</div>
-        <h3>1 commande</h3>
-        <p>Installation complète et automatisée depuis GitHub</p>
+        <h3>Déploiement NixOS</h3>
+        <p>Configuration déclarative garantissant une flotte 100% identique.</p>
       </div>
       <div class="card">
-        <div class="card-icon">🔁</div>
-        <h3>Reproductible</h3>
-        <p>Chaque installation est identique grâce à NixOS</p>
+        <div class="card-icon">🇫🇷</div>
+        <h3>Francisation</h3>
+        <p>Interface GNOME optimisée et préconfigurée en français canadien.</p>
       </div>
     </div>
   </section>
 
-  <hr class="divider" />
+  <hr class="divider fade-up" />
 
-  <!-- NixOS -->
-  <section class="section">
-    <div class="section-label">La distribution</div>
-    <div class="nix-badge">❄️ NixOS 25.11</div>
-    <h2>Pourquoi NixOS ?</h2>
+  <section class="section fade-up" id="installer">
+    <div class="section-label">Protocole de Déploiement</div>
+    <h2>Installation Automatisée</h2>
     <p>
-      NixOS est une distribution Linux unique : tout le système est décrit dans
-      des fichiers de configuration. Cela signifie qu'une seule commande suffit pour 
-      reproduire exactement la même installation sur tous les ordinateurs —
-      même configuration, mêmes applications, même langue.
+      Le processus a été optimisé pour flasher une machine en moins de 15 minutes avec une seule ligne de commande.
     </p>
-    <p>
-      C'est l'outil parfait pour un projet à grande échelle comme DO2,
-      où l'objectif est de standardiser l'expérience sur une cinquantaine de machines.
-    </p>
-  </section>
-
-  <hr class="divider" />
-
-  <!-- Apps -->
-  <section class="section">
-    <div class="section-label">Applications incluses</div>
-    <h2>Ce qui est installé</h2>
-    <p>
-      Sélection minimaliste d'applications essentielles, pensée pour des utilisateurs
-      peu familiers avec l'informatique.
-    </p>
-
-    <div class="apps-grid">
-      <div class="app-item">
-        <div class="app-icon">🌐</div>
-        <div>
-          <div class="app-name">Google Chrome</div>
-          <div class="app-desc">Navigateur web</div>
-        </div>
-      </div>
-      <div class="app-item">
-        <div class="app-icon">📝</div>
-        <div>
-          <div class="app-name">LibreOffice</div>
-          <div class="app-desc">Writer, Calc, Impress</div>
-        </div>
-      </div>
-      <div class="app-item">
-        <div class="app-icon">🌍</div>
-        <div>
-          <div class="app-name">Dialect</div>
-          <div class="app-desc">Traducteur</div>
-        </div>
-      </div>
-      <div class="app-item">
-        <div class="app-icon">🎬</div>
-        <div>
-          <div class="app-name">VLC</div>
-          <div class="app-desc">Lecteur vidéo &amp; audio</div>
-        </div>
-      </div>
-      <div class="app-item">
-        <div class="app-icon">📧</div>
-        <div>
-          <div class="app-name">Thunderbird</div>
-          <div class="app-desc">Courriel</div>
-        </div>
-      </div>
-      <div class="app-item">
-        <div class="app-icon">💬</div>
-        <div>
-          <div class="app-name">Microsoft Teams</div>
-          <div class="app-desc">Raccourci web</div>
-        </div>
-      </div>
-      <div class="app-item">
-        <div class="app-icon">📁</div>
-        <div>
-          <div class="app-name">GNOME Fichiers</div>
-          <div class="app-desc">Gestionnaire de fichiers</div>
-        </div>
-      </div>
-      <div class="app-item">
-        <div class="app-icon">🖼️</div>
-        <div>
-          <div class="app-name">GNOME Photos</div>
-          <div class="app-desc">Visionneuse d'images</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <hr class="divider" />
-
-  <!-- Install -->
-  <section class="section" id="installer">
-    <div class="section-label">Installation</div>
-    <h2>Installer sur un ordinateur</h2>
 
     <div class="install-box">
       <ol>
         <li>
-          <strong>Booter depuis la clé USB NixOS</strong><br/>
-          Brancher la clé, allumer le laptop, appuyer sur <code>F12</code> (ThinkPad) 
-          pour choisir la clé USB.
+          <strong>Séquence d'amorçage</strong><br/>
+          Insérez la clé USB NixOS. Appuyez sur <code>F12</code> au démarrage pour booter sur l'ISO live.
         </li>
         <li>
-          <strong>Se connecter au Wi-Fi</strong> (si pas de câble Ethernet) :<br/>
-          <pre><code>nmcli device wifi connect "NOM_WIFI" password "MOT_DE_PASSE"</code></pre>
+          <strong>Établir la connexion réseau</strong><br/>
+          <pre><code>nmcli device wifi connect "WIFI_NAME" password "SECRET"</code></pre>
         </li>
         <li>
-          <strong>Lancer l'installation automatique :</strong><br/>
-          <pre><code>sudo bash &lt;(curl -sL https://raw.githubusercontent.com/SunSinD/Projet-DO2-NixOS/main/install.sh)</code></pre>
-          Le script détecte le disque, partitionne, installe et redémarre automatiquement.
-          Durée : <strong>10 à 30 minutes</strong>.
+          <strong>Exécuter le script de déploiement</strong><br/>
+          <pre><code>sudo bash <(curl -sL https://raw.githubusercontent.com/SunSinD/Projet-DO2-NixOS/main/install.sh)</code></pre>
         </li>
       </ol>
     </div>
-
-    <p style="margin-top:8px;">
-      Identifiants par défaut — Utilisateur : <code>user</code> &nbsp; Mot de passe : <code>pass</code>.
-      La connexion automatique est activée ; l'utilisateur n'a pas besoin de se connecter au démarrage.
-    </p>
   </section>
-
 </main>
 
 <footer>
-  Projet DO2 · Collège Montmorency · 243-44A-MO Hiver 2026 ·
-  <a href="https://github.com/SunSinD/Projet-DO2-NixOS">GitHub</a>
+  Projet DO2 · Collège Montmorency · 243-44A-MO · 
+  <a href="https://github.com/SunSinD/Projet-DO2-NixOS" style="color:var(--accent2); text-decoration:none;">GitHub</a>
 </footer>
 
+<script>
+  // --- Scroll Animations ---
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-up').forEach((el) => observer.observe(el));
+
+  // --- Interactive Particle Canvas ---
+  const canvas = document.getElementById('canvas-bg');
+  const ctx = canvas.getContext('2d');
+  let width, height, particles;
+  
+  const mouse = { x: null, y: null, radius: 150 };
+
+  window.addEventListener('mousemove', (e) => {
+    mouse.x = e.x;
+    mouse.y = e.y;
+  });
+
+  function init() {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+    particles = [];
+    let numParticles = (width * height) / 15000; // Density
+    
+    for (let i = 0; i < numParticles; i++) {
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - 0.5) * 0.5,
+        vy: (Math.random() - 0.5) * 0.5,
+        size: Math.random() * 2 + 1
+      });
+    }
+  }
+
+  function animate() {
+    ctx.clearRect(0, 0, width, height);
+    
+    particles.forEach((p) => {
+      p.x += p.vx;
+      p.y += p.vy;
+
+      // Bounce off walls
+      if (p.x < 0 || p.x > width) p.vx *= -1;
+      if (p.y < 0 || p.y > height) p.vy *= -1;
+
+      // Mouse interaction
+      let dx = mouse.x - p.x;
+      let dy = mouse.y - p.y;
+      let distance = Math.sqrt(dx * dx + dy * dy);
+      
+      if (distance < mouse.radius) {
+        ctx.fillStyle = 'rgba(136, 192, 208, 0.8)'; // Accent2 glow near mouse
+      } else {
+        ctx.fillStyle = 'rgba(94, 129, 172, 0.3)'; // Accent normal
+      }
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Connect particles
+      particles.forEach((p2) => {
+        let dist = Math.sqrt(Math.pow(p.x - p2.x, 2) + Math.pow(p.y - p2.y, 2));
+        if (dist < 100) {
+          ctx.beginPath();
+          ctx.strokeStyle = `rgba(94, 129, 172, ${0.2 - dist/500})`;
+          ctx.lineWidth = 1;
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(p2.x, p2.y);
+          ctx.stroke();
+        }
+      });
+    });
+    
+    requestAnimationFrame(animate);
+  }
+
+  window.addEventListener('resize', init);
+  init();
+  animate();
+</script>
 </body>
 </html>
