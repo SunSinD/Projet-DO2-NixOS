@@ -88,30 +88,38 @@
 
   nixpkgs.config.allowUnfree = true;
 
+  # ---> MAGIC HAPPENS HERE: We copy your local images into the system itself <---
+  environment.etc = {
+    "backgrounds/do2-wallpaper.png".source = ./do2-wallpaper.png;
+    "icons/teams.png".source = ./teams.png;
+    "icons/gmail.png".source = ./gmail.png;
+  };
+
   environment.systemPackages = with pkgs;
   [
+    git # Added git permanently to the system
     google-chrome
     libreoffice-fresh
     dialect
     vlc
-    gnomeExtensions.dash-to-dock # Added to provide a permanent app dock
+    gnomeExtensions.dash-to-dock 
     
-    # Microsoft Teams Web App
+    # Microsoft Teams Web App (Now uses your custom icon)
     (pkgs.makeDesktopItem {
       name        = "microsoft-teams-web";
       desktopName = "Microsoft Teams";
       exec        = "${pkgs.google-chrome}/bin/google-chrome-stable --app=https://teams.microsoft.com";
-      icon        = "google-chrome";
+      icon        = "/etc/icons/teams.png"; 
       categories  = [ "Network" "InstantMessaging" ];
       comment     = "Microsoft Teams (web)";
     })
     
-    # Gmail Web App
+    # Gmail Web App (Now uses your custom icon)
     (pkgs.makeDesktopItem {
       name        = "gmail-web";
       desktopName = "Gmail";
       exec        = "${pkgs.google-chrome}/bin/google-chrome-stable --app=https://mail.google.com";
-      icon        = "google-chrome";
+      icon        = "/etc/icons/gmail.png"; 
       categories  = [ "Network" "Email" ];
       comment     = "Gmail (Web)";
     })
@@ -120,13 +128,13 @@
   # Remove unwanted default GNOME applications
   environment.gnome.excludePackages = with pkgs; [ 
     gnome-tour 
-    epiphany       # "Web" browser
-    geary          # Email client
-    gnome-calendar # "Agenda"
-    gnome-music    # "Musique"
+    epiphany       
+    geary          
+    gnome-calendar 
+    gnome-music    
   ];
 
-  # Force GNOME settings (Enable the dock and pin favorite apps)
+  # Force GNOME settings for macOS look, single desktop, and custom wallpaper
   programs.dconf.profiles.user.databases = [{
     settings = {
       "org/gnome/shell" = {
@@ -136,17 +144,32 @@
           "google-chrome.desktop"
           "gmail-web.desktop"
           "microsoft-teams-web.desktop"
-          "libreoffice-start.desktop"
-          "org.gnome.Nautilus.desktop" # Fichiers
+          "org.gnome.Nautilus.desktop" # Fichiers (Kept for file management)
         ];
       };
       
-      # UNCOMMENT the section below to set a default wallpaper automatically. 
-      # Note: The image must exist at the path you specify before you rebuild.
-      # "org/gnome/desktop/background" = {
-      #   picture-uri = "file:///home/user/Images/your-wallpaper.jpg";
-      #   picture-uri-dark = "file:///home/user/Images/your-wallpaper.jpg";
-      # };
+      # Dash to Dock (macOS styling)
+      "org/gnome/shell/extensions/dash-to-dock" = {
+        dock-position = "BOTTOM";
+        show-apps-at-top = false; # Puts the 9 dots on the right side
+        extend-height = false;    # Makes it a floating dock, not full screen width
+        show-trash = false;       # Cleaner look
+        show-mounts = false;
+      };
+
+      # Disable dynamic workspaces (Lock to 1 desktop)
+      "org/gnome/mutter" = {
+        dynamic-workspaces = false;
+      };
+      "org/gnome/desktop/wm/preferences" = {
+        num-workspaces = 1;
+      };
+
+      # Set the wallpaper permanently
+      "org/gnome/desktop/background" = {
+        picture-uri = "file:///etc/backgrounds/do2-wallpaper.png";
+        picture-uri-dark = "file:///etc/backgrounds/do2-wallpaper.png";
+      };
     };
   }];
 
