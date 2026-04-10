@@ -3,6 +3,7 @@
 {
   imports = [ ./hardware-configuration.nix ];
 
+  # Smart boot detection — works on both old BIOS laptops and modern UEFI ones
   boot.loader = let
     isUEFI = builtins.pathExists /sys/class/efivars;
   in {
@@ -11,7 +12,7 @@
     systemd-boot.enable      = isUEFI;
     grub = {
       enable     = !isUEFI;
-      device     = if !isUEFI then device else null; # This line is the fix
+      device     = if !isUEFI then device else null; 
       efiSupport = false;
     };
   };
@@ -20,7 +21,7 @@
   hardware.enableRedistributableFirmware = true;
 
   # Network
-  networking.hostName          = "do2laptop";
+  networking.hostName              = "do2laptop";
   networking.networkmanager.enable = true;
 
   # French Canadian locale and timezone
@@ -43,9 +44,9 @@
   services.xserver.xkb.variant = "";
 
   # GNOME desktop — simplest UI for non-technical users
-  services.xserver.enable              = true;
-  services.displayManager.gdm.enable  = true;
-  services.desktopManager.gnome.enable = true;
+  services.xserver.enable               = true;
+  services.displayManager.gdm.enable    = true;
+  services.desktopManager.gnome.enable  = true;
 
   # Auto-login: boots straight to desktop, no password screen
   services.displayManager.autoLogin.enable = true;
@@ -55,7 +56,7 @@
   systemd.services."getty@tty1".enable  = false;
   systemd.services."autovt@tty1".enable = false;
 
-  # Enable sound with pipewire
+  # Enable sound with PipeWire (fixes the PulseAudio warning)
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
@@ -66,6 +67,7 @@
 
   # Enable touchscreen and touchpad support
   services.libinput.enable = true;
+  services.xserver.wacom.enable = true; # Added for Lenovo styluses
 
   # Main user account
   users.users.user = {
@@ -81,30 +83,23 @@
     size   = 4096;
   }];
 
-  # Enable flakes
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  # Fixes "download buffer is full" and enables Flakes
+  nix.settings = {
+    experimental-features = [ "nix-command" "flakes" ];
+    download-buffer-size = 134217728; # 128MB
+  };
 
   # Allow installing proprietary packages (Chrome)
   nixpkgs.config.allowUnfree = true;
 
   environment.systemPackages = with pkgs; [
-
-    # Browser — Chrome is familiar to most people worldwide
     google-chrome
-
-    # Full office suite — compatible with .docx, .xlsx, .pptx
     libreoffice-fresh
-
-    # Translation app — supports French and many other languages
     dialect
-
-    # Media player — plays any video or audio file
     vlc
-
-    # Email client
     thunderbird
-
-    # Microsoft Teams shortcut — opens Teams in Chrome as a web app
+    
+    # Microsoft Teams shortcut
     (pkgs.makeDesktopItem {
       name        = "microsoft-teams-web";
       desktopName = "Microsoft Teams";
@@ -113,19 +108,18 @@
       categories  = [ "Network" "InstantMessaging" ];
       comment     = "Microsoft Teams (web)";
     })
-
   ];
 
-  # Only remove the GNOME welcome tour — it's confusing for new users
+  # Only remove the GNOME welcome tour
   environment.gnome.excludePackages = with pkgs; [
     gnome-tour
   ];
 
-  # Fonts — covers French accents and all international characters
+  # Fonts — covers French accents and international characters
   fonts.packages = with pkgs; [
     noto-fonts
     noto-fonts-cjk-sans
-    liberation_ttf  # Free equivalents to Arial, Times New Roman, etc.
+    liberation_ttf
   ];
 
   system.stateVersion = "25.11";
