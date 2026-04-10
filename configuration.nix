@@ -55,12 +55,12 @@
   systemd.services."getty@tty1".enable  = false;
   systemd.services."autovt@tty1".enable = false;
 
-  # Audio via PipeWire
-  hardware.pulseaudio.enable = false;
-  security.rtkit.enable      = true;
+# Enable sound with pipewire
+  security.rtkit.enable = true;
   services.pipewire = {
-    enable       = true;
-    alsa.enable  = true;
+    enable = true;
+    alsa.enable = true;
+    alsa.support32Bit = true;
     pulse.enable = true;
   };
 
