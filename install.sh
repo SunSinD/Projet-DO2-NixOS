@@ -91,7 +91,8 @@ sudo swapon /mnt/swapfile
 # Step 6 — Install
 echo ""
 echo "[5/5] Installation de NixOS..."
-sudo nixos-install --root /mnt --flake "/tmp/do2config#$FLAKE_ATTR" --no-root-passwd
+sudo nixos-install --root /mnt --flake "/tmp/do2config#$FLAKE_ATTR" --no-root-passwd \
+    --option "extra-experimental-features" "nix-command flakes"
 
 echo ""
 echo "========================================"
