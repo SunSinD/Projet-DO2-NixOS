@@ -50,5 +50,36 @@
 
 <br />
 
+---
+
+### Installation
+
+**1. Booter depuis la clé USB NixOS**
+
+**2. Se connecter au Wi-Fi (si pas de câble Ethernet) :**
+```bash
+nmcli device wifi connect "NOM_DU_WIFI" password "MOT_DE_PASSE"
+```
+
+**3. Lancer l'installation :**
+```bash
+sudo bash <(curl -sL https://raw.githubusercontent.com/SunSinD/Projet-DO2-NixOS/main/install.sh)
+```
+
+---
+
+### Reconstruire le système (après modification du repo) :
+
+```bash
+sudo nixos-rebuild switch --flake github:SunSinD/Projet-DO2-NixOS#do2
+```
+
+### Mettre à jour :
+
+```bash
+nix flake update --flake ~/do2config/
+sudo nixos-rebuild switch --flake ~/do2config/
+```
+
 [license-shield]: https://img.shields.io/github/license/SunSinD/Projet-DO2-NixOS.svg?style=for-the-badge&color=0078D4&logo=github&logoColor=white&labelColor=333
 [license-url]: https://github.com/SunSinD/Projet-DO2-NixOS/blob/main/LICENSE
