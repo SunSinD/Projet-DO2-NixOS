@@ -56,13 +56,14 @@ if [[ "$CONFIRM" != "oui" ]]; then
     exit 1
 fi
 
-# Step 3 — Partition and format
+# Step 3 — Partition and format with Disko
 echo ""
 echo "[2/5] Partitionnement du disque..."
 sed -i "s|device = \".*\"; # Default|device = \"$DEV\"; # Default|" flake.nix
 sed -i "s|device = \".*\";|device = \"$DEV\";|" disko-config.nix
 
-sudo nix run github:nix-community/disko/latest -- \
+sudo nix --extra-experimental-features "nix-command flakes" run \
+    github:nix-community/disko/latest -- \
     --mode destroy,format,mount \
     --yes-wipe-all-disks \
     ./disko-config.nix
