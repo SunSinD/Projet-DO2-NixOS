@@ -65,6 +65,7 @@ echo ""
 echo "[3/5] Détection du matériel..."
 sudo nixos-generate-config --root /mnt --no-filesystems
 sudo cp /mnt/etc/nixos/hardware-configuration.nix /tmp/do2config/hardware-configuration.nix
+git -C /tmp/do2config add hardware-configuration.nix
 
 # Step 5 — Swap
 echo ""
