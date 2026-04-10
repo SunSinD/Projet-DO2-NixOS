@@ -74,11 +74,13 @@ echo "[3/5] Détection du matériel..."
 sudo nixos-generate-config --root /mnt --no-filesystems
 sudo cp /mnt/etc/nixos/hardware-configuration.nix /tmp/do2config/hardware-configuration.nix
 
+git add hardware-configuration.nix 
+
 echo "Génération du fichier de verrouillage..."
 nix --extra-experimental-features "nix-command flakes" flake update
 
 git add .
-git -c user.email="do2@montmorency.qc.ca" -c user.name="DO2-Installer" commit -m "Local setup"
+git -c user.email="do2@montmorency.qc.ca" -c user.name="DO2-Installer" commit -m "Local setup for $(hostname)"
 
 # Step 5 — Swap
 echo ""
