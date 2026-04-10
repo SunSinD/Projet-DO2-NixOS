@@ -68,7 +68,7 @@ nmcli device wifi connect "NOM_DU_WIFI" password "MOT_DE_PASSE"
 
 **3. Lancer l'installation :**
 ```bash
-sudo bash <(curl -sL https://raw.githubusercontent.com/SunSinD/Projet-DO2-NixOS/main/install.sh)
+sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/SunSinD/Projet-DO2-NixOS/main/install.sh)"
 ```
 
 Le script détecte le disque, partitionne, installe tout et redémarre automatiquement. Durée : **10 à 30 minutes**.
