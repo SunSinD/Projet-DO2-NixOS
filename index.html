@@ -769,89 +769,180 @@
   </footer>
 </div>
 
-<script type="module">
-  import createGlobe from 'https://cdn.skypack.dev/cobe@0.6.3';
+<script>
+(function () {
+  var canvas = document.getElementById('globe-canvas');
+  if (!canvas) return;
 
-  const canvas = document.getElementById('globe-canvas');
-  if (!canvas) throw new Error('No canvas');
+  var S = 400;
+  canvas.width  = S;
+  canvas.height = S;
+  canvas.style.opacity = '1';
 
-  const LAVAL = [45.5456, -73.7134];
-  let phi = 1.28;
-  let globe = null;
-  let animId = null;
-  let pulsePhase = 0;
+  var DEG  = Math.PI / 180;
+  var LAND = [];
 
-  let pointerDown = null;
-  let phiOffset = 0;
-  let dragDelta = 0;
-
-  canvas.addEventListener('pointerdown', e => {
-    pointerDown = e.clientX;
-    canvas.style.cursor = 'grabbing';
-  });
-  window.addEventListener('pointermove', e => {
-    if (pointerDown === null) return;
-    dragDelta = (e.clientX - pointerDown) / 280;
-    phiOffset = dragDelta;
-  });
-  window.addEventListener('pointerup', () => {
-    if (pointerDown !== null) {
-      phi += dragDelta;
-      dragDelta = 0;
-      phiOffset = 0;
-    }
-    pointerDown = null;
-    canvas.style.cursor = 'grab';
-  });
-
-  const init = () => {
-    const w = canvas.offsetWidth;
-    if (!w || globe) return;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-
-    globe = createGlobe(canvas, {
-      devicePixelRatio: dpr,
-      width: w * dpr,
-      height: w * dpr,
-      phi: phi,
-      theta: 0.38,
-      dark: 1,
-      diffuse: 1.3,
-      mapSamples: 20000,
-      mapBrightness: 7,
-      baseColor:   [0.22, 0.28, 0.38],
-      markerColor: [0.49, 0.72, 0.79],
-      glowColor:   [0.18, 0.32, 0.52],
-      markers: [{ location: LAVAL, size: 0.06 }],
-    });
-
-    const tick = () => {
-      phi += 0.003;
-      pulsePhase += 0.06;
-      const pulseSize = 0.045 + 0.028 * Math.abs(Math.sin(pulsePhase));
-      globe.update({
-        phi: phi + phiOffset,
-        markers: [{ location: LAVAL, size: pulseSize }],
-      });
-      animId = requestAnimationFrame(tick);
-    };
-    tick();
-    setTimeout(() => { canvas.style.opacity = '1'; });
-  };
-
-  if (canvas.offsetWidth > 0) {
-    init();
-  } else {
-    const ro = new ResizeObserver(entries => {
-      if (entries[0]?.contentRect.width > 0) { ro.disconnect(); init(); }
-    });
-    ro.observe(canvas);
+  function box(la0, la1, lo0, lo1, s) {
+    for (var la = la0; la <= la1; la += s)
+      for (var lo = lo0; lo <= lo1; lo += s)
+        LAND.push(la * DEG, lo * DEG);
   }
 
-  window.addEventListener('unload', () => {
-    if (animId) cancelAnimationFrame(animId);
-    if (globe) globe.destroy();
+  // North America
+  box(60,72,-140,-68,4); box(50,62,-130,-55,4); box(45,52,-124,-52,4);
+  box(38,46,-124,-66,4); box(25,39,-118,-74,4); box(14,26,-105,-77,4);
+  box(8,15,-90,-76,4);
+  // Greenland
+  box(64,83,-55,-18,5);
+  // Cuba / Caribbean
+  box(20,24,-85,-74,3);
+  // South America
+  box(-2,12,-78,-52,4); box(-20,-2,-81,-34,4);
+  box(-38,-18,-73,-40,4); box(-56,-35,-74,-53,4);
+  // Europe
+  box(36,48,-9,28,4); box(48,60,-5,30,4); box(55,70,4,30,4);
+  box(50,59,-8,2,4);
+  // Scandinavia
+  box(57,71,4,28,4);
+  // Iceland
+  box(63,66,-24,-13,4);
+  // Africa
+  box(30,37,-5,37,4); box(15,30,-17,40,4);
+  box(-5,15,-17,43,4); box(-25,-5,12,40,4);
+  box(-35,-22,16,32,4); box(-26,-12,43,50,4);
+  // Asia (main)
+  box(60,75,30,180,5); box(40,62,28,160,4);
+  box(25,42,36,145,4); box(10,26,70,145,4);
+  box(-5,12,95,142,4);
+  // Japan
+  box(30,45,129,146,4);
+  // India
+  box(8,35,68,88,4);
+  // Sri Lanka
+  box(6,10,80,82,3);
+  // Indonesia
+  box(-8,6,95,141,5);
+  // Philippines
+  box(5,20,117,127,4);
+  // Australia
+  box(-38,-14,114,154,4);
+  // Tasmania
+  box(-44,-40,144,148,4);
+  // New Zealand
+  box(-46,-34,166,179,5);
+  // Antarctica
+  box(-90,-63,-180,180,6);
+
+  var LAVAL_LAT = 45.5456 * DEG;
+  var LAVAL_LON = -73.7134 * DEG;
+
+  var ctx = canvas.getContext('2d');
+  var R   = S * 0.42;
+  var cx  = S / 2;
+  var cy  = S / 2;
+
+  var phi        = LAVAL_LON;
+  var pulsePhase = 0;
+  var dragging   = false;
+  var dragStartX = 0;
+  var dragDelta  = 0;
+
+  canvas.addEventListener('pointerdown', function (e) {
+    dragging   = true;
+    dragStartX = e.clientX;
+    canvas.setPointerCapture(e.pointerId);
+    canvas.style.cursor = 'grabbing';
   });
+  canvas.addEventListener('pointermove', function (e) {
+    if (dragging) dragDelta = (e.clientX - dragStartX) / 200;
+  });
+  function endDrag() {
+    if (dragging) { phi += dragDelta; dragDelta = 0; }
+    dragging = false;
+    canvas.style.cursor = 'grab';
+  }
+  canvas.addEventListener('pointerup',     endDrag);
+  canvas.addEventListener('pointercancel', endDrag);
+
+  function frame() {
+    if (!dragging) phi += 0.004;
+    pulsePhase += 0.06;
+    var p = phi + dragDelta;
+
+    ctx.clearRect(0, 0, S, S);
+
+    // Atmosphere glow
+    var atmo = ctx.createRadialGradient(cx, cy, R * 0.88, cx, cy, R * 1.28);
+    atmo.addColorStop(0,   'rgba(78,122,199,0.22)');
+    atmo.addColorStop(0.55,'rgba(78,122,199,0.07)');
+    atmo.addColorStop(1,   'rgba(78,122,199,0)');
+    ctx.fillStyle = atmo;
+    ctx.beginPath(); ctx.arc(cx, cy, R * 1.28, 0, Math.PI * 2); ctx.fill();
+
+    // Sphere base
+    var sg = ctx.createRadialGradient(cx - R * 0.28, cy - R * 0.28, R * 0.04, cx, cy, R);
+    sg.addColorStop(0,   '#1e3060');
+    sg.addColorStop(0.55,'#0d1832');
+    sg.addColorStop(1,   '#060a18');
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2);
+    ctx.fillStyle = sg; ctx.fill();
+
+    // Land dots
+    for (var i = 0; i < LAND.length; i += 2) {
+      var la  = LAND[i];
+      var lo  = LAND[i + 1];
+      var lo2 = lo - p;
+      var cla = Math.cos(la);
+      var z   = cla * Math.cos(lo2);
+      if (z < 0.02) continue;
+      ctx.beginPath();
+      ctx.arc(cx + R * cla * Math.sin(lo2), cy - R * Math.sin(la), 1.8, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(78,122,199,' + (0.25 + 0.7 * z).toFixed(2) + ')';
+      ctx.fill();
+    }
+
+    // Sphere rim
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(78,122,199,0.28)';
+    ctx.lineWidth   = 1.5; ctx.stroke();
+
+    // Laval marker
+    var lo2L = LAVAL_LON - p;
+    var zL   = Math.cos(LAVAL_LAT) * Math.cos(lo2L);
+    if (zL > 0.05) {
+      var mx = cx + R * Math.cos(LAVAL_LAT) * Math.sin(lo2L);
+      var my = cy - R * Math.sin(LAVAL_LAT);
+      var pulse  = 0.5 + 0.5 * Math.sin(pulsePhase);
+      var pulse2 = 0.5 + 0.5 * Math.sin(pulsePhase - 1.3);
+
+      ctx.beginPath();
+      ctx.arc(mx, my, 5 + pulse * 13, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(126,184,201,' + (0.55 * (1 - pulse)).toFixed(2) + ')';
+      ctx.lineWidth = 1.5; ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(mx, my, 5 + pulse2 * 20, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(126,184,201,' + (0.3 * (1 - pulse2)).toFixed(2) + ')';
+      ctx.lineWidth = 1; ctx.stroke();
+
+      var gw = ctx.createRadialGradient(mx, my, 0, mx, my, 18);
+      gw.addColorStop(0,   'rgba(126,184,201,0.8)');
+      gw.addColorStop(0.4, 'rgba(126,184,201,0.28)');
+      gw.addColorStop(1,   'rgba(126,184,201,0)');
+      ctx.fillStyle = gw;
+      ctx.beginPath(); ctx.arc(mx, my, 18, 0, Math.PI * 2); ctx.fill();
+
+      ctx.beginPath(); ctx.arc(mx, my, 4, 0, Math.PI * 2);
+      ctx.fillStyle = '#ffffff'; ctx.fill();
+      ctx.beginPath(); ctx.arc(mx, my, 2.5, 0, Math.PI * 2);
+      ctx.fillStyle = '#7eb8c9'; ctx.fill();
+    }
+
+    requestAnimationFrame(frame);
+  }
+
+  frame();
+})();
 </script>
 
 <script>
