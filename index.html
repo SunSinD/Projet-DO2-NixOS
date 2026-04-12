@@ -774,174 +774,175 @@
   var canvas = document.getElementById('globe-canvas');
   if (!canvas) return;
 
-  var S = 400;
+  var S  = 400;
   canvas.width  = S;
   canvas.height = S;
-  canvas.style.opacity = '1';
-
-  var DEG  = Math.PI / 180;
-  var LAND = [];
-
-  function box(la0, la1, lo0, lo1, s) {
-    for (var la = la0; la <= la1; la += s)
-      for (var lo = lo0; lo <= lo1; lo += s)
-        LAND.push(la * DEG, lo * DEG);
-  }
-
-  // North America
-  box(60,72,-140,-68,4); box(50,62,-130,-55,4); box(45,52,-124,-52,4);
-  box(38,46,-124,-66,4); box(25,39,-118,-74,4); box(14,26,-105,-77,4);
-  box(8,15,-90,-76,4);
-  // Greenland
-  box(64,83,-55,-18,5);
-  // Cuba / Caribbean
-  box(20,24,-85,-74,3);
-  // South America
-  box(-2,12,-78,-52,4); box(-20,-2,-81,-34,4);
-  box(-38,-18,-73,-40,4); box(-56,-35,-74,-53,4);
-  // Europe
-  box(36,48,-9,28,4); box(48,60,-5,30,4); box(55,70,4,30,4);
-  box(50,59,-8,2,4);
-  // Scandinavia
-  box(57,71,4,28,4);
-  // Iceland
-  box(63,66,-24,-13,4);
-  // Africa
-  box(30,37,-5,37,4); box(15,30,-17,40,4);
-  box(-5,15,-17,43,4); box(-25,-5,12,40,4);
-  box(-35,-22,16,32,4); box(-26,-12,43,50,4);
-  // Asia (main)
-  box(60,75,30,180,5); box(40,62,28,160,4);
-  box(25,42,36,145,4); box(10,26,70,145,4);
-  box(-5,12,95,142,4);
-  // Japan
-  box(30,45,129,146,4);
-  // India
-  box(8,35,68,88,4);
-  // Sri Lanka
-  box(6,10,80,82,3);
-  // Indonesia
-  box(-8,6,95,141,5);
-  // Philippines
-  box(5,20,117,127,4);
-  // Australia
-  box(-38,-14,114,154,4);
-  // Tasmania
-  box(-44,-40,144,148,4);
-  // New Zealand
-  box(-46,-34,166,179,5);
-  // Antarctica
-  box(-90,-63,-180,180,6);
-
-  var LAVAL_LAT = 45.5456 * DEG;
-  var LAVAL_LON = -73.7134 * DEG;
 
   var ctx = canvas.getContext('2d');
-  var R   = S * 0.42;
-  var cx  = S / 2;
-  var cy  = S / 2;
+  var cx  = S / 2, cy = S / 2, R = S * 0.42;
 
-  var phi        = LAVAL_LON;
+  // rotation = [lambda°, phi°, gamma°]  (d3-geo convention)
+  // Start centred on Laval, with a gentle northward tilt
+  var rot        = [73.7134, -20, 0];
   var pulsePhase = 0;
   var dragging   = false;
-  var dragStartX = 0;
-  var dragDelta  = 0;
+  var lastMouse  = null;
 
+  /* ── drag ── */
   canvas.addEventListener('pointerdown', function (e) {
-    dragging   = true;
-    dragStartX = e.clientX;
+    dragging  = true;
+    lastMouse = [e.clientX, e.clientY];
     canvas.setPointerCapture(e.pointerId);
     canvas.style.cursor = 'grabbing';
   });
   canvas.addEventListener('pointermove', function (e) {
-    if (dragging) dragDelta = (e.clientX - dragStartX) / 200;
+    if (!dragging || !lastMouse) return;
+    var dx = e.clientX - lastMouse[0];
+    var dy = e.clientY - lastMouse[1];
+    rot[0] += dx * 0.3;                                // horizontal → lambda
+    rot[1] -= dy * 0.3;                                // vertical   → phi
+    rot[1]  = Math.max(-70, Math.min(70, rot[1]));     // clamp tilt
+    lastMouse = [e.clientX, e.clientY];
   });
-  function endDrag() {
-    if (dragging) { phi += dragDelta; dragDelta = 0; }
-    dragging = false;
-    canvas.style.cursor = 'grab';
-  }
+  function endDrag() { dragging = false; lastMouse = null; canvas.style.cursor = 'grab'; }
   canvas.addEventListener('pointerup',     endDrag);
   canvas.addEventListener('pointercancel', endDrag);
 
+  /* ── load d3-geo + topojson then start ── */
+  function loadScript(src) {
+    return new Promise(function (res, rej) {
+      var s = document.createElement('script');
+      s.src = src; s.onload = res; s.onerror = rej;
+      document.head.appendChild(s);
+    });
+  }
+
+  var landFeature = null, graticuleFeature = null;
+
+  loadScript('https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js')
+  .then(function () {
+    return loadScript('https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js');
+  })
+  .then(function () {
+    return fetch('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/land-50m.json');
+  })
+  .then(function (r) { return r.json(); })
+  .then(function (world) {
+    landFeature     = topojson.feature(world, world.objects.land);
+    graticuleFeature = d3.geoGraticule()();
+    canvas.style.opacity = '1';
+    requestAnimationFrame(frame);
+  })
+  .catch(function (err) { console.error('Globe load error:', err); });
+
+  /* ── render ── */
   function frame() {
-    if (!dragging) phi += 0.004;
-    pulsePhase += 0.06;
-    var p = phi + dragDelta;
+    pulsePhase += 0.055;
+    if (!dragging) rot[0] += 0.08;   // slow auto-spin
+
+    var proj = d3.geoOrthographic()
+                 .scale(R)
+                 .translate([cx, cy])
+                 .rotate(rot)
+                 .clipAngle(90);
+    var path = d3.geoPath(proj, ctx);
 
     ctx.clearRect(0, 0, S, S);
 
-    // Atmosphere glow
-    var atmo = ctx.createRadialGradient(cx, cy, R * 0.88, cx, cy, R * 1.28);
-    atmo.addColorStop(0,   'rgba(78,122,199,0.22)');
-    atmo.addColorStop(0.55,'rgba(78,122,199,0.07)');
-    atmo.addColorStop(1,   'rgba(78,122,199,0)');
+    /* atmosphere glow */
+    var atmo = ctx.createRadialGradient(cx, cy, R * 0.88, cx, cy, R * 1.3);
+    atmo.addColorStop(0,    'rgba(78,122,199,0.20)');
+    atmo.addColorStop(0.5,  'rgba(78,122,199,0.06)');
+    atmo.addColorStop(1,    'rgba(78,122,199,0)');
     ctx.fillStyle = atmo;
-    ctx.beginPath(); ctx.arc(cx, cy, R * 1.28, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx, cy, R * 1.3, 0, Math.PI * 2); ctx.fill();
 
-    // Sphere base
-    var sg = ctx.createRadialGradient(cx - R * 0.28, cy - R * 0.28, R * 0.04, cx, cy, R);
-    sg.addColorStop(0,   '#1e3060');
-    sg.addColorStop(0.55,'#0d1832');
-    sg.addColorStop(1,   '#060a18');
-    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2);
+    /* ocean sphere */
+    var sg = ctx.createRadialGradient(cx - R*0.26, cy - R*0.26, R*0.04, cx, cy, R);
+    sg.addColorStop(0,    '#1a2d58');
+    sg.addColorStop(0.5,  '#0b1630');
+    sg.addColorStop(1,    '#05091a');
+    ctx.beginPath(); path({ type: 'Sphere' });
     ctx.fillStyle = sg; ctx.fill();
 
-    // Land dots
-    for (var i = 0; i < LAND.length; i += 2) {
-      var la  = LAND[i];
-      var lo  = LAND[i + 1];
-      var lo2 = lo - p;
-      var cla = Math.cos(la);
-      var z   = cla * Math.cos(lo2);
-      if (z < 0.02) continue;
-      ctx.beginPath();
-      ctx.arc(cx + R * cla * Math.sin(lo2), cy - R * Math.sin(la), 1.8, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(78,122,199,' + (0.25 + 0.7 * z).toFixed(2) + ')';
+    if (landFeature) {
+      /* subtle graticule grid */
+      ctx.beginPath(); path(graticuleFeature);
+      ctx.strokeStyle = 'rgba(78,122,199,0.07)';
+      ctx.lineWidth = 0.5; ctx.stroke();
+
+      /* filled land */
+      ctx.beginPath(); path(landFeature);
+      var landGrad = ctx.createRadialGradient(cx - R*0.15, cy - R*0.15, 0, cx, cy, R);
+      landGrad.addColorStop(0,   'rgba(88,138,220,0.72)');
+      landGrad.addColorStop(0.6, 'rgba(58,100,185,0.60)');
+      landGrad.addColorStop(1,   'rgba(38, 72,150,0.50)');
+      ctx.fillStyle = landGrad;
       ctx.fill();
+
+      /* land coastline */
+      ctx.beginPath(); path(landFeature);
+      ctx.strokeStyle = 'rgba(140,190,220,0.30)';
+      ctx.lineWidth = 0.6; ctx.stroke();
     }
 
-    // Sphere rim
-    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(78,122,199,0.28)';
-    ctx.lineWidth   = 1.5; ctx.stroke();
+    /* globe rim */
+    ctx.beginPath(); path({ type: 'Sphere' });
+    ctx.strokeStyle = 'rgba(78,122,199,0.35)';
+    ctx.lineWidth = 1.5; ctx.stroke();
 
-    // Laval marker
-    var lo2L = LAVAL_LON - p;
-    var zL   = Math.cos(LAVAL_LAT) * Math.cos(lo2L);
-    if (zL > 0.05) {
-      var mx = cx + R * Math.cos(LAVAL_LAT) * Math.sin(lo2L);
-      var my = cy - R * Math.sin(LAVAL_LAT);
-      var pulse  = 0.5 + 0.5 * Math.sin(pulsePhase);
-      var pulse2 = 0.5 + 0.5 * Math.sin(pulsePhase - 1.3);
+    /* ── Laval gold marker ── */
+    var laval     = [-73.7134, 45.5456];
+    var centre    = [-rot[0], -rot[1]];   // geographic point at globe centre
+    var angDist   = d3.geoDistance(laval, centre);
+    var markerPos = proj(laval);
 
-      ctx.beginPath();
-      ctx.arc(mx, my, 5 + pulse * 13, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(126,184,201,' + (0.55 * (1 - pulse)).toFixed(2) + ')';
+    if (markerPos && angDist < Math.PI / 2) {
+      var mx = markerPos[0], my = markerPos[1];
+      var p1 = 0.5 + 0.5 * Math.sin(pulsePhase);
+      var p2 = 0.5 + 0.5 * Math.sin(pulsePhase - 1.4);
+
+      /* ring 1 */
+      ctx.beginPath(); ctx.arc(mx, my, 5 + p1 * 14, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(255,210,75,' + (0.72 * (1 - p1)).toFixed(2) + ')';
       ctx.lineWidth = 1.5; ctx.stroke();
 
-      ctx.beginPath();
-      ctx.arc(mx, my, 5 + pulse2 * 20, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(126,184,201,' + (0.3 * (1 - pulse2)).toFixed(2) + ')';
+      /* ring 2 */
+      ctx.beginPath(); ctx.arc(mx, my, 5 + p2 * 22, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(255,210,75,' + (0.42 * (1 - p2)).toFixed(2) + ')';
       ctx.lineWidth = 1; ctx.stroke();
 
+      /* warm glow */
       var gw = ctx.createRadialGradient(mx, my, 0, mx, my, 18);
-      gw.addColorStop(0,   'rgba(126,184,201,0.8)');
-      gw.addColorStop(0.4, 'rgba(126,184,201,0.28)');
-      gw.addColorStop(1,   'rgba(126,184,201,0)');
+      gw.addColorStop(0,   'rgba(255,215,80,0.95)');
+      gw.addColorStop(0.4, 'rgba(255,185,60,0.32)');
+      gw.addColorStop(1,   'rgba(255,155,40,0)');
       ctx.fillStyle = gw;
       ctx.beginPath(); ctx.arc(mx, my, 18, 0, Math.PI * 2); ctx.fill();
 
-      ctx.beginPath(); ctx.arc(mx, my, 4, 0, Math.PI * 2);
+      /* centre dot */
+      ctx.beginPath(); ctx.arc(mx, my, 4.5, 0, Math.PI * 2);
       ctx.fillStyle = '#ffffff'; ctx.fill();
-      ctx.beginPath(); ctx.arc(mx, my, 2.5, 0, Math.PI * 2);
-      ctx.fillStyle = '#7eb8c9'; ctx.fill();
+      ctx.beginPath(); ctx.arc(mx, my, 2.8, 0, Math.PI * 2);
+      ctx.fillStyle = '#ffd050'; ctx.fill();
     }
 
     requestAnimationFrame(frame);
   }
 
-  frame();
+  /* show a plain sphere while assets load */
+  (function initSphere() {
+    var sg = ctx.createRadialGradient(cx-R*0.26, cy-R*0.26, R*0.04, cx, cy, R);
+    sg.addColorStop(0, '#1a2d58'); sg.addColorStop(0.5, '#0b1630'); sg.addColorStop(1, '#05091a');
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI*2);
+    ctx.fillStyle = sg; ctx.fill();
+    ctx.strokeStyle = 'rgba(78,122,199,0.35)'; ctx.lineWidth = 1.5; ctx.stroke();
+  })();
+
+  /* ── dead code below kept only so the closing })() matches ── */
+  var DEG  = Math.PI / 180;
+  var LAND = [];
+
 })();
 </script>
 
