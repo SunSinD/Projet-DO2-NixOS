@@ -102,13 +102,6 @@
       margin-bottom: 36px;
     }
     .badge-sep { color: rgba(255,255,255,0.18); }
-    .cm-gradient {
-      background: linear-gradient(90deg, #4a90d9 0%, #2e8b57 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      font-weight: 600;
-    }
 
     h1 {
       font-family: var(--font-display);
@@ -201,6 +194,13 @@
       font-size: 12px; font-weight: 600;
       color: var(--accent2);
       letter-spacing: 0.05em;
+      text-decoration: none;
+      transition: transform 0.25s, background 0.25s, border-color 0.25s;
+    }
+    .globe-location-tag:hover {
+      background: var(--surface-hover);
+      border-color: var(--border-hover);
+      transform: translateY(-2px);
     }
     .globe-location-tag svg { width: 14px; height: 14px; fill: currentColor; flex-shrink: 0; }
 
@@ -402,7 +402,16 @@
     }
 
     .footer-pills { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; margin-bottom: 14px; }
-    .footer-pills-secondary { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+    
+    /* Updated to force the single button to take full width */
+    .footer-pills-secondary { 
+      display: flex; 
+      flex-wrap: wrap; 
+      justify-content: center; 
+      width: 100%; 
+      max-width: 400px; 
+      margin: 0 auto; 
+    }
 
     .footer-pill {
       display: inline-flex; align-items: center; gap: 10px;
@@ -468,7 +477,8 @@
     .footer-back-top:hover { color: var(--text); transform: translateY(-4px); background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.15); }
     .footer-back-top svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 2.5; fill: none; }
 
-    .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    /* Updated transition for a much cleaner, smoother pop-out/fade effect */
+    .reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.8s ease-out, transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
     .reveal.visible { opacity: 1; transform: translateY(0); }
 
     @media (max-width: 640px) {
@@ -507,7 +517,7 @@
     <div class="badge">
       NixOS
       <span class="badge-sep">·</span>
-      <span class="cm-gradient">Collège Montmorency</span>
+      <span style="color: #003A70; font-weight: 600;">Collège</span> <span style="color: #78BE20; font-weight: 600;">Montmorency</span>
       <span class="badge-sep">·</span>
       Hiver 2026
     </div>
@@ -561,10 +571,10 @@
     </p>
     <div class="globe-wrapper">
       <canvas id="globe-canvas"></canvas>
-      <div class="globe-location-tag">
+      <a href="https://www.google.com/maps/place/Montmorency+College/@45.5598887,-73.7193243,17z/data=!3m1!4b1!4m6!3m5!1s0x4cc9223815890e79:0xe7408a77564697c4!8m2!3d45.5598887!4d-73.7193243!16zL20vMDdrdHJ4?entry=ttu&g_ep=EgoyMDI2MDQwOC4wIKXMDSoASAFQAw%3D%3D" target="_blank" class="globe-location-tag">
         <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
         Collège Montmorency — Laval, Québec
-      </div>
+      </a>
     </div>
   </section>
 
@@ -744,10 +754,7 @@
       </div>
 
       <div class="footer-pills-secondary">
-        <a href="#projet" class="footer-pill footer-pill-secondary">Le Projet</a>
-        <a href="#localisation" class="footer-pill footer-pill-secondary">Localisation</a>
-        <a href="#faq" class="footer-pill footer-pill-secondary">FAQ</a>
-        <a href="https://www.cmontmorency.qc.ca" target="_blank" rel="noopener" class="footer-pill footer-pill-secondary">Collège Montmorency</a>
+        <a href="https://www.cmontmorency.qc.ca" target="_blank" rel="noopener" class="footer-pill footer-pill-secondary" style="width: 100%; justify-content: center;">Collège Montmorency</a>
       </div>
     </div>
 
@@ -993,6 +1000,15 @@
       document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
       if (!isOpen) item.classList.add('open');
     });
+  });
+
+  /* Fix 2: Added explicit Javascript smooth scrolling listener just in case CSS smooth scrolling behaves too fast/instantly */
+  document.querySelector('.scroll-arrow').addEventListener('click', function(e) {
+    e.preventDefault();
+    const target = document.querySelector(this.getAttribute('href'));
+    if(target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   });
 
   const canvas = document.getElementById('canvas-bg');
