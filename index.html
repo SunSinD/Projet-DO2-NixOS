@@ -3,9 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DO2 — Dons d'ordinateurs, 2e vie</title>
+  <title>Projet DO2</title>
 
-  <!-- NixOS favicon (same as nixos.org) -->
   <link rel="icon" type="image/svg+xml" href="https://nixos.org/favicon.svg" />
   <link rel="icon" type="image/png" href="https://nixos.org/favicon.png" />
 
@@ -41,13 +40,10 @@
       line-height: 1.7;
       overflow-x: hidden;
       -webkit-font-smoothing: antialiased;
-      /* Normal cursor restored */
     }
 
-    /* ─── Canvas bg ─── */
     #canvas-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
 
-    /* ─── Nav ─── */
     nav {
       position: fixed; top: 0; left: 0; right: 0; z-index: 100;
       display: flex; align-items: center; justify-content: space-between;
@@ -75,7 +71,6 @@
     .nav-github:hover { color: var(--text); border-color: var(--border-hover); background: var(--surface-hover); }
     .nav-github svg { width: 15px; height: 15px; fill: currentColor; flex-shrink: 0; }
 
-    /* ─── Hero ─── */
     header {
       position: relative; z-index: 1;
       min-height: 100svh;
@@ -84,6 +79,16 @@
       text-align: center;
       padding: 120px 24px 80px;
     }
+
+    @keyframes heroSlide {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-inner .badge      { animation: heroSlide 0.8s cubic-bezier(0.16,1,0.3,1) 0.10s both; }
+    .hero-inner h1          { animation: heroSlide 0.9s cubic-bezier(0.16,1,0.3,1) 0.28s both; }
+    .hero-inner .subtitle   { animation: heroSlide 0.8s cubic-bezier(0.16,1,0.3,1) 0.46s both; }
+    .hero-inner .scroll-arrow { animation: heroSlide 0.8s cubic-bezier(0.16,1,0.3,1) 0.62s both; }
 
     .badge {
       display: inline-flex; align-items: center; gap: 8px;
@@ -105,7 +110,6 @@
       font-weight: 600;
     }
 
-    /* ─── Fixed hero title ─── */
     h1 {
       font-family: var(--font-display);
       font-size: clamp(3rem, 7.5vw, 5.5rem);
@@ -124,14 +128,13 @@
       margin: 0 auto 40px; line-height: 1.8;
     }
 
-    /* ─── Scroll arrow — more visible ─── */
     .scroll-arrow {
       display: inline-flex; flex-direction: column;
       align-items: center; gap: 8px;
       color: var(--accent2);
       text-decoration: none; margin-top: 16px;
       transition: color 0.2s;
-      animation: bobble 2.4s ease-in-out infinite;
+      animation: bobble 2.4s ease-in-out infinite, heroSlide 0.8s cubic-bezier(0.16,1,0.3,1) 0.62s both !important;
     }
     .scroll-arrow:hover { color: #fff; }
     .scroll-label {
@@ -148,9 +151,10 @@
       50%       { transform: translateY(8px); }
     }
 
-    /* ─── Main ─── */
     main { position: relative; z-index: 1; max-width: 960px; margin: 0 auto; padding: 0 24px 100px; }
     section { margin-bottom: 96px; }
+
+    #installer { scroll-margin-top: 72px; }
 
     .section-eyebrow {
       font-size: 11px; font-weight: 600;
@@ -165,7 +169,6 @@
     }
     p { color: var(--muted2); font-size: 1.05rem; line-height: 1.85; margin-bottom: 16px; }
 
-    /* ─── Cards ─── */
     .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 40px; }
     .card {
       background: var(--surface);
@@ -181,13 +184,14 @@
     .card h3 { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 8px; letter-spacing: -0.01em; }
     .card p { font-size: 0.9rem; margin: 0; line-height: 1.65; }
 
-    /* ─── Globe ─── */
     .globe-wrapper { display: flex; flex-direction: column; align-items: center; margin-top: 48px; gap: 20px; }
     #globe-canvas {
       width: 400px; height: 400px; max-width: 90vw;
       opacity: 0; transition: opacity 1.2s ease;
       border-radius: 50%;
+      cursor: grab;
     }
+    #globe-canvas:active { cursor: grabbing; }
     .globe-location-tag {
       display: inline-flex; align-items: center; gap: 8px;
       background: var(--surface);
@@ -200,7 +204,6 @@
     }
     .globe-location-tag svg { width: 14px; height: 14px; fill: currentColor; flex-shrink: 0; }
 
-    /* ─── Install box ─── */
     .install-box {
       background: #0a0b0e;
       border: 1px solid rgba(255,255,255,0.06);
@@ -229,14 +232,26 @@
     .step-content { flex: 1; min-width: 0; }
     .step-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 10px; font-family: var(--font-display); }
 
+    .pre-wrapper { position: relative; margin: 10px 0 0; }
+    .pre-toolbar {
+      display: flex; justify-content: flex-end;
+      padding: 5px 8px;
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-bottom: none;
+      border-radius: 8px 8px 0 0;
+    }
+    .pre-wrapper pre {
+      border-radius: 0 0 8px 8px;
+      margin: 0;
+    }
+
     pre {
       background: rgba(0,0,0,0.5);
       border: 1px solid rgba(255,255,255,0.06);
       border-radius: 8px; padding: 16px 20px;
-      overflow-x: auto; margin: 10px 0 0;
+      overflow-x: auto;
       -webkit-overflow-scrolling: touch;
-      position: relative;
-      /* Dark subtle scrollbar — replaces the bright white one */
       scrollbar-width: thin;
       scrollbar-color: rgba(126,184,201,0.25) transparent;
     }
@@ -247,7 +262,6 @@
 
     pre code { font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace; font-size: 0.82rem; color: var(--accent2); white-space: pre; }
     .copy-btn {
-      position: absolute; top: 8px; right: 8px;
       background: rgba(255,255,255,0.05);
       border: 1px solid rgba(255,255,255,0.08);
       border-radius: 5px;
@@ -264,7 +278,6 @@
       border-radius: 4px; padding: 2px 7px; color: #a5c8e1;
     }
 
-    /* ─── FAQ Accordion ─── */
     .faq-list {
       margin-top: 40px;
       background: var(--surface);
@@ -297,11 +310,10 @@
     .faq-item.open .faq-icon { border-color: var(--accent2); background: rgba(126,184,201,0.08); }
     .faq-item.open .faq-icon svg { transform: rotate(180deg); }
     .faq-content { max-height: 0; overflow: hidden; transition: max-height 0.38s cubic-bezier(0.4,0,0.2,1); }
-    .faq-item.open .faq-content { max-height: 260px; }
+    .faq-item.open .faq-content { max-height: 300px; }
     .faq-body { padding: 0 24px 22px; }
     .faq-body p { color: var(--muted2); font-size: 0.95rem; line-height: 1.8; margin: 0; }
 
-    /* ─── Cinematic Footer ─── */
     .footer-curtain-wrapper {
       position: relative;
       height: 100vh;
@@ -423,7 +435,7 @@
 
     .footer-bottom {
       position: relative; z-index: 20;
-      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
       padding: 0 36px 32px; gap: 14px;
     }
     .footer-copyright { color: var(--muted); font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; }
@@ -456,11 +468,9 @@
     .footer-back-top:hover { color: var(--text); transform: translateY(-4px); background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.15); }
     .footer-back-top svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 2.5; fill: none; }
 
-    /* ─── Reveal ─── */
     .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
     .reveal.visible { opacity: 1; transform: translateY(0); }
 
-    /* ─── Mobile ─── */
     @media (max-width: 640px) {
       nav { padding: 0 20px; }
       header { padding: 100px 20px 60px; min-height: 100svh; }
@@ -484,7 +494,6 @@
 
 <canvas id="canvas-bg"></canvas>
 
-<!-- ─── Nav ─── -->
 <nav>
   <a href="#" class="nav-brand">DO2</a>
   <a href="https://github.com/SunSinD/Projet-DO2-NixOS" class="nav-github">
@@ -493,9 +502,8 @@
   </a>
 </nav>
 
-<!-- ─── Hero ─── -->
 <header>
-  <div class="reveal">
+  <div class="hero-inner">
     <div class="badge">
       NixOS
       <span class="badge-sep">·</span>
@@ -505,7 +513,7 @@
     </div>
     <h1 id="hero-title">Dons d'ordinateurs,<br/><em>deuxième vie</em></h1>
     <p class="subtitle">
-      Un projet étudiant qui redonne vie à des ordinateurs usagés pour les remettre gratuitement à la communauté.
+      Un projet étudiant qui redonne vie à des ordinateurs usagés pour les remettre à la communauté.
     </p>
     <a href="#installer" class="scroll-arrow" aria-label="Aller aux instructions">
       <span class="scroll-label">Défiler</span>
@@ -514,10 +522,8 @@
   </div>
 </header>
 
-<!-- ─── Content ─── -->
 <main>
 
-  <!-- Le projet -->
   <section id="projet" class="reveal">
     <div class="section-eyebrow">Le projet</div>
     <h2>Revaloriser.<br/>Redonner.</h2>
@@ -526,7 +532,7 @@
       Nous remettons en état des ordinateurs en fin de vie utile pour le collège, puis les distribuons à des personnes dans le besoin, notamment des immigrants en francisation.
     </p>
     <p>
-      Chaque ordinateur portatif est remis en état et fourni gratuitement à son futur utilisateur.
+      Chaque ordinateur portatif est remis en état et fourni à son futur utilisateur avec tout le nécessaire pour démarrer.
     </p>
     <div class="cards">
       <div class="card" data-tilt>
@@ -547,12 +553,11 @@
     </div>
   </section>
 
-  <!-- Globe — Localisation -->
   <section id="localisation" class="reveal">
     <div class="section-eyebrow">Localisation</div>
     <h2>Ancré à Laval,<br/>Québec</h2>
     <p>
-      Tout part d'ici : le Collège Montmorency, à Laval. C'est là que les étudiants remettent en état les ordinateurs et organisent les distributions pour la communauté locale.
+      Le Collège Montmorency, à Laval. C'est là que les étudiants remettent en état les ordinateurs et organisent les distributions pour la communauté locale.
     </p>
     <div class="globe-wrapper">
       <canvas id="globe-canvas"></canvas>
@@ -563,14 +568,13 @@
     </div>
   </section>
 
-  <!-- Installation -->
   <section id="installer" class="reveal">
     <div class="section-eyebrow">Protocole de déploiement</div>
     <h2>Installation automatisée</h2>
     <p>Le processus a été optimisé pour flasher une machine en moins de 15 minutes avec une seule ligne de commande.</p>
 
     <div class="install-box">
-      <div class="terminal-bar">Terminal &mdash; root@nixos</div>
+      <div class="terminal-bar">Terminal nixos</div>
       <div class="install-body">
 
         <div class="step">
@@ -585,7 +589,12 @@
           <div class="step-number">2</div>
           <div class="step-content">
             <div class="step-title">Établir la connexion réseau</div>
-            <pre><code id="cmd-wifi">nmcli device wifi connect "WIFI_NAME" password "SECRET"</code><button class="copy-btn" data-target="cmd-wifi">Copier</button></pre>
+            <div class="pre-wrapper">
+              <div class="pre-toolbar">
+                <button class="copy-btn" data-target="cmd-wifi">Copier</button>
+              </div>
+              <pre><code id="cmd-wifi">nmcli device wifi connect "WIFI_NAME" password "SECRET"</code></pre>
+            </div>
           </div>
         </div>
 
@@ -593,7 +602,12 @@
           <div class="step-number">3</div>
           <div class="step-content">
             <div class="step-title">Exécuter le script de déploiement</div>
-            <pre><code id="cmd-install">sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/SunSinD/Projet-DO2-NixOS/main/install.sh)"</code><button class="copy-btn" data-target="cmd-install">Copier</button></pre>
+            <div class="pre-wrapper">
+              <div class="pre-toolbar">
+                <button class="copy-btn" data-target="cmd-install">Copier</button>
+              </div>
+              <pre><code id="cmd-install">sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/SunSinD/Projet-DO2-NixOS/main/install.sh)"</code></pre>
+            </div>
           </div>
         </div>
 
@@ -601,11 +615,10 @@
     </div>
   </section>
 
-  <!-- FAQ -->
   <section id="faq" class="reveal">
     <div class="section-eyebrow">Questions fréquentes</div>
     <h2>On répond à<br/>vos questions.</h2>
-    <p>Vous avez des questions sur le projet DO2&nbsp;? Voici les réponses aux questions les plus fréquentes, en simple et en français.</p>
+    <p>Vous avez des questions sur le projet DO2 ? Voici les réponses aux questions les plus fréquentes, en simple et en français.</p>
 
     <div class="faq-list">
 
@@ -623,24 +636,12 @@
 
       <div class="faq-item">
         <button class="faq-trigger">
-          Comment recevoir un ordinateur&nbsp;?
+          À qui sont destinés les ordinateurs&nbsp;?
           <span class="faq-icon"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
         </button>
         <div class="faq-content">
           <div class="faq-body">
-            <p>Les ordinateurs sont distribués lors de séances organisées par le Collège Montmorency. Les personnes dans le besoin, notamment celles qui suivent des cours de francisation, sont invitées en priorité. Renseignez-vous auprès du Collège pour savoir quand a lieu la prochaine distribution.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-trigger">
-          Est-ce que l'ordinateur est vraiment gratuit&nbsp;?
-          <span class="faq-icon"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
-        </button>
-        <div class="faq-content">
-          <div class="faq-body">
-            <p>Oui, complètement gratuit. Chaque ordinateur est fourni avec un écran, un clavier et une souris. Il n'y a absolument rien à payer. C'est le but du projet : redonner à la communauté.</p>
+            <p>Les ordinateurs sont destinés aux étudiants du programme de francisation du Collège Montmorency. Les appareils sont attribués directement par le Collège lors des séances de remise organisées par notre équipe.</p>
           </div>
         </div>
       </div>
@@ -652,19 +653,31 @@
         </button>
         <div class="faq-content">
           <div class="faq-body">
-            <p>Non, pas du tout ! L'ordinateur vient avec une interface simple et en français. On a choisi un bureau facile à utiliser, similaire à ce que vous connaissez peut-être déjà. Un guide d'utilisation est fourni avec l'ordinateur pour vous aider à démarrer.</p>
+            <p>Non, pas du tout. L'ordinateur vient avec une interface simple et en français. On a choisi un bureau facile à utiliser, similaire à ce que vous connaissez peut-être déjà. Un guide d'utilisation est fourni avec l'ordinateur pour vous aider à démarrer.</p>
           </div>
         </div>
       </div>
 
       <div class="faq-item">
         <button class="faq-trigger">
-          Est-ce que je peux faire don d'un ordinateur&nbsp;?
+          Quels logiciels sont inclus&nbsp;?
           <span class="faq-icon"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
         </button>
         <div class="faq-content">
           <div class="faq-body">
-            <p>Oui&nbsp;! Si vous avez un vieux portable ou un ordinateur de bureau que vous n'utilisez plus, vous pouvez le donner au projet. Contactez le Département de génie électrique du Collège Montmorency pour savoir comment procéder.</p>
+            <p>Chaque ordinateur inclut une suite bureautique complète, un navigateur web, un lecteur multimédia et d'autres outils du quotidien. Tout est préinstallé et configuré pour une utilisation immédiate dès la remise.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-trigger">
+          Comment contribuer au projet&nbsp;?
+          <span class="faq-icon"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+        </button>
+        <div class="faq-content">
+          <div class="faq-body">
+            <p>Le projet est géré par les étudiants du programme de génie électrique du Collège Montmorency. Le code source est disponible sur GitHub et les contributions techniques sont les bienvenues. Vous pouvez aussi contacter le Département de génie électrique pour en savoir plus.</p>
           </div>
         </div>
       </div>
@@ -686,7 +699,6 @@
 
 </main>
 
-<!-- ─── Cinematic Footer ─── -->
 <div class="footer-curtain-wrapper">
   <footer class="cinematic-footer">
 
@@ -694,7 +706,6 @@
     <div class="footer-grid"></div>
     <div class="footer-giant-text">DO2</div>
 
-    <!-- Scrolling marquee -->
     <div class="footer-marquee-bar">
       <div class="footer-marquee-track">
         <div class="footer-marquee-item">
@@ -702,24 +713,22 @@
           <span>NixOS Déclaratif</span><span class="fmi-sep">✦</span>
           <span>Collège Montmorency</span><span class="fmi-sep">✦</span>
           <span>Don Communautaire</span><span class="fmi-sep">✦</span>
-          <span>100% Gratuit</span><span class="fmi-sep">✦</span>
           <span>Laval, Québec</span><span class="fmi-sep">✦</span>
           <span>Interface Française</span><span class="fmi-sep">✦</span>
+          <span>Génie Électrique</span><span class="fmi-sep">✦</span>
         </div>
-        <!-- duplicate for seamless loop -->
         <div class="footer-marquee-item">
           <span>Ordinateurs Reconditionnés</span><span class="fmi-sep">✦</span>
           <span>NixOS Déclaratif</span><span class="fmi-sep">✦</span>
           <span>Collège Montmorency</span><span class="fmi-sep">✦</span>
           <span>Don Communautaire</span><span class="fmi-sep">✦</span>
-          <span>100% Gratuit</span><span class="fmi-sep">✦</span>
           <span>Laval, Québec</span><span class="fmi-sep">✦</span>
           <span>Interface Française</span><span class="fmi-sep">✦</span>
+          <span>Génie Électrique</span><span class="fmi-sep">✦</span>
         </div>
       </div>
     </div>
 
-    <!-- Main CTA content -->
     <div class="footer-main">
       <h2 class="footer-heading">Prêt à<br/>contribuer&nbsp;?</h2>
 
@@ -742,9 +751,8 @@
       </div>
     </div>
 
-    <!-- Bottom bar -->
     <div class="footer-bottom">
-      <div class="footer-copyright">© 2026 Projet DO2 &nbsp;·&nbsp; Collège Montmorency &nbsp;·&nbsp; 243-44A-MO</div>
+      <div class="footer-copyright">© 2026 Projet DO2 &nbsp;·&nbsp; Collège Montmorency</div>
 
       <div class="footer-badge">
         <span>Réalisé avec</span>
@@ -761,18 +769,18 @@
   </footer>
 </div>
 
-<!-- ─── Globe via ESM CDN ─── -->
 <script type="module">
-  import createGlobe from 'https://esm.sh/cobe@0.6.3';
+  import createGlobe from 'https://cdn.skypack.dev/cobe@0.6.3';
 
   const canvas = document.getElementById('globe-canvas');
-  if (!canvas) return;
+  if (!canvas) throw new Error('No canvas');
 
-  let phi = 1.28; // Start over eastern North America (Quebec ~ -73.7° lon → 1.28 rad)
+  const LAVAL = [45.5456, -73.7134];
+  let phi = 1.28;
   let globe = null;
   let animId = null;
+  let pulsePhase = 0;
 
-  // Drag interaction
   let pointerDown = null;
   let phiOffset = 0;
   let dragDelta = 0;
@@ -796,31 +804,35 @@
     canvas.style.cursor = 'grab';
   });
 
-  const LAVAL = { location: [45.5456, -73.7134], size: 0.07 };
-
   const init = () => {
     const w = canvas.offsetWidth;
     if (!w || globe) return;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
     globe = createGlobe(canvas, {
       devicePixelRatio: dpr,
       width: w * dpr,
       height: w * dpr,
-      phi,
+      phi: phi,
       theta: 0.38,
       dark: 1,
       diffuse: 1.3,
       mapSamples: 20000,
       mapBrightness: 7,
       baseColor:   [0.22, 0.28, 0.38],
-      markerColor: [0.49, 0.72, 0.79], // accent2-ish
+      markerColor: [0.49, 0.72, 0.79],
       glowColor:   [0.18, 0.32, 0.52],
-      markers: [LAVAL],
+      markers: [{ location: LAVAL, size: 0.06 }],
     });
 
     const tick = () => {
       phi += 0.003;
-      globe.update({ phi: phi + phiOffset });
+      pulsePhase += 0.06;
+      const pulseSize = 0.045 + 0.028 * Math.abs(Math.sin(pulsePhase));
+      globe.update({
+        phi: phi + phiOffset,
+        markers: [{ location: LAVAL, size: pulseSize }],
+      });
       animId = requestAnimationFrame(tick);
     };
     tick();
@@ -836,7 +848,6 @@
     ro.observe(canvas);
   }
 
-  // Cleanup on page unload
   window.addEventListener('unload', () => {
     if (animId) cancelAnimationFrame(animId);
     if (globe) globe.destroy();
@@ -844,44 +855,11 @@
 </script>
 
 <script>
-  // ─── Scroll reveal ───
   const observer = new IntersectionObserver(entries => {
     entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
   }, { threshold: 0.08 });
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-  // ─── Title scramble ───
-  const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-  function scrambleNode(node, original) {
-    let frame = 0, total = 26;
-    const tick = setInterval(() => {
-      frame++;
-      const reveal = Math.floor((frame / total) * original.length);
-      let out = '';
-      for (let i = 0; i < original.length; i++) {
-        const c = original[i];
-        if (!c.trim() || c === ',' || i < reveal) { out += c; continue; }
-        out += CHARS[Math.floor(Math.random() * CHARS.length)];
-      }
-      node.textContent = out;
-      if (frame >= total) { clearInterval(tick); node.textContent = original; }
-    }, 38);
-  }
-  window.addEventListener('load', () => {
-    setTimeout(() => {
-      const h1 = document.getElementById('hero-title');
-      if (!h1) return;
-      h1.childNodes.forEach(node => {
-        if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
-          scrambleNode(node, node.textContent);
-        } else if (node.tagName === 'EM' && node.firstChild) {
-          scrambleNode(node.firstChild, node.firstChild.textContent);
-        }
-      });
-    }, 280);
-  });
-
-  // ─── Card 3D tilt ───
   document.querySelectorAll('[data-tilt]').forEach(card => {
     card.addEventListener('mousemove', e => {
       const r = card.getBoundingClientRect();
@@ -892,7 +870,6 @@
     card.addEventListener('mouseleave', () => { card.style.transform = ''; });
   });
 
-  // ─── Copy buttons ───
   document.querySelectorAll('.copy-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const el = document.getElementById(btn.dataset.target);
@@ -905,7 +882,6 @@
     });
   });
 
-  // ─── FAQ accordion ───
   document.querySelectorAll('.faq-trigger').forEach(btn => {
     btn.addEventListener('click', () => {
       const item = btn.closest('.faq-item');
@@ -915,7 +891,6 @@
     });
   });
 
-  // ─── Particle canvas ───
   const canvas = document.getElementById('canvas-bg');
   const ctx    = canvas.getContext('2d');
   const mobile = () => window.innerWidth < 768;
