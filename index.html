@@ -4,10 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>DO2 — Dons d'ordinateurs, 2e vie</title>
-  <link rel="icon" type="image/png" href="https://www.cmontmorency.qc.ca/wp-content/themes/cmontmorency/img/favicon.png" />
+
+  <!-- NixOS favicon (same as nixos.org) -->
+  <link rel="icon" type="image/svg+xml" href="https://nixos.org/favicon.svg" />
+  <link rel="icon" type="image/png" href="https://nixos.org/favicon.png" />
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
   <style>
     :root {
       --bg: #060608;
@@ -21,8 +26,8 @@
       --muted: #6b7280;
       --muted2: #9ca3af;
       --radius: 12px;
-      --font-display: 'Syne', sans-serif;
-      --font-body: 'DM Sans', sans-serif;
+      --font-display: 'Space Grotesk', sans-serif;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -36,32 +41,11 @@
       line-height: 1.7;
       overflow-x: hidden;
       -webkit-font-smoothing: antialiased;
-      cursor: none;
+      /* Normal cursor restored */
     }
 
-    /* ─── Custom cursor ─── */
-    #cursor {
-      position: fixed;
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      background: rgba(126,184,201,0.7);
-      pointer-events: none;
-      z-index: 9999;
-      transform: translate(-50%, -50%);
-      transition: width 0.15s, height 0.15s, opacity 0.15s;
-    }
-    #cursor-ring { display: none; }
-    .cursor-hover #cursor { width: 14px; height: 14px; background: rgba(126,184,201,0.9); }
-
-    @media (hover: none) {
-      #cursor { display: none; }
-      body { cursor: auto; }
-    }
-
-    /* ─── Canvas ─── */
-    #canvas-bg {
-      position: fixed; inset: 0; z-index: 0; pointer-events: none;
-    }
+    /* ─── Canvas bg ─── */
+    #canvas-bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
 
     /* ─── Nav ─── */
     nav {
@@ -113,8 +97,6 @@
       margin-bottom: 36px;
     }
     .badge-sep { color: rgba(255,255,255,0.18); }
-
-    /* Montmorency gradient */
     .cm-gradient {
       background: linear-gradient(90deg, #4a90d9 0%, #2e8b57 100%);
       -webkit-background-clip: text;
@@ -123,14 +105,15 @@
       font-weight: 600;
     }
 
+    /* ─── Fixed hero title ─── */
     h1 {
       font-family: var(--font-display);
-      font-size: clamp(2.2rem, 5.5vw, 4.2rem);
-      font-weight: 800; letter-spacing: -0.03em;
-      line-height: 1.1; margin-bottom: 28px;
-      max-width: 680px;
-      word-break: break-word;
-      overflow-wrap: break-word;
+      font-size: clamp(3rem, 7.5vw, 5.5rem);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+      margin-bottom: 28px;
+      max-width: 900px;
     }
     h1 em { font-style: normal; color: var(--accent2); }
 
@@ -141,29 +124,32 @@
       margin: 0 auto 40px; line-height: 1.8;
     }
 
-    /* Scroll arrow */
+    /* ─── Scroll arrow — more visible ─── */
     .scroll-arrow {
       display: inline-flex; flex-direction: column;
-      align-items: center; gap: 5px;
-      color: var(--muted);
-      font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
+      align-items: center; gap: 8px;
+      color: var(--accent2);
       text-decoration: none; margin-top: 16px;
       transition: color 0.2s;
       animation: bobble 2.4s ease-in-out infinite;
     }
-    .scroll-arrow:hover { color: var(--muted2); }
-    .scroll-arrow svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 1.5; fill: none; }
-
+    .scroll-arrow:hover { color: #fff; }
+    .scroll-label {
+      font-family: var(--font-display);
+      font-size: 10px; font-weight: 600;
+      letter-spacing: 0.18em; text-transform: uppercase;
+    }
+    .scroll-arrow svg {
+      width: 24px; height: 24px; stroke: currentColor; stroke-width: 2.5; fill: none;
+      filter: drop-shadow(0 0 8px rgba(126,184,201,0.55));
+    }
     @keyframes bobble {
       0%, 100% { transform: translateY(0); }
-      50%       { transform: translateY(6px); }
+      50%       { transform: translateY(8px); }
     }
 
     /* ─── Main ─── */
-    main {
-      position: relative; z-index: 1;
-      max-width: 960px; margin: 0 auto; padding: 0 24px 100px;
-    }
+    main { position: relative; z-index: 1; max-width: 960px; margin: 0 auto; padding: 0 24px 100px; }
     section { margin-bottom: 96px; }
 
     .section-eyebrow {
@@ -171,22 +157,16 @@
       letter-spacing: 0.12em; text-transform: uppercase;
       color: var(--accent2); margin-bottom: 20px;
     }
-
     h2 {
       font-family: var(--font-display);
       font-size: clamp(1.8rem, 3.5vw, 2.6rem);
       font-weight: 700; letter-spacing: -0.02em;
       line-height: 1.15; margin-bottom: 20px;
     }
-
     p { color: var(--muted2); font-size: 1.05rem; line-height: 1.85; margin-bottom: 16px; }
 
     /* ─── Cards ─── */
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 16px; margin-top: 40px;
-    }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 40px; }
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -197,17 +177,28 @@
       will-change: transform;
     }
     .card:hover { border-color: var(--border-hover); background: var(--surface-hover); }
-    .card-label {
-      font-size: 11px; font-weight: 600;
-      letter-spacing: 0.1em; text-transform: uppercase;
-      color: var(--accent2); margin-bottom: 10px;
-    }
-    .card h3 {
-      font-family: var(--font-display);
-      font-size: 1.1rem; font-weight: 700;
-      color: var(--text); margin-bottom: 8px; letter-spacing: -0.01em;
-    }
+    .card-label { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent2); margin-bottom: 10px; }
+    .card h3 { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 8px; letter-spacing: -0.01em; }
     .card p { font-size: 0.9rem; margin: 0; line-height: 1.65; }
+
+    /* ─── Globe ─── */
+    .globe-wrapper { display: flex; flex-direction: column; align-items: center; margin-top: 48px; gap: 20px; }
+    #globe-canvas {
+      width: 400px; height: 400px; max-width: 90vw;
+      opacity: 0; transition: opacity 1.2s ease;
+      border-radius: 50%;
+    }
+    .globe-location-tag {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 8px 18px;
+      font-size: 12px; font-weight: 600;
+      color: var(--accent2);
+      letter-spacing: 0.05em;
+    }
+    .globe-location-tag svg { width: 14px; height: 14px; fill: currentColor; flex-shrink: 0; }
 
     /* ─── Install box ─── */
     .install-box {
@@ -221,11 +212,9 @@
       border-bottom: 1px solid rgba(255,255,255,0.06);
       padding: 9px 16px;
       font-family: 'SF Mono', 'Fira Code', monospace;
-      font-size: 12px; color: var(--muted);
-      letter-spacing: 0.02em;
+      font-size: 12px; color: var(--muted); letter-spacing: 0.02em;
     }
     .install-body { padding: 32px; }
-
     .step { display: flex; gap: 20px; margin-bottom: 32px; }
     .step:last-child { margin-bottom: 0; }
     .step-number {
@@ -238,11 +227,7 @@
       margin-top: 2px;
     }
     .step-content { flex: 1; min-width: 0; }
-    .step-title {
-      font-size: 14px; font-weight: 600;
-      color: var(--text); margin-bottom: 10px;
-      font-family: var(--font-display);
-    }
+    .step-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 10px; font-family: var(--font-display); }
 
     pre {
       background: rgba(0,0,0,0.5);
@@ -251,12 +236,16 @@
       overflow-x: auto; margin: 10px 0 0;
       -webkit-overflow-scrolling: touch;
       position: relative;
+      /* Dark subtle scrollbar — replaces the bright white one */
+      scrollbar-width: thin;
+      scrollbar-color: rgba(126,184,201,0.25) transparent;
     }
-    pre code {
-      font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
-      font-size: 0.82rem; color: var(--accent2); white-space: pre;
-    }
+    pre::-webkit-scrollbar { height: 3px; width: 3px; }
+    pre::-webkit-scrollbar-track { background: transparent; }
+    pre::-webkit-scrollbar-thumb { background: rgba(126,184,201,0.25); border-radius: 2px; }
+    pre::-webkit-scrollbar-thumb:hover { background: rgba(126,184,201,0.45); }
 
+    pre code { font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace; font-size: 0.82rem; color: var(--accent2); white-space: pre; }
     .copy-btn {
       position: absolute; top: 8px; right: 8px;
       background: rgba(255,255,255,0.05);
@@ -269,52 +258,230 @@
     }
     .copy-btn:hover { color: var(--text); background: rgba(255,255,255,0.08); }
     .copy-btn.copied { color: #2e8b57; border-color: rgba(46,139,87,0.3); }
-
     code {
-      font-family: 'SF Mono', 'Fira Code', monospace;
-      font-size: 0.82rem;
-      background: rgba(78,122,199,0.12);
-      border: 1px solid rgba(78,122,199,0.2);
+      font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.82rem;
+      background: rgba(78,122,199,0.12); border: 1px solid rgba(78,122,199,0.2);
       border-radius: 4px; padding: 2px 7px; color: #a5c8e1;
     }
 
-    /* ─── Footer ─── */
-    footer {
-      position: relative; z-index: 1;
-      border-top: 1px solid var(--border);
-      text-align: center; padding: 36px 24px;
-      color: var(--muted); font-size: 13px;
+    /* ─── FAQ Accordion ─── */
+    .faq-list {
+      margin-top: 40px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
     }
-    footer a { color: var(--muted2); text-decoration: none; transition: color 0.2s; }
-    footer a:hover { color: var(--text); }
+    .faq-item { border-bottom: 1px solid var(--border); }
+    .faq-item:last-child { border-bottom: none; }
+    .faq-trigger {
+      width: 100%;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      background: transparent; border: none;
+      padding: 20px 24px;
+      text-align: left; cursor: pointer;
+      font-family: var(--font-display);
+      font-size: 0.95rem; font-weight: 600;
+      color: var(--text);
+      transition: background 0.2s;
+    }
+    .faq-trigger:hover { background: var(--surface-hover); }
+    .faq-icon {
+      flex-shrink: 0; width: 22px; height: 22px;
+      border: 1px solid var(--border); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      transition: transform 0.3s, border-color 0.2s;
+      color: var(--accent2);
+    }
+    .faq-icon svg { width: 10px; height: 10px; stroke: currentColor; stroke-width: 2.5; fill: none; transition: transform 0.3s; }
+    .faq-item.open .faq-icon { border-color: var(--accent2); background: rgba(126,184,201,0.08); }
+    .faq-item.open .faq-icon svg { transform: rotate(180deg); }
+    .faq-content { max-height: 0; overflow: hidden; transition: max-height 0.38s cubic-bezier(0.4,0,0.2,1); }
+    .faq-item.open .faq-content { max-height: 260px; }
+    .faq-body { padding: 0 24px 22px; }
+    .faq-body p { color: var(--muted2); font-size: 0.95rem; line-height: 1.8; margin: 0; }
+
+    /* ─── Cinematic Footer ─── */
+    .footer-curtain-wrapper {
+      position: relative;
+      height: 100vh;
+      clip-path: polygon(0% 0, 100% 0%, 100% 100%, 0 100%);
+    }
+
+    .cinematic-footer {
+      position: fixed; bottom: 0; left: 0;
+      width: 100%; height: 100vh;
+      display: flex; flex-direction: column; justify-content: space-between;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .footer-aurora {
+      position: absolute; left: 50%; top: 50%;
+      width: 80vw; height: 60vh;
+      border-radius: 50%;
+      background: radial-gradient(circle at 50%, rgba(78,122,199,0.13) 0%, rgba(126,184,201,0.09) 40%, transparent 70%);
+      transform: translate(-50%, -50%);
+      animation: fBreathe 9s ease-in-out infinite alternate;
+      pointer-events: none; z-index: 0;
+      filter: blur(70px);
+    }
+    @keyframes fBreathe {
+      0%   { transform: translate(-50%, -50%) scale(1);    opacity: 0.6; }
+      100% { transform: translate(-50%, -50%) scale(1.12); opacity: 1;   }
+    }
+
+    .footer-grid {
+      position: absolute; inset: 0; z-index: 0; pointer-events: none;
+      background-size: 60px 60px;
+      background-image:
+        linear-gradient(to right,  rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
+      mask-image: linear-gradient(to bottom, transparent, black 25%, black 75%, transparent);
+      -webkit-mask-image: linear-gradient(to bottom, transparent, black 25%, black 75%, transparent);
+    }
+
+    .footer-giant-text {
+      position: absolute; bottom: -4vh; left: 50%;
+      transform: translateX(-50%);
+      font-family: var(--font-display);
+      font-size: 30vw; line-height: 0.8; font-weight: 900; letter-spacing: -0.05em;
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(255,255,255,0.045);
+      background: linear-gradient(180deg, rgba(255,255,255,0.07) 0%, transparent 55%);
+      -webkit-background-clip: text; background-clip: text;
+      white-space: nowrap; pointer-events: none; user-select: none; z-index: 0;
+    }
+
+    .footer-marquee-bar {
+      position: absolute; top: 36px; left: 0; right: 0;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      background: rgba(6,6,8,0.65); backdrop-filter: blur(12px);
+      padding: 11px 0; overflow: hidden; z-index: 10;
+      transform: rotate(-1.5deg) scaleX(1.06);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.35);
+    }
+    .footer-marquee-track {
+      display: flex; width: max-content;
+      animation: fMarquee 40s linear infinite;
+      font-family: var(--font-display);
+      font-size: 10px; font-weight: 700; letter-spacing: 0.28em;
+      text-transform: uppercase; color: var(--muted);
+    }
+    @keyframes fMarquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    .footer-marquee-item { display: flex; align-items: center; gap: 28px; padding: 0 20px; white-space: nowrap; }
+    .fmi-sep { color: var(--accent2); opacity: 0.45; }
+
+    .footer-main {
+      position: relative; z-index: 10;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      flex: 1; padding: 0 24px; margin-top: 90px;
+    }
+    .footer-heading {
+      font-family: var(--font-display);
+      font-size: clamp(3rem, 8vw, 6.5rem);
+      font-weight: 900; letter-spacing: -0.04em; line-height: 1.0;
+      text-align: center; margin-bottom: 44px;
+      background: linear-gradient(180deg, var(--text) 0%, rgba(240,242,245,0.38) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      filter: drop-shadow(0 0 24px rgba(240,242,245,0.08));
+    }
+
+    .footer-pills { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; margin-bottom: 14px; }
+    .footer-pills-secondary { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+
+    .footer-pill {
+      display: inline-flex; align-items: center; gap: 10px;
+      border-radius: 999px; text-decoration: none; font-weight: 600;
+      font-family: var(--font-body);
+      transition: all 0.35s cubic-bezier(0.16,1,0.3,1);
+      backdrop-filter: blur(16px); cursor: pointer; border: none;
+    }
+    .footer-pill-primary {
+      padding: 14px 30px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.09);
+      color: var(--text); font-size: 0.92rem;
+      box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.07);
+    }
+    .footer-pill-primary:hover {
+      background: rgba(255,255,255,0.09);
+      border-color: rgba(255,255,255,0.2);
+      transform: translateY(-3px);
+      box-shadow: 0 20px 40px -10px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.14);
+    }
+    .footer-pill-secondary {
+      padding: 9px 18px;
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.06);
+      color: var(--muted2); font-size: 0.8rem; font-weight: 500;
+    }
+    .footer-pill-secondary:hover { color: var(--text); background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.14); }
+    .footer-pill svg { width: 18px; height: 18px; fill: currentColor; flex-shrink: 0; opacity: 0.8; }
+
+    .footer-bottom {
+      position: relative; z-index: 20;
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+      padding: 0 36px 32px; gap: 14px;
+    }
+    .footer-copyright { color: var(--muted); font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; }
+
+    .footer-badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 999px; padding: 9px 18px;
+      backdrop-filter: blur(16px);
+    }
+    .footer-badge span { color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+    .footer-badge-name { color: var(--text) !important; font-size: 11px !important; font-weight: 900 !important; letter-spacing: 0.02em !important; text-transform: none !important; }
+    .footer-heart { font-size: 13px; color: #ef4444; animation: fHeart 2s cubic-bezier(0.25,1,0.5,1) infinite; }
+    @keyframes fHeart {
+      0%,100% { transform: scale(1); }
+      15%,45% { transform: scale(1.3); }
+      30%     { transform: scale(1); }
+    }
+
+    .footer-back-top {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      backdrop-filter: blur(16px);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--muted); cursor: pointer;
+      transition: color 0.2s, transform 0.3s, background 0.2s;
+    }
+    .footer-back-top:hover { color: var(--text); transform: translateY(-4px); background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.15); }
+    .footer-back-top svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 2.5; fill: none; }
 
     /* ─── Reveal ─── */
-    .reveal {
-      opacity: 0; transform: translateY(24px);
-      transition: opacity 0.7s ease, transform 0.7s ease;
-    }
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
     .reveal.visible { opacity: 1; transform: translateY(0); }
 
     /* ─── Mobile ─── */
     @media (max-width: 640px) {
       nav { padding: 0 20px; }
       header { padding: 100px 20px 60px; min-height: 100svh; }
-      h1 { font-size: 2.4rem; }
+      h1 { font-size: 2.8rem; letter-spacing: -0.03em; }
       main { padding: 0 20px 80px; }
       section { margin-bottom: 72px; }
       .cards { grid-template-columns: 1fr; }
       .install-body { padding: 20px; }
       .step { gap: 14px; }
       pre { font-size: 0.75rem; }
-      .scroll-arrow { display: none; }
+      #globe-canvas { width: 300px; height: 300px; }
+      .footer-heading { font-size: 3rem; }
+      .footer-bottom { padding: 0 20px 24px; justify-content: center; text-align: center; }
+      .footer-marquee-bar { top: 28px; }
+      .footer-main { margin-top: 80px; }
     }
-    @media (max-width: 400px) { h1 { font-size: 2rem; } }
+    @media (max-width: 400px) { h1 { font-size: 2.4rem; } }
   </style>
 </head>
 <body>
 
-<div id="cursor"></div>
-<div id="cursor-ring"></div>
 <canvas id="canvas-bg"></canvas>
 
 <!-- ─── Nav ─── -->
@@ -341,6 +508,7 @@
       Un projet étudiant qui redonne vie à des ordinateurs usagés pour les remettre gratuitement à la communauté.
     </p>
     <a href="#installer" class="scroll-arrow" aria-label="Aller aux instructions">
+      <span class="scroll-label">Défiler</span>
       <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
     </a>
   </div>
@@ -349,6 +517,7 @@
 <!-- ─── Content ─── -->
 <main>
 
+  <!-- Le projet -->
   <section id="projet" class="reveal">
     <div class="section-eyebrow">Le projet</div>
     <h2>Revaloriser.<br/>Redonner.</h2>
@@ -378,6 +547,23 @@
     </div>
   </section>
 
+  <!-- Globe — Localisation -->
+  <section id="localisation" class="reveal">
+    <div class="section-eyebrow">Localisation</div>
+    <h2>Ancré à Laval,<br/>Québec</h2>
+    <p>
+      Tout part d'ici : le Collège Montmorency, à Laval. C'est là que les étudiants remettent en état les ordinateurs et organisent les distributions pour la communauté locale.
+    </p>
+    <div class="globe-wrapper">
+      <canvas id="globe-canvas"></canvas>
+      <div class="globe-location-tag">
+        <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+        Collège Montmorency — Laval, Québec
+      </div>
+    </div>
+  </section>
+
+  <!-- Installation -->
   <section id="installer" class="reveal">
     <div class="section-eyebrow">Protocole de déploiement</div>
     <h2>Installation automatisée</h2>
@@ -415,29 +601,253 @@
     </div>
   </section>
 
+  <!-- FAQ -->
+  <section id="faq" class="reveal">
+    <div class="section-eyebrow">Questions fréquentes</div>
+    <h2>On répond à<br/>vos questions.</h2>
+    <p>Vous avez des questions sur le projet DO2&nbsp;? Voici les réponses aux questions les plus fréquentes, en simple et en français.</p>
+
+    <div class="faq-list">
+
+      <div class="faq-item">
+        <button class="faq-trigger">
+          C'est quoi NixOS&nbsp;?
+          <span class="faq-icon"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+        </button>
+        <div class="faq-content">
+          <div class="faq-body">
+            <p>NixOS est un système Linux. Il est très stable, sécuritaire, et on peut le configurer de la même façon sur plusieurs ordinateurs en même temps. C'est parfait pour notre projet, car ça nous permet d'installer exactement la même chose sur toutes les machines d'un seul coup.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-trigger">
+          Comment recevoir un ordinateur&nbsp;?
+          <span class="faq-icon"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+        </button>
+        <div class="faq-content">
+          <div class="faq-body">
+            <p>Les ordinateurs sont distribués lors de séances organisées par le Collège Montmorency. Les personnes dans le besoin, notamment celles qui suivent des cours de francisation, sont invitées en priorité. Renseignez-vous auprès du Collège pour savoir quand a lieu la prochaine distribution.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-trigger">
+          Est-ce que l'ordinateur est vraiment gratuit&nbsp;?
+          <span class="faq-icon"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+        </button>
+        <div class="faq-content">
+          <div class="faq-body">
+            <p>Oui, complètement gratuit. Chaque ordinateur est fourni avec un écran, un clavier et une souris. Il n'y a absolument rien à payer. C'est le but du projet : redonner à la communauté.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-trigger">
+          Est-ce qu'il faut savoir utiliser Linux&nbsp;?
+          <span class="faq-icon"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+        </button>
+        <div class="faq-content">
+          <div class="faq-body">
+            <p>Non, pas du tout ! L'ordinateur vient avec une interface simple et en français. On a choisi un bureau facile à utiliser, similaire à ce que vous connaissez peut-être déjà. Un guide d'utilisation est fourni avec l'ordinateur pour vous aider à démarrer.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-trigger">
+          Est-ce que je peux faire don d'un ordinateur&nbsp;?
+          <span class="faq-icon"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+        </button>
+        <div class="faq-content">
+          <div class="faq-body">
+            <p>Oui&nbsp;! Si vous avez un vieux portable ou un ordinateur de bureau que vous n'utilisez plus, vous pouvez le donner au projet. Contactez le Département de génie électrique du Collège Montmorency pour savoir comment procéder.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-trigger">
+          Que faire si l'ordinateur a un problème&nbsp;?
+          <span class="faq-icon"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+        </button>
+        <div class="faq-content">
+          <div class="faq-body">
+            <p>Vous pouvez écrire un message sur la page GitHub du projet ou contacter directement le Collège Montmorency. L'équipe d'étudiants fait de son mieux pour aider, surtout lors des séances de distribution où une courte formation est aussi offerte.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
 </main>
 
-<footer>
-  Projet DO2 &nbsp;·&nbsp; Collège Montmorency &nbsp;·&nbsp; 243-44A-MO &nbsp;·&nbsp;
-  <a href="https://github.com/SunSinD/Projet-DO2-NixOS">GitHub</a>
-</footer>
+<!-- ─── Cinematic Footer ─── -->
+<div class="footer-curtain-wrapper">
+  <footer class="cinematic-footer">
+
+    <div class="footer-aurora"></div>
+    <div class="footer-grid"></div>
+    <div class="footer-giant-text">DO2</div>
+
+    <!-- Scrolling marquee -->
+    <div class="footer-marquee-bar">
+      <div class="footer-marquee-track">
+        <div class="footer-marquee-item">
+          <span>Ordinateurs Reconditionnés</span><span class="fmi-sep">✦</span>
+          <span>NixOS Déclaratif</span><span class="fmi-sep">✦</span>
+          <span>Collège Montmorency</span><span class="fmi-sep">✦</span>
+          <span>Don Communautaire</span><span class="fmi-sep">✦</span>
+          <span>100% Gratuit</span><span class="fmi-sep">✦</span>
+          <span>Laval, Québec</span><span class="fmi-sep">✦</span>
+          <span>Interface Française</span><span class="fmi-sep">✦</span>
+        </div>
+        <!-- duplicate for seamless loop -->
+        <div class="footer-marquee-item">
+          <span>Ordinateurs Reconditionnés</span><span class="fmi-sep">✦</span>
+          <span>NixOS Déclaratif</span><span class="fmi-sep">✦</span>
+          <span>Collège Montmorency</span><span class="fmi-sep">✦</span>
+          <span>Don Communautaire</span><span class="fmi-sep">✦</span>
+          <span>100% Gratuit</span><span class="fmi-sep">✦</span>
+          <span>Laval, Québec</span><span class="fmi-sep">✦</span>
+          <span>Interface Française</span><span class="fmi-sep">✦</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main CTA content -->
+    <div class="footer-main">
+      <h2 class="footer-heading">Prêt à<br/>contribuer&nbsp;?</h2>
+
+      <div class="footer-pills">
+        <a href="https://github.com/SunSinD/Projet-DO2-NixOS" class="footer-pill footer-pill-primary" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/></svg>
+          Voir sur GitHub
+        </a>
+        <a href="#installer" class="footer-pill footer-pill-primary">
+          <svg viewBox="0 0 24 24"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2M7 11l5 5 5-5M12 4v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" style="width:18px;height:18px"/></svg>
+          Guide d'installation
+        </a>
+      </div>
+
+      <div class="footer-pills-secondary">
+        <a href="#projet" class="footer-pill footer-pill-secondary">Le projet</a>
+        <a href="#localisation" class="footer-pill footer-pill-secondary">Localisation</a>
+        <a href="#faq" class="footer-pill footer-pill-secondary">FAQ</a>
+        <a href="https://www.cmontmorency.qc.ca" target="_blank" rel="noopener" class="footer-pill footer-pill-secondary">Collège Montmorency</a>
+      </div>
+    </div>
+
+    <!-- Bottom bar -->
+    <div class="footer-bottom">
+      <div class="footer-copyright">© 2026 Projet DO2 &nbsp;·&nbsp; Collège Montmorency &nbsp;·&nbsp; 243-44A-MO</div>
+
+      <div class="footer-badge">
+        <span>Réalisé avec</span>
+        <span class="footer-heart">❤</span>
+        <span>par les étudiants de</span>
+        <span class="footer-badge-name">Génie Électrique</span>
+      </div>
+
+      <button class="footer-back-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Retour en haut">
+        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+      </button>
+    </div>
+
+  </footer>
+</div>
+
+<!-- ─── Globe via ESM CDN ─── -->
+<script type="module">
+  import createGlobe from 'https://esm.sh/cobe@0.6.3';
+
+  const canvas = document.getElementById('globe-canvas');
+  if (!canvas) return;
+
+  let phi = 1.28; // Start over eastern North America (Quebec ~ -73.7° lon → 1.28 rad)
+  let globe = null;
+  let animId = null;
+
+  // Drag interaction
+  let pointerDown = null;
+  let phiOffset = 0;
+  let dragDelta = 0;
+
+  canvas.addEventListener('pointerdown', e => {
+    pointerDown = e.clientX;
+    canvas.style.cursor = 'grabbing';
+  });
+  window.addEventListener('pointermove', e => {
+    if (pointerDown === null) return;
+    dragDelta = (e.clientX - pointerDown) / 280;
+    phiOffset = dragDelta;
+  });
+  window.addEventListener('pointerup', () => {
+    if (pointerDown !== null) {
+      phi += dragDelta;
+      dragDelta = 0;
+      phiOffset = 0;
+    }
+    pointerDown = null;
+    canvas.style.cursor = 'grab';
+  });
+
+  const LAVAL = { location: [45.5456, -73.7134], size: 0.07 };
+
+  const init = () => {
+    const w = canvas.offsetWidth;
+    if (!w || globe) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    globe = createGlobe(canvas, {
+      devicePixelRatio: dpr,
+      width: w * dpr,
+      height: w * dpr,
+      phi,
+      theta: 0.38,
+      dark: 1,
+      diffuse: 1.3,
+      mapSamples: 20000,
+      mapBrightness: 7,
+      baseColor:   [0.22, 0.28, 0.38],
+      markerColor: [0.49, 0.72, 0.79], // accent2-ish
+      glowColor:   [0.18, 0.32, 0.52],
+      markers: [LAVAL],
+    });
+
+    const tick = () => {
+      phi += 0.003;
+      globe.update({ phi: phi + phiOffset });
+      animId = requestAnimationFrame(tick);
+    };
+    tick();
+    setTimeout(() => { canvas.style.opacity = '1'; });
+  };
+
+  if (canvas.offsetWidth > 0) {
+    init();
+  } else {
+    const ro = new ResizeObserver(entries => {
+      if (entries[0]?.contentRect.width > 0) { ro.disconnect(); init(); }
+    });
+    ro.observe(canvas);
+  }
+
+  // Cleanup on page unload
+  window.addEventListener('unload', () => {
+    if (animId) cancelAnimationFrame(animId);
+    if (globe) globe.destroy();
+  });
+</script>
 
 <script>
-  // ─── Custom cursor ───
-  const dot = document.getElementById('cursor');
-  document.addEventListener('mousemove', e => {
-    dot.style.left = e.clientX + 'px';
-    dot.style.top  = e.clientY + 'px';
-  });
-  document.querySelectorAll('a, button, [data-tilt]').forEach(el => {
-    el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
-    el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
-  });
-
   // ─── Scroll reveal ───
   const observer = new IntersectionObserver(entries => {
     entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-  }, { threshold: 0.1 });
+  }, { threshold: 0.08 });
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
   // ─── Title scramble ───
@@ -457,10 +867,10 @@
       if (frame >= total) { clearInterval(tick); node.textContent = original; }
     }, 38);
   }
-
   window.addEventListener('load', () => {
     setTimeout(() => {
       const h1 = document.getElementById('hero-title');
+      if (!h1) return;
       h1.childNodes.forEach(node => {
         if (node.nodeType === Node.TEXT_NODE && node.textContent.trim()) {
           scrambleNode(node, node.textContent);
@@ -488,10 +898,20 @@
       const el = document.getElementById(btn.dataset.target);
       if (!el) return;
       navigator.clipboard.writeText(el.textContent.trim()).then(() => {
-        btn.textContent = 'Copié';
+        btn.textContent = 'Copié ✓';
         btn.classList.add('copied');
         setTimeout(() => { btn.textContent = 'Copier'; btn.classList.remove('copied'); }, 1800);
       });
+    });
+  });
+
+  // ─── FAQ accordion ───
+  document.querySelectorAll('.faq-trigger').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = btn.closest('.faq-item');
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+      if (!isOpen) item.classList.add('open');
     });
   });
 
@@ -533,8 +953,7 @@
         for (let j = i + 1; j < pts.length; j++) {
           const q = pts[j], dist = Math.hypot(p.x - q.x, p.y - q.y);
           if (dist < 90) {
-            ctx.beginPath();
-            ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y);
+            ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y);
             ctx.strokeStyle = `rgba(78,122,199,${.15 * (1 - dist / 90)})`;
             ctx.lineWidth = .5; ctx.stroke();
           }
