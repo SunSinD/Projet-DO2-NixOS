@@ -787,11 +787,13 @@
   var pulsePhase = 0;
   var dragging   = false;
   var lastMouse  = null;
+  var velX       = 0, velY = 0;   // inertia velocity (degrees/frame)
 
   /* ── drag ── */
   canvas.addEventListener('pointerdown', function (e) {
     dragging  = true;
     lastMouse = [e.clientX, e.clientY];
+    velX = velY = 0;              // kill any coasting momentum on grab
     canvas.setPointerCapture(e.pointerId);
     canvas.style.cursor = 'grabbing';
   });
@@ -799,12 +801,18 @@
     if (!dragging || !lastMouse) return;
     var dx = e.clientX - lastMouse[0];
     var dy = e.clientY - lastMouse[1];
-    rot[0] += dx * 0.3;                                // horizontal → lambda
-    rot[1] -= dy * 0.3;                                // vertical   → phi
-    rot[1]  = Math.max(-70, Math.min(70, rot[1]));     // clamp tilt
+    velX =  dx * 0.3;             // remember this frame's velocity
+    velY = -dy * 0.3;
+    rot[0] += velX;
+    rot[1] += velY;
+    rot[1]  = Math.max(-70, Math.min(70, rot[1]));
     lastMouse = [e.clientX, e.clientY];
   });
-  function endDrag() { dragging = false; lastMouse = null; canvas.style.cursor = 'grab'; }
+  function endDrag() {
+    dragging  = false;
+    lastMouse = null;
+    canvas.style.cursor = 'grab';
+  }
   canvas.addEventListener('pointerup',     endDrag);
   canvas.addEventListener('pointercancel', endDrag);
 
@@ -817,19 +825,42 @@
     });
   }
 
-  var landFeature = null, graticuleFeature = null;
+  var land = null;
+  var proj, pathGen;
+  /* gradients that never change — created once after canvas is sized */
+  var gradAtmo, gradOcean, gradLand;
+
+  function buildGradients() {
+    gradAtmo = ctx.createRadialGradient(cx, cy, R * 0.88, cx, cy, R * 1.3);
+    gradAtmo.addColorStop(0,   'rgba(78,122,199,0.20)');
+    gradAtmo.addColorStop(0.5, 'rgba(78,122,199,0.06)');
+    gradAtmo.addColorStop(1,   'rgba(78,122,199,0)');
+
+    gradOcean = ctx.createRadialGradient(cx - R*0.26, cy - R*0.26, R*0.04, cx, cy, R);
+    gradOcean.addColorStop(0,   '#1a2d58');
+    gradOcean.addColorStop(0.5, '#0b1630');
+    gradOcean.addColorStop(1,   '#05091a');
+
+    gradLand = ctx.createRadialGradient(cx - R*0.15, cy - R*0.15, 0, cx, cy, R);
+    gradLand.addColorStop(0,   'rgba(88,138,220,0.72)');
+    gradLand.addColorStop(0.6, 'rgba(58,100,185,0.60)');
+    gradLand.addColorStop(1,   'rgba(38,72,150,0.50)');
+  }
 
   loadScript('https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js')
   .then(function () {
     return loadScript('https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js');
   })
   .then(function () {
-    return fetch('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/land-50m.json');
+    /* land-110m = ~4× fewer coordinates than 50m → much faster per-frame projection */
+    return fetch('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/land-110m.json');
   })
   .then(function (r) { return r.json(); })
   .then(function (world) {
-    landFeature     = topojson.feature(world, world.objects.land);
-    graticuleFeature = d3.geoGraticule()();
+    land    = topojson.feature(world, world.objects.land);
+    proj    = d3.geoOrthographic().scale(R).translate([cx, cy]).clipAngle(90).rotate(rot);
+    pathGen = d3.geoPath(proj, ctx);
+    buildGradients();
     canvas.style.opacity = '1';
     requestAnimationFrame(frame);
   })
@@ -837,64 +868,50 @@
 
   /* ── render ── */
   function frame() {
+    if (!proj) { requestAnimationFrame(frame); return; }
     pulsePhase += 0.055;
-    if (!dragging) rot[0] += 0.08;   // slow auto-spin
 
-    var proj = d3.geoOrthographic()
-                 .scale(R)
-                 .translate([cx, cy])
-                 .rotate(rot)
-                 .clipAngle(90);
-    var path = d3.geoPath(proj, ctx);
-
-    ctx.clearRect(0, 0, S, S);
-
-    /* atmosphere glow */
-    var atmo = ctx.createRadialGradient(cx, cy, R * 0.88, cx, cy, R * 1.3);
-    atmo.addColorStop(0,    'rgba(78,122,199,0.20)');
-    atmo.addColorStop(0.5,  'rgba(78,122,199,0.06)');
-    atmo.addColorStop(1,    'rgba(78,122,199,0)');
-    ctx.fillStyle = atmo;
-    ctx.beginPath(); ctx.arc(cx, cy, R * 1.3, 0, Math.PI * 2); ctx.fill();
-
-    /* ocean sphere */
-    var sg = ctx.createRadialGradient(cx - R*0.26, cy - R*0.26, R*0.04, cx, cy, R);
-    sg.addColorStop(0,    '#1a2d58');
-    sg.addColorStop(0.5,  '#0b1630');
-    sg.addColorStop(1,    '#05091a');
-    ctx.beginPath(); path({ type: 'Sphere' });
-    ctx.fillStyle = sg; ctx.fill();
-
-    if (landFeature) {
-      /* subtle graticule grid */
-      ctx.beginPath(); path(graticuleFeature);
-      ctx.strokeStyle = 'rgba(78,122,199,0.07)';
-      ctx.lineWidth = 0.5; ctx.stroke();
-
-      /* filled land */
-      ctx.beginPath(); path(landFeature);
-      var landGrad = ctx.createRadialGradient(cx - R*0.15, cy - R*0.15, 0, cx, cy, R);
-      landGrad.addColorStop(0,   'rgba(88,138,220,0.72)');
-      landGrad.addColorStop(0.6, 'rgba(58,100,185,0.60)');
-      landGrad.addColorStop(1,   'rgba(38, 72,150,0.50)');
-      ctx.fillStyle = landGrad;
-      ctx.fill();
-
-      /* land coastline */
-      ctx.beginPath(); path(landFeature);
-      ctx.strokeStyle = 'rgba(140,190,220,0.30)';
-      ctx.lineWidth = 0.6; ctx.stroke();
+    if (!dragging) {
+      velX *= 0.92;
+      velY *= 0.92;
+      rot[0] += velX + 0.08;
+      rot[1] += velY;
+      rot[1]  = Math.max(-70, Math.min(70, rot[1]));
     }
 
-    /* globe rim */
-    ctx.beginPath(); path({ type: 'Sphere' });
-    ctx.strokeStyle = 'rgba(78,122,199,0.35)';
-    ctx.lineWidth = 1.5; ctx.stroke();
+    proj.rotate(rot);          // update in-place, zero allocation
+    ctx.clearRect(0, 0, S, S);
 
-    /* ── Laval gold marker ── */
+    /* 1 — atmosphere glow (simple arc, cached gradient) */
+    ctx.fillStyle = gradAtmo;
+    ctx.beginPath(); ctx.arc(cx, cy, R * 1.3, 0, Math.PI * 2); ctx.fill();
+
+    /* 2 — clip everything inside the sphere so no overdraw outside */
+    ctx.save();
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.clip();
+
+    /* 3 — ocean (fill the clipped region) */
+    ctx.fillStyle = gradOcean;
+    ctx.fillRect(0, 0, S, S);
+
+    /* 4 — land: ONE beginPath, then fill + stroke without re-traversing */
+    if (land) {
+      ctx.beginPath(); pathGen(land);
+      ctx.fillStyle   = gradLand;  ctx.fill();
+      ctx.strokeStyle = 'rgba(140,190,220,0.28)';
+      ctx.lineWidth   = 0.5;       ctx.stroke();
+    }
+
+    ctx.restore();             // remove clip
+
+    /* 5 — globe rim (simple arc, no geoPath) */
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(78,122,199,0.35)';
+    ctx.lineWidth   = 1.5; ctx.stroke();
+
+    /* 6 — Laval gold marker */
     var laval     = [-73.7134, 45.5456];
-    var centre    = [-rot[0], -rot[1]];   // geographic point at globe centre
-    var angDist   = d3.geoDistance(laval, centre);
+    var angDist   = d3.geoDistance(laval, [-rot[0], -rot[1]]);
     var markerPos = proj(laval);
 
     if (markerPos && angDist < Math.PI / 2) {
@@ -902,17 +919,14 @@
       var p1 = 0.5 + 0.5 * Math.sin(pulsePhase);
       var p2 = 0.5 + 0.5 * Math.sin(pulsePhase - 1.4);
 
-      /* ring 1 */
       ctx.beginPath(); ctx.arc(mx, my, 5 + p1 * 14, 0, Math.PI * 2);
       ctx.strokeStyle = 'rgba(255,210,75,' + (0.72 * (1 - p1)).toFixed(2) + ')';
       ctx.lineWidth = 1.5; ctx.stroke();
 
-      /* ring 2 */
       ctx.beginPath(); ctx.arc(mx, my, 5 + p2 * 22, 0, Math.PI * 2);
       ctx.strokeStyle = 'rgba(255,210,75,' + (0.42 * (1 - p2)).toFixed(2) + ')';
       ctx.lineWidth = 1; ctx.stroke();
 
-      /* warm glow */
       var gw = ctx.createRadialGradient(mx, my, 0, mx, my, 18);
       gw.addColorStop(0,   'rgba(255,215,80,0.95)');
       gw.addColorStop(0.4, 'rgba(255,185,60,0.32)');
@@ -920,7 +934,6 @@
       ctx.fillStyle = gw;
       ctx.beginPath(); ctx.arc(mx, my, 18, 0, Math.PI * 2); ctx.fill();
 
-      /* centre dot */
       ctx.beginPath(); ctx.arc(mx, my, 4.5, 0, Math.PI * 2);
       ctx.fillStyle = '#ffffff'; ctx.fill();
       ctx.beginPath(); ctx.arc(mx, my, 2.8, 0, Math.PI * 2);
@@ -930,7 +943,7 @@
     requestAnimationFrame(frame);
   }
 
-  /* show a plain sphere while assets load */
+  /* plain sphere shown while assets load */
   (function initSphere() {
     var sg = ctx.createRadialGradient(cx-R*0.26, cy-R*0.26, R*0.04, cx, cy, R);
     sg.addColorStop(0, '#1a2d58'); sg.addColorStop(0.5, '#0b1630'); sg.addColorStop(1, '#05091a');
@@ -939,7 +952,6 @@
     ctx.strokeStyle = 'rgba(78,122,199,0.35)'; ctx.lineWidth = 1.5; ctx.stroke();
   })();
 
-  /* ── dead code below kept only so the closing })() matches ── */
   var DEG  = Math.PI / 180;
   var LAND = [];
 
