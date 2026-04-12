@@ -320,13 +320,32 @@
       clip-path: polygon(0% 0, 100% 0%, 100% 100%, 0 100%);
     }
 
+    /* Softens the solid cut when revealing the footer */
+    .footer-curtain-wrapper::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 20vh;
+      background: linear-gradient(to bottom, var(--bg) 0%, transparent 100%);
+      z-index: 10;
+      pointer-events: none;
+    }
+
     .cinematic-footer {
       position: fixed; bottom: 0; left: 0;
       width: 100%; height: 100vh;
-      display: flex; flex-direction: column; justify-content: space-between;
       overflow: hidden;
       background: var(--bg);
       color: var(--text);
+    }
+
+    /* New wrapper for the 3D scroll animation */
+    .footer-3d-wrapper {
+      position: relative;
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column; justify-content: space-between;
+      will-change: transform, opacity;
+      transform-origin: top center;
     }
 
     .footer-aurora {
@@ -403,13 +422,12 @@
 
     .footer-pills { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; margin-bottom: 14px; }
     
-    /* Updated to force the single button to take full width */
     .footer-pills-secondary { 
       display: flex; 
       flex-wrap: wrap; 
       justify-content: center; 
       width: 100%; 
-      max-width: 400px; 
+      max-width: 320px; /* Reduced slightly since it's just one button now */
       margin: 0 auto; 
     }
 
@@ -434,12 +452,18 @@
       box-shadow: 0 20px 40px -10px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.14);
     }
     .footer-pill-secondary {
-      padding: 9px 18px;
+      padding: 12px 24px;
       background: rgba(255,255,255,0.025);
       border: 1px solid rgba(255,255,255,0.06);
-      color: var(--muted2); font-size: 0.8rem; font-weight: 500;
+      color: var(--text); 
+      font-size: 0.92rem; 
+      font-weight: 600; /* Bold to match github button */
     }
-    .footer-pill-secondary:hover { color: var(--text); background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.14); }
+    .footer-pill-secondary:hover { 
+      background: rgba(255,255,255,0.06); 
+      border-color: rgba(255,255,255,0.14); 
+      transform: translateY(-2px);
+    }
     .footer-pill svg { width: 18px; height: 18px; fill: currentColor; flex-shrink: 0; opacity: 0.8; }
 
     .footer-bottom {
@@ -477,7 +501,6 @@
     .footer-back-top:hover { color: var(--text); transform: translateY(-4px); background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.15); }
     .footer-back-top svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 2.5; fill: none; }
 
-    /* Updated transition for a much cleaner, smoother pop-out/fade effect */
     .reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.8s ease-out, transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
     .reveal.visible { opacity: 1; transform: translateY(0); }
 
@@ -634,7 +657,7 @@
 
       <div class="faq-item">
         <button class="faq-trigger">
-          C'est quoi NixOS&nbsp;?
+          C'est quoi NixOS ?
           <span class="faq-icon"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
         </button>
         <div class="faq-content">
@@ -646,7 +669,7 @@
 
       <div class="faq-item">
         <button class="faq-trigger">
-          À qui sont destinés les ordinateurs&nbsp;?
+          À qui sont destinés les ordinateurs ?
           <span class="faq-icon"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
         </button>
         <div class="faq-content">
@@ -658,7 +681,7 @@
 
       <div class="faq-item">
         <button class="faq-trigger">
-          Est-ce qu'il faut savoir utiliser Linux&nbsp;?
+          Est-ce qu'il faut savoir utiliser Linux ?
           <span class="faq-icon"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
         </button>
         <div class="faq-content">
@@ -670,7 +693,7 @@
 
       <div class="faq-item">
         <button class="faq-trigger">
-          Quels logiciels sont inclus&nbsp;?
+          Quels logiciels sont inclus ?
           <span class="faq-icon"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
         </button>
         <div class="faq-content">
@@ -682,7 +705,7 @@
 
       <div class="faq-item">
         <button class="faq-trigger">
-          Comment contribuer au projet&nbsp;?
+          Comment contribuer au projet ?
           <span class="faq-icon"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
         </button>
         <div class="faq-content">
@@ -694,7 +717,7 @@
 
       <div class="faq-item">
         <button class="faq-trigger">
-          Que faire si l'ordinateur a un problème&nbsp;?
+          Que faire si l'ordinateur a un problème ?
           <span class="faq-icon"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
         </button>
         <div class="faq-content">
@@ -714,63 +737,62 @@
 
     <div class="footer-aurora"></div>
     <div class="footer-grid"></div>
-    <div class="footer-giant-text">DO2</div>
+    
+    <div class="footer-3d-wrapper">
+      <div class="footer-giant-text">DO2</div>
 
-    <div class="footer-marquee-bar">
-      <div class="footer-marquee-track">
-        <div class="footer-marquee-item">
-          <span>Ordinateurs Reconditionnés</span><span class="fmi-sep">✦</span>
-          <span>NixOS Déclaratif</span><span class="fmi-sep">✦</span>
-          <span>Collège Montmorency</span><span class="fmi-sep">✦</span>
-          <span>Don Communautaire</span><span class="fmi-sep">✦</span>
-          <span>Laval, Québec</span><span class="fmi-sep">✦</span>
-          <span>Interface Française</span><span class="fmi-sep">✦</span>
-          <span>Génie Électrique</span><span class="fmi-sep">✦</span>
+      <div class="footer-marquee-bar">
+        <div class="footer-marquee-track">
+          <div class="footer-marquee-item">
+            <span>Ordinateurs Reconditionnés</span><span class="fmi-sep">✦</span>
+            <span>NixOS Déclaratif</span><span class="fmi-sep">✦</span>
+            <span>Collège Montmorency</span><span class="fmi-sep">✦</span>
+            <span>Don Communautaire</span><span class="fmi-sep">✦</span>
+            <span>Laval, Québec</span><span class="fmi-sep">✦</span>
+            <span>Interface Française</span><span class="fmi-sep">✦</span>
+            <span>Génie Électrique</span><span class="fmi-sep">✦</span>
+          </div>
+          <div class="footer-marquee-item">
+            <span>Ordinateurs Reconditionnés</span><span class="fmi-sep">✦</span>
+            <span>NixOS Déclaratif</span><span class="fmi-sep">✦</span>
+            <span>Collège Montmorency</span><span class="fmi-sep">✦</span>
+            <span>Don Communautaire</span><span class="fmi-sep">✦</span>
+            <span>Laval, Québec</span><span class="fmi-sep">✦</span>
+            <span>Interface Française</span><span class="fmi-sep">✦</span>
+            <span>Génie Électrique</span><span class="fmi-sep">✦</span>
+          </div>
         </div>
-        <div class="footer-marquee-item">
-          <span>Ordinateurs Reconditionnés</span><span class="fmi-sep">✦</span>
-          <span>NixOS Déclaratif</span><span class="fmi-sep">✦</span>
-          <span>Collège Montmorency</span><span class="fmi-sep">✦</span>
-          <span>Don Communautaire</span><span class="fmi-sep">✦</span>
-          <span>Laval, Québec</span><span class="fmi-sep">✦</span>
-          <span>Interface Française</span><span class="fmi-sep">✦</span>
-          <span>Génie Électrique</span><span class="fmi-sep">✦</span>
+      </div>
+
+      <div class="footer-main">
+        <h2 class="footer-heading">Prêt à<br/>contribuer ?</h2>
+
+        <div class="footer-pills">
+          <a href="https://github.com/SunSinD/Projet-DO2-NixOS" class="footer-pill footer-pill-primary" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/></svg>
+            Voir sur GitHub
+          </a>
+        </div>
+
+        <div class="footer-pills-secondary">
+          <a href="https://www.cmontmorency.qc.ca" target="_blank" rel="noopener" class="footer-pill footer-pill-secondary" style="width: 100%; justify-content: center;">Collège Montmorency</a>
         </div>
       </div>
-    </div>
 
-    <div class="footer-main">
-      <h2 class="footer-heading">Prêt à<br/>contribuer&nbsp;?</h2>
+      <div class="footer-bottom">
+        <div class="footer-copyright">© 2026 Projet DO2  ·  Collège Montmorency</div>
 
-      <div class="footer-pills">
-        <a href="https://github.com/SunSinD/Projet-DO2-NixOS" class="footer-pill footer-pill-primary" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/></svg>
-          Voir sur GitHub
-        </a>
-        <a href="#installer" class="footer-pill footer-pill-primary">
-          <svg viewBox="0 0 24 24"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2M7 11l5 5 5-5M12 4v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" style="width:18px;height:18px"/></svg>
-          Guide d'installation
-        </a>
+        <div class="footer-badge">
+          <span>Réalisé avec</span>
+          <span class="footer-heart">❤</span>
+          <span>par les étudiants de</span>
+          <span class="footer-badge-name">Génie Électrique</span>
+        </div>
+
+        <button class="footer-back-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Retour en haut">
+          <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+        </button>
       </div>
-
-      <div class="footer-pills-secondary">
-        <a href="https://www.cmontmorency.qc.ca" target="_blank" rel="noopener" class="footer-pill footer-pill-secondary" style="width: 100%; justify-content: center;">Collège Montmorency</a>
-      </div>
-    </div>
-
-    <div class="footer-bottom">
-      <div class="footer-copyright">© 2026 Projet DO2 &nbsp;·&nbsp; Collège Montmorency</div>
-
-      <div class="footer-badge">
-        <span>Réalisé avec</span>
-        <span class="footer-heart">❤</span>
-        <span>par les étudiants de</span>
-        <span class="footer-badge-name">Génie Électrique</span>
-      </div>
-
-      <button class="footer-back-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Retour en haut">
-        <svg viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
-      </button>
     </div>
 
   </footer>
@@ -788,19 +810,16 @@
   var ctx = canvas.getContext('2d');
   var cx  = S / 2, cy = S / 2, R = S * 0.42;
 
-  // rotation = [lambda°, phi°, gamma°]  (d3-geo convention)
-  // Start centred on Laval, with a gentle northward tilt
   var rot        = [73.7134, -20, 0];
   var pulsePhase = 0;
   var dragging   = false;
   var lastMouse  = null;
-  var velX       = 0, velY = 0;   // inertia velocity (degrees/frame)
+  var velX       = 0, velY = 0;
 
-  /* ── drag ── */
   canvas.addEventListener('pointerdown', function (e) {
     dragging  = true;
     lastMouse = [e.clientX, e.clientY];
-    velX = velY = 0;              // kill any coasting momentum on grab
+    velX = velY = 0;
     canvas.setPointerCapture(e.pointerId);
     canvas.style.cursor = 'grabbing';
   });
@@ -808,7 +827,7 @@
     if (!dragging || !lastMouse) return;
     var dx = e.clientX - lastMouse[0];
     var dy = e.clientY - lastMouse[1];
-    velX =  dx * 0.3;             // remember this frame's velocity
+    velX =  dx * 0.3;
     velY = -dy * 0.3;
     rot[0] += velX;
     rot[1] += velY;
@@ -823,7 +842,6 @@
   canvas.addEventListener('pointerup',     endDrag);
   canvas.addEventListener('pointercancel', endDrag);
 
-  /* ── load d3-geo + topojson then start ── */
   function loadScript(src) {
     return new Promise(function (res, rej) {
       var s = document.createElement('script');
@@ -834,7 +852,6 @@
 
   var land = null;
   var proj, pathGen;
-  /* gradients that never change — created once after canvas is sized */
   var gradAtmo, gradOcean, gradLand;
 
   function buildGradients() {
@@ -859,7 +876,6 @@
     return loadScript('https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js');
   })
   .then(function () {
-    /* land-110m = ~4× fewer coordinates than 50m → much faster per-frame projection */
     return fetch('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/land-110m.json');
   })
   .then(function (r) { return r.json(); })
@@ -873,7 +889,6 @@
   })
   .catch(function (err) { console.error('Globe load error:', err); });
 
-  /* ── render ── */
   function frame() {
     if (!proj) { requestAnimationFrame(frame); return; }
     pulsePhase += 0.055;
@@ -886,22 +901,18 @@
       rot[1]  = Math.max(-70, Math.min(70, rot[1]));
     }
 
-    proj.rotate(rot);          // update in-place, zero allocation
+    proj.rotate(rot);
     ctx.clearRect(0, 0, S, S);
 
-    /* 1 — atmosphere glow (simple arc, cached gradient) */
     ctx.fillStyle = gradAtmo;
     ctx.beginPath(); ctx.arc(cx, cy, R * 1.3, 0, Math.PI * 2); ctx.fill();
 
-    /* 2 — clip everything inside the sphere so no overdraw outside */
     ctx.save();
     ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.clip();
 
-    /* 3 — ocean (fill the clipped region) */
     ctx.fillStyle = gradOcean;
     ctx.fillRect(0, 0, S, S);
 
-    /* 4 — land: ONE beginPath, then fill + stroke without re-traversing */
     if (land) {
       ctx.beginPath(); pathGen(land);
       ctx.fillStyle   = gradLand;  ctx.fill();
@@ -909,14 +920,12 @@
       ctx.lineWidth   = 0.5;       ctx.stroke();
     }
 
-    ctx.restore();             // remove clip
+    ctx.restore();
 
-    /* 5 — globe rim (simple arc, no geoPath) */
     ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2);
     ctx.strokeStyle = 'rgba(78,122,199,0.35)';
     ctx.lineWidth   = 1.5; ctx.stroke();
 
-    /* 6 — Laval gold marker */
     var laval     = [-73.7134, 45.5456];
     var angDist   = d3.geoDistance(laval, [-rot[0], -rot[1]]);
     var markerPos = proj(laval);
@@ -950,7 +959,6 @@
     requestAnimationFrame(frame);
   }
 
-  /* plain sphere shown while assets load */
   (function initSphere() {
     var sg = ctx.createRadialGradient(cx-R*0.26, cy-R*0.26, R*0.04, cx, cy, R);
     sg.addColorStop(0, '#1a2d58'); sg.addColorStop(0.5, '#0b1630'); sg.addColorStop(1, '#05091a');
@@ -959,18 +967,17 @@
     ctx.strokeStyle = 'rgba(78,122,199,0.35)'; ctx.lineWidth = 1.5; ctx.stroke();
   })();
 
-  var DEG  = Math.PI / 180;
-  var LAND = [];
-
 })();
 </script>
 
 <script>
+  // Intersection Observer for Reveal Elements
   const observer = new IntersectionObserver(entries => {
     entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
   }, { threshold: 0.08 });
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
+  // 3D Tilt for Cards
   document.querySelectorAll('[data-tilt]').forEach(card => {
     card.addEventListener('mousemove', e => {
       const r = card.getBoundingClientRect();
@@ -981,6 +988,7 @@
     card.addEventListener('mouseleave', () => { card.style.transform = ''; });
   });
 
+  // Copy to Clipboard
   document.querySelectorAll('.copy-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const el = document.getElementById(btn.dataset.target);
@@ -993,6 +1001,7 @@
     });
   });
 
+  // FAQ Accordion
   document.querySelectorAll('.faq-trigger').forEach(btn => {
     btn.addEventListener('click', () => {
       const item = btn.closest('.faq-item');
@@ -1002,7 +1011,7 @@
     });
   });
 
-  /* Fix 2: Added explicit Javascript smooth scrolling listener just in case CSS smooth scrolling behaves too fast/instantly */
+  // Smooth Scroll Fallback
   document.querySelector('.scroll-arrow').addEventListener('click', function(e) {
     e.preventDefault();
     const target = document.querySelector(this.getAttribute('href'));
@@ -1011,19 +1020,52 @@
     }
   });
 
-  const canvas = document.getElementById('canvas-bg');
-  const ctx    = canvas.getContext('2d');
-  const mobile = () => window.innerWidth < 768;
+  // 3D Scroll Animation for Footer (Inspired by Framer Motion / Aceternity)
+  const footer3d = document.querySelector('.footer-3d-wrapper');
+  const curtain = document.querySelector('.footer-curtain-wrapper');
+
+  function onScrollFooter() {
+    if(!curtain || !footer3d) return;
+    const rect = curtain.getBoundingClientRect();
+    const winH = window.innerHeight;
+
+    if (rect.top <= winH) {
+      let progress = 1 - (rect.top / winH);
+      progress = Math.max(0, Math.min(1, progress));
+
+      // Ease out cubic
+      const ease = 1 - Math.pow(1 - progress, 3);
+      const isMobile = window.innerWidth <= 768;
+      
+      // Match the Aceternity scaling logic
+      const scale = isMobile ? 0.8 + (0.2 * ease) : 0.9 + (0.1 * ease);
+      const rotateX = 20 - (20 * ease);
+      const opacity = progress < 0.15 ? progress * 6.66 : 1; // Quick fade in
+      const translateY = -40 * (1 - ease);
+
+      footer3d.style.transform = `perspective(1000px) translateY(${translateY}px) rotateX(${rotateX}deg) scale(${scale})`;
+      footer3d.style.opacity = opacity;
+    }
+  }
+
+  window.addEventListener('scroll', onScrollFooter, { passive: true });
+  window.addEventListener('resize', onScrollFooter, { passive: true });
+  onScrollFooter(); // initialize
+
+  // Background Particles Canvas
+  const bgCanvas = document.getElementById('canvas-bg');
+  const ctxBg    = bgCanvas.getContext('2d');
+  const isMobileView = () => window.innerWidth < 768;
   let pts = [], W, H;
   const mouse = { x: -9999, y: -9999 };
 
   document.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
 
-  function init() {
-    W = canvas.width  = window.innerWidth;
-    H = canvas.height = window.innerHeight;
+  function initParticles() {
+    W = bgCanvas.width  = window.innerWidth;
+    H = bgCanvas.height = window.innerHeight;
     pts = [];
-    if (mobile()) return;
+    if (isMobileView()) return;
     const n = Math.floor(W * H / 18000);
     for (let i = 0; i < n; i++) pts.push({
       x: Math.random() * W, y: Math.random() * H,
@@ -1032,34 +1074,34 @@
     });
   }
 
-  function draw() {
-    ctx.clearRect(0, 0, W, H);
-    if (!mobile()) {
+  function drawParticles() {
+    ctxBg.clearRect(0, 0, W, H);
+    if (!isMobileView()) {
       for (let i = 0; i < pts.length; i++) {
         const p = pts[i];
         p.x += p.vx; p.y += p.vy;
         if (p.x < 0 || p.x > W) p.vx *= -1;
         if (p.y < 0 || p.y > H) p.vy *= -1;
         const d = Math.hypot(mouse.x - p.x, mouse.y - p.y);
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = d < 140 ? 'rgba(126,184,201,0.7)' : 'rgba(78,122,199,0.2)';
-        ctx.fill();
+        ctxBg.beginPath();
+        ctxBg.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctxBg.fillStyle = d < 140 ? 'rgba(126,184,201,0.7)' : 'rgba(78,122,199,0.2)';
+        ctxBg.fill();
         for (let j = i + 1; j < pts.length; j++) {
           const q = pts[j], dist = Math.hypot(p.x - q.x, p.y - q.y);
           if (dist < 90) {
-            ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y);
-            ctx.strokeStyle = `rgba(78,122,199,${.15 * (1 - dist / 90)})`;
-            ctx.lineWidth = .5; ctx.stroke();
+            ctxBg.beginPath(); ctxBg.moveTo(p.x, p.y); ctxBg.lineTo(q.x, q.y);
+            ctxBg.strokeStyle = `rgba(78,122,199,${.15 * (1 - dist / 90)})`;
+            ctxBg.lineWidth = .5; ctxBg.stroke();
           }
         }
       }
     }
-    requestAnimationFrame(draw);
+    requestAnimationFrame(drawParticles);
   }
 
-  window.addEventListener('resize', init);
-  init(); draw();
+  window.addEventListener('resize', initParticles);
+  initParticles(); drawParticles();
 </script>
 </body>
 </html>
