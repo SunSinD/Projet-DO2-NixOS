@@ -1,7 +1,7 @@
 { config, pkgs, lib, inputs, device, ... }:
 
 {
-  imports = [ /etc/nixos/hardware-configuration.nix ];
+  imports = [ ./hardware-configuration.nix ];
 
   boot.loader = {
     efi.canTouchEfiVariables = false;
