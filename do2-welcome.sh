@@ -11,13 +11,14 @@ for i in $(seq 1 30); do
 done
 
 yad \
-  --title="Bienvenue — DO2" \
-  --text="Cet ordinateur vous est offert gratuitement\npar le <b>Collège Montmorency</b>.\n\nVisitez notre site pour en savoir plus\nsur le projet <b>Dons d'ordinateurs, 2e vie</b>." \
-  --button="FERMER:1" \
-  --button="VISITER LE SITE WEB:0" \
+  --title="Bienvenue" \
+  --text="Cet ordinateur fait partie du projet\n<b>Dons d'ordinateurs, 2e vie</b> du Collège Montmorency.\n\nVisitez notre site pour en savoir plus\nsur le projet et la communauté qui le soutient.\n" \
+  --button="Fermer:1" \
+  --button="Site Web:0" \
   --width=400 \
   --center \
-  --borders=20 2>/dev/null
+  --borders=20 \
+  --skip-taskbar 2>/dev/null
 
 if [ $? -eq 0 ]; then
   xdg-open "https://sunsind.github.io/Projet-DO2-NixOS/"
