@@ -62,6 +62,9 @@
     pulse.enable      = true;
   };
 
+  services.gnome.gnome-keyring.enable = true;
+  security.pam.services.gdm-autologin.enableGnomeKeyring = true;
+
   # Touchscreen and touchpad support
   services.libinput.enable      = true;
   services.xserver.wacom.enable = true;
