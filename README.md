@@ -49,11 +49,15 @@ Le projet DO2, Don d'ordinateur, Deuxième vie, redonne vie à des ordinateurs u
 | Application | Usage |
 |---|---|
 | Google Chrome | Navigateur web |
-| LibreOffice | Traitement de texte, tableur, présentations |
+| LibreOffice | Bureautique (texte, tableur, présentations) |
 | Dialect | Traducteur |
-| VLC | Lecteur vidéo et audio |
-| Thunderbird | Courriel |
-| Microsoft Teams | Raccourci web |
+| MPV | Lecteur vidéo et audio |
+| Gmail | Courriel (web) |
+| Outlook | Courriel Microsoft (web) |
+| Microsoft Teams | Messagerie (web) |
+| Google Meet | Vidéoconférence (web) |
+| Zoom | Vidéoconférence (natif) |
+| Excalidraw | Dessin collaboratif (web) |
 | GNOME Fichiers | Gestionnaire de fichiers |
 
 ---
@@ -80,16 +84,20 @@ Le script détecte le disque, partitionne, installe tout et redémarre automatiq
 
 ## Reconstruire le système
 
-Après une modification du repo :
+Après une modification du repo, depuis n'importe quelle machine déjà installée :
 ```bash
-sudo nixos-rebuild switch --flake github:SunSinD/Projet-DO2-NixOS#do2
+sudo nixos-rebuild switch --flake github:SunSinD/Projet-DO2-NixOS#do2 --no-write-lock-file
 ```
 
-## Mettre à jour
+> Le flag `--no-write-lock-file` est requis quand on rebuild directement depuis GitHub (pas de repo local).
+
+---
+
+## Mettre à jour les dépendances
 
 ```bash
-nix flake update --flake ~/do2config/
-sudo nixos-rebuild switch --flake ~/do2config/
+nix flake update --flake /etc/nixos
+sudo nixos-rebuild switch --flake github:SunSinD/Projet-DO2-NixOS#do2 --no-write-lock-file
 ```
 
 ---
