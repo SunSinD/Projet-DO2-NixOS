@@ -53,24 +53,24 @@
   systemd.services."getty@tty1".enable  = false;
   systemd.services."autovt@tty1".enable = false;
 
-  # Enable sound with pipewire (modern fix)
+  # Enable sound with pipewire
   security.rtkit.enable = true;
   services.pipewire = {
-    enable = true;
-    alsa.enable = true;
+    enable            = true;
+    alsa.enable       = true;
     alsa.support32Bit = true;
-    pulse.enable = true;
+    pulse.enable      = true;
   };
 
   # Touchscreen and touchpad support
-  services.libinput.enable = true;
-  services.xserver.wacom.enable = true; 
+  services.libinput.enable      = true;
+  services.xserver.wacom.enable = true;
 
   # Main user account
   users.users.user = {
-    isNormalUser  = true;
-    description   = "Utilisateur";
-    extraGroups   = [ "networkmanager" "wheel" "video" "input" ];
+    isNormalUser    = true;
+    description     = "Utilisateur";
+    extraGroups     = [ "networkmanager" "wheel" "video" "input" ];
     initialPassword = "pass";
   };
 
@@ -80,83 +80,202 @@
     size   = 4096;
   }];
 
-  # Enables Flakes globally
-  nix.settings.experimental-features = [
-    "nix-command" "flakes"
-  ];
+  # Nix settings — flakes + wheel users can use binary caches
+  # (trusted-users improvement borrowed from greyxp1's nixos-config)
+  nix.settings = {
+    experimental-features = [ "nix-command" "flakes" ];
+    trusted-users         = [ "root" "@wheel" ];
+  };
 
   nixpkgs.config.allowUnfree = true;
 
-  # ---> MAGIC HAPPENS HERE: We copy your local images into the system itself <---
-  environment.etc = {
-    "backgrounds/do2-wallpaper.png".source = ./do2-wallpaper.png;
-    "icons/teams.png".source = ./teams.png;
-    "icons/gmail.png".source = ./gmail.png;
+  # Git global defaults — sane settings for students/admins
+  # (init.defaultBranch + pull.rebase from greyxp1's nixos-config)
+  programs.git = {
+    enable = true;
+    config = {
+      init.defaultBranch = "main";
+      pull.rebase        = true;
+    };
   };
 
+  # ─── Static assets bundled into the system ───────────────────────────────
+  # All images live in assets/ — keep the repo root clean
+  environment.etc = {
+    "backgrounds/do2-wallpaper.png".source = ./assets/do2-wallpaper.png;
+
+    # Web-app icons
+    "icons/teams.png".source      = ./assets/teams.png;
+    "icons/gmail.png".source      = ./assets/gmail.png;
+    "icons/meet.png".source       = ./assets/meet.png;       # Google Meet
+    "icons/outlook.png".source    = ./assets/outlook.png;    # Outlook
+    "icons/excalidraw.png".source = ./assets/excalidraw.png; # Excalidraw
+
+    # First-boot welcome script (runs once per user via XDG autostart)
+    "scripts/do2-welcome.sh" = {
+      source = ./do2-welcome.sh;
+      mode   = "0755";
+    };
+
+    # XDG autostart entry — GNOME launches this after every login,
+    # but the script itself only shows the popup once (marker file).
+    "xdg/autostart/do2-welcome.desktop".text = ''
+      [Desktop Entry]
+      Type=Application
+      Name=DO2 Bienvenue
+      Exec=/etc/scripts/do2-welcome.sh
+      Terminal=false
+      X-GNOME-Autostart-enabled=true
+      NoDisplay=true
+    '';
+  };
+
+  # ─── System packages ─────────────────────────────────────────────────────
   environment.systemPackages = with pkgs;
   [
-    git # Added git permanently to the system
     google-chrome
     libreoffice-fresh
-    dialect
-    vlc
-    gnomeExtensions.dash-to-dock 
-    
-    # Microsoft Teams Web App (Now uses your custom icon)
+    dialect          # Best GTK translator for GNOME (Google, DeepL, LibreTranslate)
+    mpv              # Lightweight video player — replaces VLC
+    zoom-us          # Zoom meeting client (native)
+    zenity           # GTK dialog toolkit — powers the first-boot welcome popup
+
+    # Useful system/admin tools (borrowed from greyxp1's nixos-config)
+    bat         # Better cat with syntax highlighting
+    fastfetch   # Clean system-info display
+    tree        # Directory tree viewer
+    curl        # HTTP client
+
+    gnomeExtensions.dash-to-dock
+
+    # ── Web-app launchers (Chrome --app= wrappers) ────────────────────────
+
+    # Microsoft Teams
     (pkgs.makeDesktopItem {
       name        = "microsoft-teams-web";
       desktopName = "Microsoft Teams";
       exec        = "${pkgs.google-chrome}/bin/google-chrome-stable --app=https://teams.microsoft.com";
-      icon        = "/etc/icons/teams.png"; 
+      icon        = "/etc/icons/teams.png";
       categories  = [ "Network" "InstantMessaging" ];
       comment     = "Microsoft Teams (web)";
     })
-    
-    # Gmail Web App (Now uses your custom icon)
+
+    # Gmail
     (pkgs.makeDesktopItem {
       name        = "gmail-web";
       desktopName = "Gmail";
       exec        = "${pkgs.google-chrome}/bin/google-chrome-stable --app=https://mail.google.com";
-      icon        = "/etc/icons/gmail.png"; 
+      icon        = "/etc/icons/gmail.png";
       categories  = [ "Network" "Email" ];
-      comment     = "Gmail (Web)";
+      comment     = "Gmail (web)";
+    })
+
+    # Google Meet
+    (pkgs.makeDesktopItem {
+      name        = "google-meet-web";
+      desktopName = "Google Meet";
+      exec        = "${pkgs.google-chrome}/bin/google-chrome-stable --app=https://meet.google.com";
+      icon        = "/etc/icons/meet.png";
+      categories  = [ "Network" "VideoConference" ];
+      comment     = "Google Meet (web)";
+    })
+
+    # Outlook — personal (outlook.live.com)
+    (pkgs.makeDesktopItem {
+      name        = "outlook-web";
+      desktopName = "Outlook";
+      exec        = "${pkgs.google-chrome}/bin/google-chrome-stable --app=https://outlook.live.com";
+      icon        = "/etc/icons/outlook.png";
+      categories  = [ "Network" "Email" ];
+      comment     = "Outlook (web)";
+    })
+
+    # Excalidraw — collaborative drawing board
+    (pkgs.makeDesktopItem {
+      name        = "excalidraw-web";
+      desktopName = "Excalidraw";
+      exec        = "${pkgs.google-chrome}/bin/google-chrome-stable --app=https://excalidraw.com";
+      icon        = "/etc/icons/excalidraw.png";
+      categories  = [ "Graphics" "2DGraphics" ];
+      comment     = "Tableau de dessin collaboratif (web)";
     })
   ];
 
-  # Remove unwanted default GNOME applications
-  environment.gnome.excludePackages = with pkgs; [ 
-    gnome-tour 
-    epiphany       
-    geary          
-    gnome-calendar 
-    gnome-music    
+  # ─── Remove unwanted default GNOME applications ──────────────────────────
+  environment.gnome.excludePackages = with pkgs; [
+    gnome-tour
+    epiphany       # Replaced by Chrome
+    geary          # Replaced by Gmail web app
+    gnome-calendar
+    gnome-music
+    totem          # GNOME video player — replaced by mpv
   ];
 
-  # Force GNOME settings for macOS look, single desktop, and custom wallpaper
+  # ─── GNOME / dconf settings ──────────────────────────────────────────────
   programs.dconf.profiles.user.databases = [{
     settings = {
+
+      # ── Shell & Dock ──────────────────────────────────────────────────────
       "org/gnome/shell" = {
         disable-user-extensions = false;
-        enabled-extensions = [ "dash-to-dock@micxgx.gmail.com" ];
+        enabled-extensions      = [ "dash-to-dock@micxgx.gmail.com" ];
+
+        # Only browser + file manager pinned in the dock.
+        # All other apps live in "Afficher les applications".
         favorite-apps = [
           "google-chrome.desktop"
-          "gmail-web.desktop"
-          "microsoft-teams-web.desktop"
-          "org.gnome.Nautilus.desktop" # Fichiers (Kept for file management)
+          "org.gnome.Nautilus.desktop"
         ];
       };
-      
-      # Dash to Dock (macOS styling)
+
+      # Dash to Dock — macOS-style floating bottom bar
       "org/gnome/shell/extensions/dash-to-dock" = {
-        dock-position = "BOTTOM";
-        show-apps-at-top = false; # Puts the 9 dots on the right side
-        extend-height = false;    # Makes it a floating dock, not full screen width
-        show-trash = false;       # Cleaner look
-        show-mounts = false;
+        dock-position    = "BOTTOM";
+        show-apps-at-top = false;  # 9-dots button on the right
+        extend-height    = false;  # Floating dock, not full-width
+        show-trash       = false;
+        show-mounts      = false;
       };
 
-      # Disable dynamic workspaces (Lock to 1 desktop)
+      # ── App drawer folders ────────────────────────────────────────────────
+      # Groups similar apps together under "Afficher les applications"
+      "org/gnome/desktop/app-folders" = {
+        folder-children = [ "LibreOffice" "Communication" "Medias" ];
+      };
+
+      "org/gnome/desktop/app-folders/folders/LibreOffice" = {
+        name = "LibreOffice";
+        apps = [
+          "libreoffice-startcenter.desktop"
+          "libreoffice-writer.desktop"
+          "libreoffice-calc.desktop"
+          "libreoffice-impress.desktop"
+          "libreoffice-draw.desktop"
+          "libreoffice-math.desktop"
+          "libreoffice-base.desktop"
+        ];
+      };
+
+      "org/gnome/desktop/app-folders/folders/Communication" = {
+        name = "Communication";
+        apps = [
+          "gmail-web.desktop"
+          "microsoft-teams-web.desktop"
+          "google-meet-web.desktop"
+          "outlook-web.desktop"
+          "Zoom.desktop"
+        ];
+      };
+
+      "org/gnome/desktop/app-folders/folders/Medias" = {
+        name = "Médias";
+        apps = [
+          "mpv.desktop"
+          "excalidraw-web.desktop"
+        ];
+      };
+
+      # ── Workspaces ────────────────────────────────────────────────────────
       "org/gnome/mutter" = {
         dynamic-workspaces = false;
       };
@@ -164,14 +283,16 @@
         num-workspaces = lib.gvariant.mkInt32 1;
       };
 
-      # Set the wallpaper permanently
+      # ── Wallpaper ─────────────────────────────────────────────────────────
       "org/gnome/desktop/background" = {
-        picture-uri = "file:///etc/backgrounds/do2-wallpaper.png";
+        picture-uri      = "file:///etc/backgrounds/do2-wallpaper.png";
         picture-uri-dark = "file:///etc/backgrounds/do2-wallpaper.png";
       };
+
     };
   }];
 
+  # ─── Fonts ───────────────────────────────────────────────────────────────
   fonts.packages = with pkgs; [
     noto-fonts
     noto-fonts-cjk-sans
