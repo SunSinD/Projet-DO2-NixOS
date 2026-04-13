@@ -8,7 +8,7 @@
   };
 
   outputs = inputs@{ self, nixpkgs, ... }: {
-    nixosConfigurations.do2 = nixpkgs.lib.nixosSystem {
+    nixosConfigurations.do2laptop = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       specialArgs = {
         inherit inputs self;
