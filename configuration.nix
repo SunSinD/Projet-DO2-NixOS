@@ -141,7 +141,7 @@
     dialect          # Best GTK translator for GNOME (Google, DeepL, LibreTranslate)
     mpv              # Lightweight video player — replaces VLC
     zoom-us          # Zoom meeting client (native)
-    zenity           # GTK dialog toolkit — powers the first-boot welcome popup
+    yad           # GTK dialog toolkit — powers the first-boot welcome popup
 
     # Useful system/admin tools (borrowed from greyxp1's nixos-config)
     bat         # Better cat with syntax highlighting
