@@ -82,26 +82,6 @@ Le script détecte le disque, partitionne, installe tout et redémarre automatiq
 
 ---
 
-## Reconstruire le système
-
-Après une modification du repo, depuis n'importe quelle machine déjà installée :
-```bash
-sudo nixos-rebuild switch --flake github:SunSinD/Projet-DO2-NixOS#do2 --no-write-lock-file
-```
-
-> Le flag `--no-write-lock-file` est requis quand on rebuild directement depuis GitHub (pas de repo local).
-
----
-
-## Mettre à jour les dépendances
-
-```bash
-nix flake update --flake /etc/nixos
-sudo nixos-rebuild switch --flake github:SunSinD/Projet-DO2-NixOS#do2 --no-write-lock-file
-```
-
----
-
 *Collège Montmorency · Département de technologie de génie électrique · 243-44A-MO · Hiver 2026*
 
 [license-shield]: https://img.shields.io/github/license/SunSinD/Projet-DO2-NixOS.svg?style=for-the-badge&color=0078D4&logo=github&logoColor=white&labelColor=333
