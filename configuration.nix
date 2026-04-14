@@ -136,7 +136,8 @@
     '';
   };
 
-  # ─── System packages ─────────────────────────────────────────────────────
+# ─── System packages ─────────────────────────────────────────────────────
+
   environment.systemPackages = with pkgs;
   [
     google-chrome
@@ -144,15 +145,14 @@
     dialect          # Best GTK translator for GNOME (Google, DeepL, LibreTranslate)
     mpv              # Lightweight video player — replaces VLC
     zoom-us          # Zoom meeting client (native)
-    yad           # GTK dialog toolkit — powers the first-boot welcome popup
-
-    # Useful system/admin tools (borrowed from greyxp1's nixos-config)
-    bat         # Better cat with syntax highlighting
-    fastfetch   # Clean system-info display
-    tree        # Directory tree viewer
-    curl        # HTTP client
-
+    yad              # GTK dialog toolkit — powers the first-boot welcome popup
+    # Useful system/admin tools 
+    bat              # Better cat with syntax highlighting
+    fastfetch        # Clean system-info display
+    tree             # Directory tree viewer
+    curl             # HTTP client
     gnomeExtensions.dash-to-dock
+    gnomeExtensions.no-overview
 
     # ── Web-app launchers (Chrome --app= wrappers) ────────────────────────
 
