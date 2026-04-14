@@ -55,7 +55,7 @@
     }
     .nav-brand {
       font-family: var(--font-display);
-      font-weight: 700; font-size: 15px;
+      font-weight: 700; font-size: 20px;
       letter-spacing: 0.02em;
       color: var(--text); text-decoration: none;
       background: none; border: none; cursor: pointer;
@@ -67,18 +67,8 @@
       display: flex; align-items: center; gap: 8px;
       position: relative;
     }
-    .nav-github {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--muted2); text-decoration: none;
-      font-size: 13px; font-weight: 500;
-      padding: 6px 14px; border-radius: 6px;
-      transition: color 0.2s, border-color 0.2s, background 0.2s;
-    }
-    .nav-github:hover { color: var(--text); border-color: var(--border-hover); background: var(--surface-hover); }
-    .nav-github svg { width: 15px; height: 15px; fill: currentColor; flex-shrink: 0; }
-
+    /* Shared nav button base — ensures identical sizing */
+    .nav-github,
     .nav-contact {
       display: inline-flex; align-items: center; gap: 8px;
       background: var(--surface);
@@ -86,12 +76,16 @@
       color: var(--muted2);
       font-size: 13px; font-weight: 500;
       padding: 6px 14px; border-radius: 6px;
-      cursor: pointer;
-      font-family: var(--font-body);
+      height: 32px;
+      white-space: nowrap;
       transition: color 0.2s, border-color 0.2s, background 0.2s;
     }
+    .nav-github { text-decoration: none; }
+    .nav-contact { cursor: pointer; font-family: var(--font-body); }
+    .nav-github:hover,
     .nav-contact:hover { color: var(--text); border-color: var(--border-hover); background: var(--surface-hover); }
-    .nav-contact svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 2; fill: none; flex-shrink: 0; }
+    .nav-github svg { width: 15px; height: 15px; fill: currentColor; flex-shrink: 0; }
+    .nav-contact svg { width: 15px; height: 15px; stroke: currentColor; stroke-width: 2; fill: none; flex-shrink: 0; }
 
     .contact-popup {
       display: none;
@@ -127,8 +121,12 @@
     .contact-popup-row svg.fill   { fill: currentColor; }
 
     /* ── ASCII Modal ────────────────────────────────────── */
+    @keyframes asciiModalFadeIn {
+      from { opacity: 0; transform: scale(0.98); }
+      to   { opacity: 1; transform: scale(1); }
+    }
     .ascii-modal-overlay {
-      display: none;
+      display: none; opacity: 0;
       position: fixed; inset: 0; z-index: 500;
       background: rgba(6,6,8,0.92);
       backdrop-filter: blur(12px);
@@ -136,7 +134,119 @@
       align-items: center; justify-content: center;
       flex-direction: column;
     }
-    .ascii-modal-overlay.open { display: flex; }
+    .ascii-modal-overlay.open {
+      display: flex;
+      animation: asciiModalFadeIn 0.35s cubic-bezier(0.16,1,0.3,1) 0.08s both;
+    }
+
+    /* ── Email Contact Modal ──────────────────────────── */
+    @keyframes emailModalFadeIn {
+      from { opacity: 0; transform: translateY(-10px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .email-modal-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 600;
+      background: rgba(6,6,8,0.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      align-items: center; justify-content: center;
+    }
+    .email-modal-overlay.open {
+      display: flex;
+      animation: emailModalFadeIn 0.3s cubic-bezier(0.16,1,0.3,1) 0.06s both;
+    }
+    .email-modal-card {
+      background: #0e1015;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 32px;
+      width: min(90vw, 440px);
+      box-shadow: 0 24px 64px rgba(0,0,0,0.7);
+      position: relative;
+    }
+    .email-modal-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .email-modal-title {
+      font-family: var(--font-display);
+      font-size: 1.2rem; font-weight: 700;
+      color: var(--text);
+    }
+    .email-modal-subtitle {
+      font-size: 0.85rem; color: var(--muted2);
+      margin-bottom: 24px; line-height: 1.6;
+    }
+    .email-modal-close {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 7px;
+      color: var(--muted2); cursor: pointer;
+      width: 30px; height: 30px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; line-height: 1;
+      transition: background 0.2s, color 0.2s;
+      flex-shrink: 0;
+    }
+    .email-modal-close:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+    .email-modal-field { margin-bottom: 16px; }
+    .email-modal-label {
+      display: block;
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 7px;
+    }
+    .email-modal-input,
+    .email-modal-textarea {
+      width: 100%; background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 8px;
+      color: var(--text); font-family: var(--font-body);
+      font-size: 0.9rem; padding: 10px 14px;
+      outline: none; resize: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .email-modal-input:focus,
+    .email-modal-textarea:focus {
+      border-color: rgba(126,184,201,0.45);
+      background: rgba(255,255,255,0.06);
+    }
+    .email-modal-textarea { height: 100px; line-height: 1.6; }
+    .email-modal-submit {
+      width: 100%; padding: 11px;
+      background: rgba(78,122,199,0.2);
+      border: 1px solid rgba(78,122,199,0.35);
+      border-radius: 8px;
+      color: var(--text); font-family: var(--font-body);
+      font-size: 0.9rem; font-weight: 600;
+      cursor: pointer; margin-top: 4px;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .email-modal-submit:hover {
+      background: rgba(78,122,199,0.35);
+      border-color: rgba(78,122,199,0.55);
+    }
+
+    /* ── BorderGlow on Cards ──────────────────────────── */
+    .card { position: relative; overflow: visible; }
+    .card-glow-layer {
+      position: absolute; inset: -1px;
+      border-radius: calc(var(--radius) + 1px);
+      pointer-events: none; z-index: 3;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      border: 1px solid transparent;
+    }
+    .card:hover .card-glow-layer { opacity: 1; }
+
+    /* ── ClickSpark Canvas ────────────────────────────── */
+    #click-spark-canvas {
+      position: fixed; inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+      width: 100%; height: 100%;
+    }
     .ascii-modal-close {
       position: absolute; top: 20px; right: 24px;
       background: rgba(255,255,255,0.05);
@@ -645,6 +755,10 @@
       </button>
       <div class="contact-popup" id="contact-popup">
         <div class="contact-popup-title">Nous joindre</div>
+        <button class="contact-popup-row" id="open-email-modal" style="background:none;border:none;width:100%;text-align:left;cursor:pointer;">
+          <svg class="stroke" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          Nous écrire un courriel
+        </button>
         <a href="https://github.com/SunSinD/Projet-DO2-NixOS/issues" target="_blank" rel="noopener" class="contact-popup-row">
           <svg class="fill" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/></svg>
           Ouvrir une issue GitHub
@@ -1509,6 +1623,7 @@ class CanvAscii {
   function openModal() {
     overlay.classList.add('open');
     document.body.style.overflow = 'hidden';
+    do2Btn.style.visibility = 'hidden'; // hide nav DO2 while big one is showing
     // small delay so element is visible and has dimensions
     requestAnimationFrame(() => {
       const { width, height } = stage.getBoundingClientRect();
@@ -1524,6 +1639,7 @@ class CanvAscii {
   function closeModal() {
     overlay.classList.remove('open');
     document.body.style.overflow = '';
+    do2Btn.style.visibility = ''; // restore nav DO2 button
     if (instance) { instance.dispose(); instance = null; }
     // clear stage
     while (stage.firstChild) stage.removeChild(stage.firstChild);
@@ -1537,9 +1653,201 @@ class CanvAscii {
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && overlay.classList.contains('open')) closeModal();
   });
+})()
+</script>
+
+
+<!-- ── Email Contact Modal ──────────────────────────────────── -->
+<div class="email-modal-overlay" id="email-modal">
+  <div class="email-modal-card">
+    <div class="email-modal-header">
+      <div class="email-modal-title">Nous contacter</div>
+      <button class="email-modal-close" id="email-modal-close">✕</button>
+    </div>
+    <p class="email-modal-subtitle">Envoyez-nous un message et nous vous répondrons dans les plus brefs délais.</p>
+    <div class="email-modal-field">
+      <label class="email-modal-label" for="em-name">Votre nom</label>
+      <input class="email-modal-input" id="em-name" type="text" placeholder="Jean Tremblay" />
+    </div>
+    <div class="email-modal-field">
+      <label class="email-modal-label" for="em-email">Votre courriel</label>
+      <input class="email-modal-input" id="em-email" type="email" placeholder="jean@exemple.com" />
+    </div>
+    <div class="email-modal-field">
+      <label class="email-modal-label" for="em-msg">Message</label>
+      <textarea class="email-modal-textarea" id="em-msg" placeholder="Bonjour, je voudrais..."></textarea>
+    </div>
+    <button class="email-modal-submit" id="email-modal-submit">Envoyer le message →</button>
+  </div>
+</div>
+
+<!-- ── ClickSpark Canvas ──────────────────────────────────────── -->
+<canvas id="click-spark-canvas"></canvas>
+
+<script>
+// ── Email Modal Wiring ────────────────────────────────────────
+(function () {
+  const overlay   = document.getElementById('email-modal');
+  const closeBtn  = document.getElementById('email-modal-close');
+  const submitBtn = document.getElementById('email-modal-submit');
+  const openBtn   = document.getElementById('open-email-modal');
+  // ★ Replace with your actual email address:
+  const DEST_EMAIL = 'SunpreetSingh22@outlook.com';
+
+  function openEmailModal() {
+    document.getElementById('contact-popup').classList.remove('open');
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeEmailModal() {
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  openBtn.addEventListener('click', openEmailModal);
+  closeBtn.addEventListener('click', closeEmailModal);
+  overlay.addEventListener('click', function (e) { if (e.target === overlay) closeEmailModal(); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && overlay.classList.contains('open')) closeEmailModal();
+  });
+
+  submitBtn.addEventListener('click', function () {
+    const name  = document.getElementById('em-name').value.trim();
+    const email = document.getElementById('em-email').value.trim();
+    const msg   = document.getElementById('em-msg').value.trim();
+    if (!name || !email || !msg) {
+      submitBtn.textContent = 'Veuillez remplir tous les champs.';
+      setTimeout(() => { submitBtn.textContent = 'Envoyer le message →'; }, 2000);
+      return;
+    }
+    const subject = encodeURIComponent('Message via le site Projet DO2');
+    const body    = encodeURIComponent('Nom : ' + name + '\nCourriel : ' + email + '\n\n' + msg);
+    window.location.href = 'mailto:' + DEST_EMAIL + '?subject=' + subject + '&body=' + body;
+    closeEmailModal();
+  });
 })();
 </script>
 
+<script>
+// ── ClickSpark ────────────────────────────────────────────────
+(function () {
+  const canvas = document.getElementById('click-spark-canvas');
+  const ctx    = canvas.getContext('2d');
+  let W = 0, H = 0;
+  const sparks = [];
+  const SPARK_COLOR  = 'rgba(126,184,201,';
+  const SPARK_COUNT  = 8;
+  const SPARK_RADIUS = 40;
+  const SPARK_SIZE   = 12;
+  const DURATION     = 500;
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  document.addEventListener('click', function (e) {
+    const now = performance.now();
+    for (let i = 0; i < SPARK_COUNT; i++) {
+      sparks.push({ x: e.clientX, y: e.clientY,
+        angle: (2 * Math.PI * i) / SPARK_COUNT, t: now });
+    }
+  });
+
+  function ease(t) { return t * (2 - t); }
+
+  function draw(ts) {
+    ctx.clearRect(0, 0, W, H);
+    for (let i = sparks.length - 1; i >= 0; i--) {
+      const s = sparks[i];
+      const p = Math.min((ts - s.t) / DURATION, 1);
+      const e = ease(p);
+      const dist = e * SPARK_RADIUS;
+      const len  = SPARK_SIZE * (1 - e);
+      const x1 = s.x + dist * Math.cos(s.angle);
+      const y1 = s.y + dist * Math.sin(s.angle);
+      const x2 = s.x + (dist + len) * Math.cos(s.angle);
+      const y2 = s.y + (dist + len) * Math.sin(s.angle);
+      ctx.strokeStyle = SPARK_COLOR + (1 - p).toFixed(2) + ')';
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+      if (p >= 1) sparks.splice(i, 1);
+    }
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+})();
+</script>
+
+<script>
+// ── BorderGlow on Cards ───────────────────────────────────────
+(function () {
+  document.querySelectorAll('.card[data-tilt]').forEach(card => {
+    // inject glow canvas
+    const gc = document.createElement('canvas');
+    gc.className = 'card-glow-layer';
+    card.appendChild(gc);
+
+    function resizeGc() {
+      gc.width  = card.offsetWidth  + 2;
+      gc.height = card.offsetHeight + 2;
+    }
+    resizeGc();
+    new ResizeObserver(resizeGc).observe(card);
+
+    let cursorX = 0, cursorY = 0, active = false;
+
+    card.addEventListener('mouseenter', () => { active = true; gc.style.opacity = '1'; });
+    card.addEventListener('mouseleave', () => { active = false; gc.style.opacity = '0'; });
+    card.addEventListener('mousemove', e => {
+      const r = card.getBoundingClientRect();
+      cursorX = e.clientX - r.left + 1;
+      cursorY = e.clientY - r.top  + 1;
+    });
+
+    const ctx2 = gc.getContext('2d');
+    const radius = 12;
+
+    function drawGlow() {
+      requestAnimationFrame(drawGlow);
+      if (!active) return;
+      const w = gc.width, h = gc.height;
+      ctx2.clearRect(0, 0, w, h);
+
+      // rounded-rect clip path
+      ctx2.save();
+      ctx2.beginPath();
+      ctx2.moveTo(radius, 0);
+      ctx2.lineTo(w - radius, 0);
+      ctx2.quadraticCurveTo(w, 0, w, radius);
+      ctx2.lineTo(w, h - radius);
+      ctx2.quadraticCurveTo(w, h, w - radius, h);
+      ctx2.lineTo(radius, h);
+      ctx2.quadraticCurveTo(0, h, 0, h - radius);
+      ctx2.lineTo(0, radius);
+      ctx2.quadraticCurveTo(0, 0, radius, 0);
+      ctx2.closePath();
+
+      // glow gradient following cursor
+      const grad = ctx2.createRadialGradient(cursorX, cursorY, 0, cursorX, cursorY, Math.max(w, h) * 0.6);
+      grad.addColorStop(0,   'rgba(126,184,201,0.28)');
+      grad.addColorStop(0.4, 'rgba(78,122,199,0.12)');
+      grad.addColorStop(1,   'rgba(78,122,199,0)');
+      ctx2.fillStyle = grad;
+      ctx2.fill();
+
+      // border glow stroke
+      ctx2.strokeStyle = 'rgba(126,184,201,0.35)';
+      ctx2.lineWidth   = 1;
+      ctx2.stroke();
+      ctx2.restore();
+    }
+    drawGlow();
+  });
+})();
+</script>
 
 </body>
 </html>
