@@ -116,6 +116,13 @@
       font-family: var(--font-body);
       line-height: 1.4;
       transition: background 0.15s, color 0.15s;
+      /* Reset button defaults */
+      background: none;
+      border: none;
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+      box-sizing: border-box;
     }
     .contact-popup-row:hover { background: rgba(255,255,255,0.05); color: var(--text); }
     .contact-popup-row svg { width: 14px; height: 14px; flex-shrink: 0; opacity: 0.6; }
@@ -720,6 +727,43 @@
     .reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.8s ease-out, transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
     .reveal.visible { opacity: 1; transform: translateY(0); }
 
+    /* ── Split Text Letter Animation ─────────────────── */
+    .split-letter {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.6s cubic-bezier(0.16,1,0.3,1), transform 0.6s cubic-bezier(0.16,1,0.3,1);
+      will-change: transform, opacity;
+    }
+    .split-letter.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── Shiny Badge Text ─────────────────────────────── */
+    @keyframes shinySlide {
+      0%   { background-position: 200% center; }
+      100% { background-position: -200% center; }
+    }
+    .shiny-badge {
+      background: linear-gradient(90deg,
+        #9ca3af 0%,
+        #9ca3af 35%,
+        #ffffff 50%,
+        #9ca3af 65%,
+        #9ca3af 100%
+      );
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shinySlide 3s linear infinite;
+      font-size: 13px !important;
+      font-weight: 900 !important;
+      letter-spacing: 0.02em !important;
+      text-transform: none !important;
+    }
+
     @media (max-width: 640px) {
       nav { padding: 0 20px; }
       header { padding: 100px 20px 60px; min-height: 100svh; }
@@ -758,7 +802,7 @@
       </button>
       <div class="contact-popup" id="contact-popup">
         <div class="contact-popup-title">Nous joindre</div>
-        <button class="contact-popup-row" id="open-email-modal" style="background:none;border:none;width:100%;text-align:left;cursor:pointer;">
+        <button class="contact-popup-row" id="open-email-modal">
           <svg class="stroke" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
           Nous écrire un courriel
         </button>
@@ -1003,7 +1047,7 @@
       </div>
 
       <div class="footer-main">
-        <h2 class="footer-heading">Prêt à<br/>contribuer ?</h2>
+        <h2 class="footer-heading" id="footer-split-heading">Prêt à<br/>contribuer ?</h2>
 
         <div class="footer-pills">
           <a href="https://github.com/SunSinD/Projet-DO2-NixOS" class="footer-pill footer-pill-primary" target="_blank" rel="noopener">
@@ -1023,7 +1067,7 @@
           <span>Réalisé avec</span>
           <span class="footer-heart">❤</span>
           <span>par les étudiants de</span>
-          <span class="footer-badge-name">Génie Électrique</span>
+          <span class="footer-badge-name shiny-badge">Génie Électrique</span>
         </div>
 
         <button class="footer-back-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Retour en haut">
@@ -1409,7 +1453,7 @@ class AsciiFilter {
   constructor(renderer, { fontSize, fontFamily, charset, invert } = {}) {
     this.renderer   = renderer;
     this.domElement = document.createElement('div');
-    this.domElement.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;';
+    this.domElement.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;';
     this.pre = document.createElement('pre');
     this.domElement.appendChild(this.pre);
     this.canvas  = document.createElement('canvas');
@@ -1447,6 +1491,8 @@ class AsciiFilter {
       backgroundAttachment: 'fixed',
       WebkitTextFillColor: 'transparent', WebkitBackgroundClip: 'text',
       mixBlendMode: 'difference', userSelect: 'none',
+      overflow: 'hidden', maxWidth: '100%', maxHeight: '100%',
+      whiteSpace: 'pre', wordBreak: 'normal',
     });
   }
   render(scene, camera) {
