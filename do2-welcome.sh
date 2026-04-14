@@ -5,11 +5,11 @@ MARKER="$HOME/.do2-welcome-shown"
 touch "$MARKER"
 
 GDK_BACKEND=wayland yad \
-  --title="Bienvenue" \
-  --text="Cet ordinateur vous est remis dans le cadre du projet <b>Dons d'ordinateurs, 2e vie</b> du Collège Montmorency, initié par des étudiants pour donner une seconde vie au matériel informatique.\n\nVisitez notre site pour en savoir plus." \
-  --button="Fermer:1" \
-  --button="Site Web:0" \
-  --width=400 \
+  --title="DO2 — Vérification" \
+  --text="<b>Installation terminée ✓</b>\n\nAvant de remettre cet ordinateur, vérifiez rapidement :\n\n• Wi-Fi fonctionnel\n• Son fonctionnel\n• Chrome, LibreOffice, Zoom s'ouvrent\n• Webcam et micro (si applicable)\n\nSi tout est bon, vous pouvez passer au prochain !" \
+  --button="Compris:1" \
+  --button="Site du projet:0" \
+  --width=420 \
   --center \
   --borders=20 \
   --skip-taskbar \
