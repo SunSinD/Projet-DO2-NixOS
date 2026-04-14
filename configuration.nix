@@ -44,9 +44,9 @@
   services.xserver.xkb.variant = "";
 
   # GNOME desktop — simplest UI for non-technical users
-  services.xserver.enable               = true;
-  services.displayManager.gdm.enable    = true;
-  services.desktopManager.gnome.enable  = true;
+  services.xserver.enable              = true;
+  services.displayManager.gdm.enable   = true;
+  services.desktopManager.gnome.enable = true;
 
   # Auto-login: boots straight to desktop, no password screen
   services.displayManager.autoLogin.enable = true;
@@ -64,6 +64,9 @@
     alsa.support32Bit = true;
     pulse.enable      = true;
   };
+
+  # Battery / power management — important for laptops
+  services.upower.enable = true;
 
   services.gnome.gnome-keyring.enable = true;
   security.pam.services.gdm-autologin.enableGnomeKeyring = true;
@@ -87,7 +90,6 @@
   }];
 
   # Nix settings — flakes + wheel users can use binary caches
-  # (trusted-users improvement borrowed from greyxp1's nixos-config)
   nix.settings = {
     experimental-features = [ "nix-command" "flakes" ];
     trusted-users         = [ "root" "@wheel" ];
@@ -95,8 +97,7 @@
 
   nixpkgs.config.allowUnfree = true;
 
-  # Git global defaults — sane settings for students/admins
-  # (init.defaultBranch + pull.rebase from greyxp1's nixos-config)
+  # Git global defaults
   programs.git = {
     enable = true;
     config = {
@@ -106,25 +107,23 @@
   };
 
   # ─── Static assets bundled into the system ───────────────────────────────
-  # All images live in assets/ — keep the repo root clean
   environment.etc = {
     "backgrounds/do2-wallpaper.png".source = ./assets/do2-wallpaper.png;
 
     # Web-app icons
     "icons/teams.png".source      = ./assets/teams.png;
     "icons/gmail.png".source      = ./assets/gmail.png;
-    "icons/meet.png".source       = ./assets/meet.png;       # Google Meet
-    "icons/outlook.png".source    = ./assets/outlook.png;    # Outlook
-    "icons/excalidraw.png".source = ./assets/excalidraw.png; # Excalidraw
+    "icons/meet.png".source       = ./assets/meet.png;
+    "icons/outlook.png".source    = ./assets/outlook.png;
+    "icons/excalidraw.png".source = ./assets/excalidraw.png;
 
-    # First-boot welcome script (runs once per user via XDG autostart)
+    # First-boot welcome script
     "scripts/do2-welcome.sh" = {
       source = ./do2-welcome.sh;
       mode   = "0755";
     };
 
-    # XDG autostart entry — GNOME launches this after every login,
-    # but the script itself only shows the popup once (marker file).
+    # XDG autostart — GNOME launches this after every login
     "xdg/autostart/do2-welcome.desktop".text = ''
       [Desktop Entry]
       Type=Application
@@ -136,17 +135,14 @@
     '';
   };
 
-# ─── System packages ─────────────────────────────────────────────────────
-
-  environment.systemPackages = with pkgs;
-  [
+  # ─── System packages ─────────────────────────────────────────────────────
+  environment.systemPackages = with pkgs; [
     google-chrome
     libreoffice-fresh
-    dialect          # Best GTK translator for GNOME (Google, DeepL, LibreTranslate)
-    mpv              # Lightweight video player — replaces VLC
+    dialect          # GTK translator (Google, DeepL, LibreTranslate)
+    mpv              # Lightweight video player
     zoom-us          # Zoom meeting client (native)
-    yad              # GTK dialog toolkit — powers the first-boot welcome popup
-    # Useful system/admin tools 
+    yad              # GTK dialog toolkit — powers the welcome popup
     bat              # Better cat with syntax highlighting
     fastfetch        # Clean system-info display
     tree             # Directory tree viewer
@@ -154,9 +150,7 @@
     gnomeExtensions.dash-to-dock
     gnomeExtensions.no-overview
 
-    # ── Web-app launchers (Chrome --app= wrappers) ────────────────────────
-
-    # Microsoft Teams
+    # ── Web-app launchers ─────────────────────────────────────────────────
     (pkgs.makeDesktopItem {
       name        = "microsoft-teams-web";
       desktopName = "Microsoft Teams";
@@ -165,8 +159,6 @@
       categories  = [ "Network" "InstantMessaging" ];
       comment     = "Microsoft Teams (web)";
     })
-
-    # Gmail
     (pkgs.makeDesktopItem {
       name        = "gmail-web";
       desktopName = "Gmail";
@@ -175,8 +167,6 @@
       categories  = [ "Network" "Email" ];
       comment     = "Gmail (web)";
     })
-
-    # Google Meet
     (pkgs.makeDesktopItem {
       name        = "google-meet-web";
       desktopName = "Google Meet";
@@ -185,8 +175,6 @@
       categories  = [ "Network" "VideoConference" ];
       comment     = "Google Meet (web)";
     })
-
-    # Outlook — personal (outlook.live.com)
     (pkgs.makeDesktopItem {
       name        = "outlook-web";
       desktopName = "Outlook";
@@ -195,8 +183,6 @@
       categories  = [ "Network" "Email" ];
       comment     = "Outlook (web)";
     })
-
-    # Excalidraw — collaborative drawing board
     (pkgs.makeDesktopItem {
       name        = "excalidraw-web";
       desktopName = "Excalidraw";
@@ -214,41 +200,40 @@
     geary          # Replaced by Gmail web app
     gnome-calendar
     gnome-music
-    totem          # GNOME video player — replaced by mpv
+    totem          # Replaced by mpv
   ];
 
   # ─── GNOME / dconf settings ──────────────────────────────────────────────
+  programs.dconf.enable = true;
   programs.dconf.profiles.user.databases = [{
     settings = {
 
-      # ── Shell & Dock ──────────────────────────────────────────────────────
+      # ── Shell & extensions ────────────────────────────────────────────────
       "org/gnome/shell" = {
         disable-user-extensions = false;
-        enabled-extensions      = [ "dash-to-dock@micxgx.gmail.com" ];
-
-        # Only browser + file manager pinned in the dock.
-        # All other apps live in "Afficher les applications".
+        enabled-extensions      = [
+          "dash-to-dock@micxgx.gmail.com"
+          "no-overview@fthx"
+        ];
         favorite-apps = [
           "google-chrome.desktop"
           "org.gnome.Nautilus.desktop"
         ];
       };
 
-      # Dash to Dock — macOS-style floating bottom bar
+      # Dash to Dock — floating bottom bar
       "org/gnome/shell/extensions/dash-to-dock" = {
         dock-position    = "BOTTOM";
-        show-apps-at-top = false;  # 9-dots button on the right
-        extend-height    = false;  # Floating dock, not full-width
+        show-apps-at-top = false;
+        extend-height    = false;
         show-trash       = false;
         show-mounts      = false;
       };
 
       # ── App drawer folders ────────────────────────────────────────────────
-      # Groups similar apps together under "Afficher les applications"
       "org/gnome/desktop/app-folders" = {
         folder-children = [ "LibreOffice" "Communication" "Medias" ];
       };
-
       "org/gnome/desktop/app-folders/folders/LibreOffice" = {
         name = "LibreOffice";
         apps = [
@@ -261,7 +246,6 @@
           "libreoffice-base.desktop"
         ];
       };
-
       "org/gnome/desktop/app-folders/folders/Communication" = {
         name = "Communication";
         apps = [
@@ -272,7 +256,6 @@
           "Zoom.desktop"
         ];
       };
-
       "org/gnome/desktop/app-folders/folders/Medias" = {
         name = "Médias";
         apps = [
