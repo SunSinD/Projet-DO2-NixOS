@@ -55,7 +55,7 @@
     }
     .nav-brand {
       font-family: var(--font-display);
-      font-weight: 700; font-size: 20px;
+      font-weight: 700; font-size: 23px;
       letter-spacing: 0.02em;
       color: var(--text); text-decoration: none;
       background: none; border: none; cursor: pointer;
@@ -113,6 +113,8 @@
       padding: 9px 10px; border-radius: 7px;
       text-decoration: none; color: var(--muted2);
       font-size: 13px; font-weight: 500;
+      font-family: var(--font-body);
+      line-height: 1.4;
       transition: background 0.15s, color 0.15s;
     }
     .contact-popup-row:hover { background: rgba(255,255,255,0.05); color: var(--text); }
@@ -133,6 +135,7 @@
       -webkit-backdrop-filter: blur(12px);
       align-items: center; justify-content: center;
       flex-direction: column;
+      overflow: hidden;
     }
     .ascii-modal-overlay.open {
       display: flex;
@@ -229,14 +232,13 @@
     }
 
     /* ── BorderGlow on Cards ──────────────────────────── */
-    .card { position: relative; overflow: visible; }
+    .card { position: relative; overflow: hidden; }
     .card-glow-layer {
-      position: absolute; inset: -1px;
-      border-radius: calc(var(--radius) + 1px);
+      position: absolute; inset: 0;
+      border-radius: var(--radius);
       pointer-events: none; z-index: 3;
       opacity: 0;
       transition: opacity 0.3s ease;
-      border: 1px solid transparent;
     }
     .card:hover .card-glow-layer { opacity: 1; }
 
@@ -263,6 +265,7 @@
       position: relative;
       width: min(90vw, 900px);
       height: min(45vh, 340px);
+      overflow: hidden;
     }
     .ascii-modal-hint {
       margin-top: 20px;
@@ -1677,7 +1680,7 @@ class CanvAscii {
       <label class="email-modal-label" for="em-msg">Message</label>
       <textarea class="email-modal-textarea" id="em-msg" placeholder="Bonjour, je voudrais..."></textarea>
     </div>
-    <button class="email-modal-submit" id="email-modal-submit">Envoyer le message →</button>
+    <button class="email-modal-submit" id="email-modal-submit">Envoyer le message</button>
   </div>
 </div>
 
@@ -1717,7 +1720,7 @@ class CanvAscii {
     const msg   = document.getElementById('em-msg').value.trim();
     if (!name || !email || !msg) {
       submitBtn.textContent = 'Veuillez remplir tous les champs.';
-      setTimeout(() => { submitBtn.textContent = 'Envoyer le message →'; }, 2000);
+      setTimeout(() => { submitBtn.textContent = 'Envoyer le message'; }, 2000);
       return;
     }
     const subject = encodeURIComponent('Message via le site Projet DO2');
@@ -1737,9 +1740,9 @@ class CanvAscii {
   const sparks = [];
   const SPARK_COLOR  = 'rgba(126,184,201,';
   const SPARK_COUNT  = 8;
-  const SPARK_RADIUS = 40;
-  const SPARK_SIZE   = 12;
-  const DURATION     = 500;
+  const SPARK_RADIUS = 16;
+  const SPARK_SIZE   = 4;
+  const DURATION     = 400;
 
   function resize() {
     W = canvas.width  = window.innerWidth;
@@ -1791,8 +1794,8 @@ class CanvAscii {
     card.appendChild(gc);
 
     function resizeGc() {
-      gc.width  = card.offsetWidth  + 2;
-      gc.height = card.offsetHeight + 2;
+      gc.width  = card.offsetWidth;
+      gc.height = card.offsetHeight;
     }
     resizeGc();
     new ResizeObserver(resizeGc).observe(card);
@@ -1803,8 +1806,8 @@ class CanvAscii {
     card.addEventListener('mouseleave', () => { active = false; gc.style.opacity = '0'; });
     card.addEventListener('mousemove', e => {
       const r = card.getBoundingClientRect();
-      cursorX = e.clientX - r.left + 1;
-      cursorY = e.clientY - r.top  + 1;
+      cursorX = e.clientX - r.left;
+      cursorY = e.clientY - r.top;
     });
 
     const ctx2 = gc.getContext('2d');
@@ -1816,19 +1819,21 @@ class CanvAscii {
       const w = gc.width, h = gc.height;
       ctx2.clearRect(0, 0, w, h);
 
-      // rounded-rect clip path
+      // rounded-rect clip path (inset by 0.5 to keep stroke inside)
+      const r2 = radius - 0.5;
       ctx2.save();
       ctx2.beginPath();
-      ctx2.moveTo(radius, 0);
-      ctx2.lineTo(w - radius, 0);
-      ctx2.quadraticCurveTo(w, 0, w, radius);
-      ctx2.lineTo(w, h - radius);
-      ctx2.quadraticCurveTo(w, h, w - radius, h);
-      ctx2.lineTo(radius, h);
-      ctx2.quadraticCurveTo(0, h, 0, h - radius);
-      ctx2.lineTo(0, radius);
-      ctx2.quadraticCurveTo(0, 0, radius, 0);
+      ctx2.moveTo(r2, 0);
+      ctx2.lineTo(w - r2, 0);
+      ctx2.quadraticCurveTo(w, 0, w, r2);
+      ctx2.lineTo(w, h - r2);
+      ctx2.quadraticCurveTo(w, h, w - r2, h);
+      ctx2.lineTo(r2, h);
+      ctx2.quadraticCurveTo(0, h, 0, h - r2);
+      ctx2.lineTo(0, r2);
+      ctx2.quadraticCurveTo(0, 0, r2, 0);
       ctx2.closePath();
+      ctx2.clip();
 
       // glow gradient following cursor
       const grad = ctx2.createRadialGradient(cursorX, cursorY, 0, cursorX, cursorY, Math.max(w, h) * 0.6);
@@ -1838,7 +1843,7 @@ class CanvAscii {
       ctx2.fillStyle = grad;
       ctx2.fill();
 
-      // border glow stroke
+      // border glow stroke — drawn after clip so it stays inside
       ctx2.strokeStyle = 'rgba(126,184,201,0.35)';
       ctx2.lineWidth   = 1;
       ctx2.stroke();
