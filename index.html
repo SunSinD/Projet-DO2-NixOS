@@ -273,6 +273,23 @@
       width: min(90vw, 900px);
       height: min(45vh, 340px);
       overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ascii-modal-stage > div {
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ascii-modal-stage pre {
+      text-align: center;
+      width: 100%;
     }
     .ascii-modal-hint {
       margin-top: 20px;
@@ -337,21 +354,37 @@
       color: var(--accent2);
       text-decoration: none; margin-top: 16px;
       transition: color 0.2s;
-      animation: bobble 2.4s ease-in-out infinite, heroSlide 0.8s cubic-bezier(0.16,1,0.3,1) 0.62s both !important;
+      animation: bobble 2s ease-in-out infinite, heroSlide 0.8s cubic-bezier(0.16,1,0.3,1) 0.62s both !important;
     }
     .scroll-arrow:hover { color: #fff; }
+    .scroll-arrow:hover svg {
+      filter: drop-shadow(0 0 14px rgba(126,184,201,0.95));
+    }
     .scroll-label {
       font-family: var(--font-display);
       font-size: 10px; font-weight: 600;
       letter-spacing: 0.18em; text-transform: uppercase;
+      animation: labelPulse 2s ease-in-out infinite;
     }
     .scroll-arrow svg {
-      width: 24px; height: 24px; stroke: currentColor; stroke-width: 2.5; fill: none;
+      width: 28px; height: 28px; stroke: currentColor; stroke-width: 2.5; fill: none;
       filter: drop-shadow(0 0 8px rgba(126,184,201,0.55));
+      animation: arrowGlow 2s ease-in-out infinite;
     }
     @keyframes bobble {
-      0%, 100% { transform: translateY(0); }
-      50%       { transform: translateY(8px); }
+      0%        { transform: translateY(0px); }
+      25%       { transform: translateY(6px); }
+      50%       { transform: translateY(12px); }
+      75%       { transform: translateY(6px); }
+      100%      { transform: translateY(0px); }
+    }
+    @keyframes arrowGlow {
+      0%, 100% { filter: drop-shadow(0 0 6px rgba(126,184,201,0.4)); opacity: 0.85; }
+      50%      { filter: drop-shadow(0 0 18px rgba(126,184,201,0.9)); opacity: 1; }
+    }
+    @keyframes labelPulse {
+      0%, 100% { opacity: 0.5; }
+      50%      { opacity: 1; }
     }
 
     main { position: relative; z-index: 1; max-width: 960px; margin: 0 auto; padding: 0 24px 100px; }
@@ -1486,13 +1519,16 @@ class AsciiFilter {
     Object.assign(this.pre.style, {
       fontFamily: this.fontFamily, fontSize: `${this.fontSize}px`,
       margin: '0', padding: '0', lineHeight: '1em',
-      position: 'absolute', left: '0', top: '0', zIndex: '9',
+      position: 'absolute', left: '50%', top: '50%',
+      transform: 'translate(-50%, -50%)',
+      zIndex: '9',
       backgroundImage: 'radial-gradient(circle, #ff6188 0%, #fc9867 50%, #ffd866 100%)',
       backgroundAttachment: 'fixed',
       WebkitTextFillColor: 'transparent', WebkitBackgroundClip: 'text',
       mixBlendMode: 'difference', userSelect: 'none',
       overflow: 'hidden', maxWidth: '100%', maxHeight: '100%',
       whiteSpace: 'pre', wordBreak: 'normal',
+      textAlign: 'center',
     });
   }
   render(scene, camera) {
@@ -1673,15 +1709,19 @@ class CanvAscii {
     overlay.classList.add('open');
     document.body.style.overflow = 'hidden';
     do2Btn.style.visibility = 'hidden'; // hide nav DO2 while big one is showing
-    // small delay so element is visible and has dimensions
+    // Double rAF + small timeout ensures layout is computed after display:flex
     requestAnimationFrame(() => {
-      const { width, height } = stage.getBoundingClientRect();
-      instance = new CanvAscii(
-        { text: 'DO2', asciiFontSize: 8, textFontSize: 200,
-          textColor: '#fdf9f3', planeBaseHeight: 8, enableWaves: true },
-        stage, width, height
-      );
-      instance.init().then(() => { if (instance) instance.load(); });
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          const { width, height } = stage.getBoundingClientRect();
+          instance = new CanvAscii(
+            { text: 'DO2', asciiFontSize: 8, textFontSize: 200,
+              textColor: '#fdf9f3', planeBaseHeight: 8, enableWaves: true },
+            stage, width, height
+          );
+          instance.init().then(() => { if (instance) instance.load(); });
+        }, 60);
+      });
     });
   }
 
