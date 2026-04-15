@@ -1390,7 +1390,7 @@ sudo nmcli con up "Montmorency-WiFi"</code></pre>
 
   // ── Physics nodes ────────────────────────────────────────────
   const GRAVITY   = 1800;
-  const DAMPING   = 0.985;
+  const DAMPING   = 0.88;
   const ROPE_SEGS = 18;
   const SEG_LEN   = 18;
 
@@ -1425,7 +1425,11 @@ sudo nmcli con up "Montmorency-WiFi"</code></pre>
       if (!hinted) { hint.style.opacity = '0'; hinted = true; }
     }
   }
-  function onMove(ex, ey) { mx = ex; my = ey; }
+  function onMove(ex, ey) {
+    // Clamp pointer within canvas bounds so card never escapes the viewport
+    mx = Math.max(CARD_W / 2, Math.min(W - CARD_W / 2, ex));
+    my = Math.max(anchor.y + SEG_LEN, Math.min(H - CARD_H - 10, ey));
+  }
   function onUp() { dragging = false; wrap.style.cursor = 'grab'; }
 
   function toLocal(e) {
@@ -1494,52 +1498,91 @@ sudo nmcli con up "Montmorency-WiFi"</code></pre>
     }
   }
 
-  // ── NixOS snowflake SVG path (rendered on card) ─────────────
+  // ── NixOS lambda-hexagon logo (accurate) ─────────────────────
+  // The real NixOS logo is 6 lambda (λ) shapes arranged in a hexagonal pattern.
   function drawNixLogo(ctx2, cx, cy, size) {
     ctx2.save();
     ctx2.translate(cx, cy);
-    const r = size;
-    ctx2.strokeStyle = 'rgba(126,184,201,0.9)';
-    ctx2.lineWidth   = size * 0.14;
-    ctx2.lineCap     = 'round';
-    // 6-arm snowflake
+
+    const r = size * 0.95;
+    // 6 lambdas arranged around the center, each rotated 60°
     for (let i = 0; i < 6; i++) {
       ctx2.save();
-      ctx2.rotate((i * Math.PI) / 3);
+      ctx2.rotate((i * Math.PI) / 3 + Math.PI / 6);
+
+      // Each lambda: two lines meeting at a tip, like an upward chevron (/\)
+      const tipY  = -r * 0.55;
+      const baseY =  r * 0.22;
+      const spread = r * 0.36;
+      const thick  = size * 0.12;
+
+      ctx2.lineWidth = thick;
+      ctx2.lineCap   = 'round';
+      ctx2.lineJoin  = 'round';
+      ctx2.strokeStyle = 'rgba(126,184,201,0.92)';
+
+      // Left arm of lambda
       ctx2.beginPath();
-      ctx2.moveTo(0, -r * 0.28);
-      ctx2.lineTo(0, -r);
+      ctx2.moveTo(-spread, baseY);
+      ctx2.lineTo(0, tipY);
       ctx2.stroke();
-      // two small branches
-      [-0.38, 0.38].forEach(a => {
-        ctx2.save();
-        ctx2.translate(0, -r * 0.62);
-        ctx2.rotate(a);
-        ctx2.beginPath();
-        ctx2.moveTo(0, 0);
-        ctx2.lineTo(0, -r * 0.28);
-        ctx2.stroke();
-        ctx2.restore();
-      });
+
+      // Right arm of lambda
+      ctx2.beginPath();
+      ctx2.moveTo(0, tipY);
+      ctx2.lineTo(spread * 0.55, baseY * 0.4);
+      ctx2.stroke();
+
       ctx2.restore();
     }
-    // center dot
+
+    // Center hex accent
     ctx2.beginPath();
-    ctx2.arc(0, 0, size * 0.14, 0, Math.PI * 2);
-    ctx2.fillStyle = 'rgba(126,184,201,0.9)';
+    ctx2.arc(0, 0, size * 0.13, 0, Math.PI * 2);
+    ctx2.fillStyle = 'rgba(126,184,201,0.6)';
     ctx2.fill();
+
     ctx2.restore();
   }
 
-  // ── Montmorency "M" mono logo ────────────────────────────────
+  // ── Montmorency shield logo ───────────────────────────────────
+  // Uses Montmorency's navy (#003A70) and green (#78BE20) brand colors.
   function drawMontLogo(ctx2, cx, cy, size) {
     ctx2.save();
     ctx2.translate(cx, cy);
-    ctx2.font = `900 ${size * 1.6}px 'Space Grotesk', sans-serif`;
+
+    const s = size * 1.1;
+
+    // Shield outline
+    ctx2.beginPath();
+    ctx2.moveTo(0, -s);
+    ctx2.lineTo(s * 0.72, -s * 0.5);
+    ctx2.lineTo(s * 0.72,  s * 0.3);
+    ctx2.quadraticCurveTo(s * 0.72, s * 0.9, 0, s);
+    ctx2.quadraticCurveTo(-s * 0.72, s * 0.9, -s * 0.72, s * 0.3);
+    ctx2.lineTo(-s * 0.72, -s * 0.5);
+    ctx2.closePath();
+
+    // Navy fill
+    ctx2.fillStyle = 'rgba(0,58,112,0.92)';
+    ctx2.fill();
+
+    // Green top band
+    ctx2.save();
+    ctx2.clip();
+    ctx2.fillStyle = 'rgba(120,190,32,0.88)';
+    ctx2.fillRect(-s, -s, s * 2, s * 0.55);
+    ctx2.restore();
+
+    // White "M" letter centered in shield
+    ctx2.font = `900 ${s * 1.05}px 'Space Grotesk', sans-serif`;
     ctx2.textAlign    = 'center';
-    ctx2.textBaseline = 'middle';
-    ctx2.fillStyle = 'rgba(120,190,32,0.95)'; // Montmorency green
-    ctx2.fillText('M', 0, 0);
+    ctx2.textBaseline = 'alphabetic';
+    const mMetrics = ctx2.measureText('M');
+    const mH = (mMetrics.actualBoundingBoxAscent || s * 0.7);
+    ctx2.fillStyle = 'rgba(255,255,255,0.95)';
+    ctx2.fillText('M', 0, s * 0.1 + mH / 2);
+
     ctx2.restore();
   }
 
@@ -1647,39 +1690,47 @@ sudo nmcli con up "Montmorency-WiFi"</code></pre>
     ctx.fillStyle = shineGrad;
     ctx.fillRect(cX, cY, CARD_W, CARD_H);
 
+    // ── Card layout constants ──────────────────────────────────
+    const barH   = 24;
+    const logoY  = cY + (CARD_H - barH) * 0.44;
+    const labelY = cY + (CARD_H - barH) * 0.80;
+    const leftX  = cX + CARD_W * 0.27;
+    const rightX = cX + CARD_W * 0.73;
+
     // Left half: NixOS logo + label
-    drawNixLogo(ctx, cX + CARD_W * 0.27, cY + CARD_H * 0.44, 22);
+    drawNixLogo(ctx, leftX, logoY, 22);
     ctx.font         = '700 9px "Space Grotesk", sans-serif';
-    ctx.fillStyle    = 'rgba(126,184,201,0.7)';
+    ctx.fillStyle    = 'rgba(126,184,201,0.82)';
     ctx.textAlign    = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('NixOS', cX + CARD_W * 0.27, cY + CARD_H * 0.82);
+    ctx.fillText('NixOS', leftX, labelY);
 
     // Divider
-    ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
     ctx.lineWidth   = 1;
     ctx.beginPath();
     ctx.moveTo(cX + CARD_W * 0.5, cY + 12);
-    ctx.lineTo(cX + CARD_W * 0.5, cY + CARD_H - 12);
+    ctx.lineTo(cX + CARD_W * 0.5, cY + CARD_H - barH - 8);
     ctx.stroke();
 
-    // Right half: Montmorency M + label
-    drawMontLogo(ctx, cX + CARD_W * 0.73, cY + CARD_H * 0.42, 18);
+    // Right half: Montmorency shield logo + label
+    drawMontLogo(ctx, rightX, logoY, 18);
     ctx.font         = '700 8px "Space Grotesk", sans-serif';
-    ctx.fillStyle    = 'rgba(120,190,32,0.75)';
+    ctx.fillStyle    = 'rgba(120,190,32,0.85)';
     ctx.textAlign    = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('Montmorency', cX + CARD_W * 0.73, cY + CARD_H * 0.82);
+    ctx.fillText('Montmorency', rightX, labelY);
 
-    // DO2 title bar at bottom
-    const barY = cY + CARD_H - 22;
-    ctx.fillStyle = 'rgba(78,122,199,0.12)';
-    ctx.fillRect(cX, barY, CARD_W, 22);
+    // DO2 title bar at bottom — fully centered
+    const barY = cY + CARD_H - barH;
+    ctx.fillStyle = 'rgba(78,122,199,0.15)';
+    ctx.fillRect(cX, barY, CARD_W, barH);
+
     ctx.font         = '600 9px "IBM Plex Mono", monospace';
-    ctx.fillStyle    = 'rgba(240,242,245,0.5)';
+    ctx.fillStyle    = 'rgba(240,242,245,0.6)';
     ctx.textAlign    = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('PROJET DO2  ·  HIVER 2026', cX + CARD_W / 2, barY + 11);
+    ctx.fillText('PROJET D02  \u00b7  HIVER 2026', cX + CARD_W / 2, barY + barH / 2);
 
     ctx.restore();
   }
