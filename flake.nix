@@ -12,7 +12,8 @@
       system = "x86_64-linux";
       specialArgs = {
         inherit inputs self;
-        device = "/dev/sda"; # Default — replaced at install time by install.sh
+        # install.sh replaces this line (marker must stay: # DO2_DISK)
+        device = "/dev/sda"; # DO2_DISK
       };
       modules = [
         inputs.disko.nixosModules.disko

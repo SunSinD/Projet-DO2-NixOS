@@ -65,6 +65,10 @@ done
 echo ""
 exec < /dev/tty
 read -rp "Sur quel disque voulez-vous installer ? (Entrez le numéro) : " CHOICE
+if ! [[ "$CHOICE" =~ ^[0-9]+$ ]] || [ "$CHOICE" -lt 0 ] || [ "$CHOICE" -ge "${#DISK_NAMES[@]}" ]; then
+  echo "ERREUR : Numéro de disque invalide."
+  exit 1
+fi
 DEV="/dev/${DISK_NAMES[$CHOICE]}"
 
 echo ""
@@ -80,7 +84,7 @@ fi
 # ── Step 3 — Partition and format with Disko ──────────────────────────────
 echo ""
 echo "[2/5] Partitionnement du disque..."
-sed -i "s|device = \".*\"; # Default|device = \"$DEV\"; # Default|" flake.nix
+sed -i "s|device = \"/dev/[^\"]*\"; # DO2_DISK|device = \"$DEV\"; # DO2_DISK|" flake.nix
 git add flake.nix
 echo "{ }" > hardware-configuration.nix
 git add hardware-configuration.nix
