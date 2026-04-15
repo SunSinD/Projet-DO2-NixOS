@@ -4,7 +4,6 @@
 {
   services.xserver.xkb.layout  = "us";
   services.xserver.xkb.variant = "";
-
   services.xserver.enable              = true;
   services.displayManager.gdm.enable   = true;
   services.desktopManager.gnome.enable = true;
@@ -28,18 +27,17 @@
 
   services.gnome.gnome-keyring.enable = true;
   security.pam.services.gdm-autologin.enableGnomeKeyring = true;
-
   services.libinput.enable      = true;
   services.xserver.wacom.enable = true;
 
-  environment.gnome.excludePackages = with pkgs; [
+  environment.gnome.excludePackages = with pkgs;
+  [
     gnome-tour
     epiphany
     geary
     totem
     gnome-music
   ];
-
   programs.dconf.enable = true;
   programs.dconf.profiles.user.databases = [{
     settings = {
@@ -56,6 +54,10 @@
         ];
         favorite-apps = [
           "google-chrome.desktop"
+          "microsoft-teams-web.desktop"
+          "outlook-web.desktop"
+          "libreoffice-calc.desktop"
+          "libreoffice-writer.desktop"
           "org.gnome.Nautilus.desktop"
         ];
       };
@@ -68,7 +70,6 @@
         show-mounts       = false;
         animate-show-apps = false;
       };
-
       "org/gnome/desktop/app-folders" = {
         folder-children = [ "LibreOffice" "Communication" "Medias" ];
       };
@@ -99,6 +100,7 @@
         apps = [
           "vlc.desktop"
           "excalidraw-web.desktop"
+          "gimp.desktop"
         ];
       };
 
@@ -108,7 +110,6 @@
       "org/gnome/desktop/wm/preferences" = {
         num-workspaces = lib.gvariant.mkInt32 1;
       };
-
       "org/gnome/desktop/background" = {
         picture-uri      = "file:///etc/backgrounds/do2-wallpaper.png";
         picture-uri-dark = "file:///etc/backgrounds/do2-wallpaper.png";
