@@ -1,16 +1,11 @@
-{ config, pkgs, lib, inputs, device, ... }:
+{ config, pkgs, lib, inputs, device ? "nodev", ... }:
 
 {
   imports = [ ./hardware-configuration.nix ];
 
   # ─── System & Compatibility ─────────────────────────────────────────────
-  # Using the standard kernel for maximum compatibility across all CPU types
   boot.kernelPackages = pkgs.linuxPackages;
-
-  # Enable preload to help app launch speeds safely
   services.preload.enable = true;
-
-  # Firmware support for older hardware (Wi-Fi, etc.)
   hardware.enableRedistributableFirmware = true;
   services.upower.enable = true;
   services.power-profiles-daemon.enable = true;
@@ -23,6 +18,7 @@
       enable                = true;
       efiSupport            = true;
       efiInstallAsRemovable = true;
+      # This uses the device passed by the installer, or "nodev" if EFI
       device                = device; 
       forceInstall          = false;
     };
@@ -31,26 +27,13 @@
   # ─── Networking & Localization ───────────────────────────────────────────
   networking.hostName              = "do2laptop";
   networking.networkmanager.enable = true;
-
   time.timeZone = "America/Montreal";
   i18n.defaultLocale = "fr_CA.UTF-8";
-  i18n.extraLocaleSettings = {
-    LC_ADDRESS        = "fr_CA.UTF-8";
-    LC_IDENTIFICATION = "fr_CA.UTF-8";
-    LC_MEASUREMENT    = "fr_CA.UTF-8";
-    LC_MONETARY       = "fr_CA.UTF-8";
-    LC_NAME           = "fr_CA.UTF-8";
-    LC_NUMERIC        = "fr_CA.UTF-8";
-    LC_PAPER          = "fr_CA.UTF-8";
-    LC_TELEPHONE      = "fr_CA.UTF-8";
-    LC_TIME           = "fr_CA.UTF-8";
-  };
 
   # ─── Desktop Environment (GNOME) ─────────────────────────────────────────
   services.xserver = {
     enable = true;
     xkb.layout  = "us";
-    xkb.variant = "";
     wacom.enable = true;
   };
 
@@ -101,10 +84,7 @@
     vlc
     zoom-us
     yad
-    bat
     fastfetch
-    tree
-    curl
     gnomeExtensions.dash-to-dock
     gnomeExtensions.no-overview
 
@@ -112,28 +92,12 @@
     (pkgs.makeDesktopItem {
       name = "microsoft-teams-web"; desktopName = "Microsoft Teams";
       exec = "${pkgs.google-chrome}/bin/google-chrome-stable --app=https://teams.microsoft.com";
-      icon = "/etc/icons/teams.png"; categories = [ "Network" "InstantMessaging" ];
+      icon = "/etc/icons/teams.png"; categories = [ "Network" ];
     })
     (pkgs.makeDesktopItem {
       name = "gmail-web"; desktopName = "Gmail";
       exec = "${pkgs.google-chrome}/bin/google-chrome-stable --app=https://mail.google.com";
-      icon = "/etc/icons/gmail.png"; categories = [ "Network" "Email" ];
-    })
-    (pkgs.makeDesktopItem {
-      name = "google-meet-web"; desktopName = "Google Meet";
-      exec = "${pkgs.google-chrome}/bin/google-chrome-stable --app=https://meet.google.com";
-      icon = "/etc/icons/meet.png"; categories = [ "Network" "VideoConference" ];
-    })
-    (pkgs.makeDesktopItem {
-      name = "outlook-web"; desktopName = "Outlook";
-      exec = "${pkgs.google-chrome}/bin/google-chrome-stable --app=https://outlook.live.com";
-      icon = "/etc/icons/outlook.png"; categories = [ "Network" "Email" ];
-    })
-    (pkgs.makeDesktopItem {
-      name = "excalidraw-web"; desktopName = "Excalidraw";
-      exec = "${pkgs.google-chrome}/bin/google-chrome-stable --app=https://excalidraw.com";
-      icon = "/etc/icons/excalidraw.png"; categories = [ "Graphics" ];
-      comment = "Tableau de dessin collaboratif (web)";
+      icon = "/etc/icons/gmail.png"; categories = [ "Network" ];
     })
   ];
 
@@ -142,9 +106,6 @@
     "backgrounds/do2-wallpaper.png".source = ./assets/do2-wallpaper.png;
     "icons/teams.png".source               = ./assets/teams.png;
     "icons/gmail.png".source               = ./assets/gmail.png;
-    "icons/meet.png".source                = ./assets/meet.png;
-    "icons/outlook.png".source             = ./assets/outlook.png;
-    "icons/excalidraw.png".source          = ./assets/excalidraw.png;
     "scripts/do2-welcome.sh" = {
       source = ./do2-welcome.sh;
       mode   = "0755";
@@ -156,7 +117,6 @@
       Exec=/etc/scripts/do2-welcome.sh
       Terminal=false
       X-GNOME-Autostart-enabled=true
-      NoDisplay=true
     '';
   };
 
@@ -169,30 +129,6 @@
         enabled-extensions = [ "dash-to-dock@micxgx.gmail.com" "no-overview@fthx" ];
         favorite-apps = [ "google-chrome.desktop" "org.gnome.Nautilus.desktop" ];
       };
-      "org/gnome/shell/extensions/dash-to-dock" = {
-        dock-position = "BOTTOM";
-        show-apps-at-top = false;
-        extend-height = false;
-        show-trash = false;
-        show-mounts = false;
-      };
-      "org/gnome/desktop/app-folders" = {
-        folder-children = [ "LibreOffice" "Communication" "Medias" ];
-      };
-      "org/gnome/desktop/app-folders/folders/LibreOffice" = {
-        name = "LibreOffice";
-        apps = [ "libreoffice-startcenter.desktop" "libreoffice-writer.desktop" "libreoffice-calc.desktop" "libreoffice-impress.desktop" ];
-      };
-      "org/gnome/desktop/app-folders/folders/Communication" = {
-        name = "Communication";
-        apps = [ "gmail-web.desktop" "microsoft-teams-web.desktop" "google-meet-web.desktop" "outlook-web.desktop" "Zoom.desktop" ];
-      };
-      "org/gnome/desktop/app-folders/folders/Medias" = {
-        name = "Médias";
-        apps = [ "vlc.desktop" "excalidraw-web.desktop" ];
-      };
-      "org/gnome/mutter" = { dynamic-workspaces = false; };
-      "org/gnome/desktop/wm/preferences" = { num-workspaces = lib.gvariant.mkInt32 1; };
       "org/gnome/desktop/background" = {
         picture-uri      = "file:///etc/backgrounds/do2-wallpaper.png";
         picture-uri-dark = "file:///etc/backgrounds/do2-wallpaper.png";
@@ -201,8 +137,7 @@
   }];
 
   # ─── Foundations ─────────────────────────────────────────────────────────
-  fonts.packages = with pkgs; [ noto-fonts noto-fonts-cjk-sans liberation_ttf ];
-  
+  fonts.packages = with pkgs; [ noto-fonts liberation_ttf ];
   swapDevices = [{ device = "/var/lib/swapfile"; size = 4096; }];
   
   nix.settings = {
@@ -211,10 +146,6 @@
   };
   nixpkgs.config.allowUnfree = true;
 
-  programs.git = {
-    enable = true;
-    config = { init.defaultBranch = "main"; pull.rebase = true; };
-  };
-
+  # Make sure this matches the version in your flake.nix (24.11 is recommended)
   system.stateVersion = "24.11"; 
 }
