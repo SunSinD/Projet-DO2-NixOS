@@ -34,20 +34,11 @@ rm -rf "$WORK_DIR"
 git clone "$REPO_URL" "$WORK_DIR"
 cd "$WORK_DIR"
 
-# ── Step 2 — Disk selection ────────────────────────────────────────────────
+# ── Step 2 — Disk selection (index 0, 1, 2, …) ─────────────────────────────
+echo ""
 echo "------------------------------------------------------------------------"
-echo "Select the target disk (INTERNAL drives are usually nvme0n1 or sda):"
-lsblk -dno NAME,SIZE,MODEL | grep -v "loop"
-echo "------------------------------------------------------------------------"
-
-read -p "Enter disk name (e.g., nvme0n1 or sda): " SELECTED_DISK
-TARGET_DEVICE="/dev/$SELECTED_DISK"
-
-# Safety check: Is this the USB?
-if lsblk -no TRAN "$TARGET_DEVICE" | grep -q "usb"; then
-    echo "ERROR: $TARGET_DEVICE appears to be a USB drive! Stay safe."
-    exit 1
-fi
+echo "Disques physiques détectés :"
+echo ""
 
 # Exclude the disk that the live ISO is running from (borrowed from greyxp1)
 ISO_SOURCE=$(findmnt -n -o SOURCE /iso 2>/dev/null || true)
@@ -65,7 +56,7 @@ mapfile -t DISK_NAMES < <(
 
 i=0
 for name in "${DISK_NAMES[@]}"; do
-  SIZE=$( SIZE  "/dev/$name")
+  SIZE=$(lsblk -dno SIZE "/dev/$name")
   MODEL=$(lsblk -dno MODEL "/dev/$name" 2>/dev/null || echo "Inconnu")
   echo "  [$i] /dev/$name  ($SIZE)  $MODEL"
   i=$((i+1))
@@ -79,6 +70,12 @@ if ! [[ "$CHOICE" =~ ^[0-9]+$ ]] || [ "$CHOICE" -lt 0 ] || [ "$CHOICE" -ge "${#D
   exit 1
 fi
 DEV="/dev/${DISK_NAMES[$CHOICE]}"
+
+# Refuse obvious USB install targets (after numeric choice)
+if lsblk -no TRAN "$DEV" 2>/dev/null | grep -q "usb"; then
+  echo "ERREUR : $DEV semble être une clé USB. Choisissez le disque interne."
+  exit 1
+fi
 
 echo ""
 echo "  Disque sélectionné : $DEV"
