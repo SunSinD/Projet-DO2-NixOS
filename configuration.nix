@@ -2,9 +2,9 @@
 
 {
   imports = [
-    /etc/nixos/hardware-configuration.nix
+    ./hardware-configuration.nix
   ];
-
+  
   boot.loader = {
     efi.canTouchEfiVariables = false;
     efi.efiSysMountPoint     = "/boot";
