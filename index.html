@@ -1089,10 +1089,24 @@
 
           <div class="step-badge">Utilisez cette méthode pour vous connecter au Wi-Fi du Collège Montmorency depuis le live USB NixOS</div>
 
-          <p style="font-size:0.9rem;color:var(--muted2);margin:0 0 24px;">Ces commandes sont à exécuter dans le terminal NixOS, après avoir démarré sur la clé USB. Remplacez <code>yourpassword</code> par votre vrai mot de passe du Collège avant de lancer la dernière commande.</p>
+          <p style="font-size:0.9rem;color:var(--muted2);margin:0 0 24px;">Ces commandes sont à exécuter dans le terminal NixOS, après avoir démarré sur la clé USB. Remplacez <code>VOTRE_IDENTIFIANT</code> et <code>VOTRE_MOT_DE_PASSE</code> par vos vraies informations du Collège avant de lancer les commandes.</p>
 
           <div class="step">
             <div class="step-number">1</div>
+            <div class="step-content">
+              <div class="step-title">Démarrer depuis la clé USB</div>
+              <p style="font-size:0.9rem;margin:0 0 8px;">Insérez la clé USB NixOS dans l'ordinateur. Allumez-le et appuyez sur <code>F12</code> (ou <code>Échap</code> / <code>F2</code> selon le modèle) pour ouvrir le menu de démarrage. Choisissez la clé USB dans la liste.</p>
+              <div class="step-note">
+                <strong>Hint :</strong> Si <code>F12</code> ne marche pas, essayez <code>F10</code>, <code>F11</code> ou <code>Del</code>. Sur certains ThinkPads, c'est le bouton <em>Novo</em> près du port d'alimentation.
+              </div>
+              <div class="step-note" style="margin-top:8px;">
+                <strong>Important :</strong> Dans le menu NixOS, choisissez la première option - <strong>NixOS LTS</strong>. Ne choisissez pas la version avec des chiffres.
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-number">2</div>
             <div class="step-content">
               <div class="step-title">Détecter automatiquement l'interface Wi-Fi</div>
               <div class="pre-wrapper">
@@ -1108,7 +1122,7 @@
           </div>
 
           <div class="step">
-            <div class="step-number">2</div>
+            <div class="step-number">3</div>
             <div class="step-content">
               <div class="step-title">Créer le profil de connexion Wi-Fi</div>
               <div class="pre-wrapper">
@@ -1121,10 +1135,10 @@
           </div>
 
           <div class="step">
-            <div class="step-number">3</div>
+            <div class="step-number">4</div>
             <div class="step-content">
               <div class="step-title">Configurer l'authentification WPA-EAP et se connecter</div>
-              <p style="font-size:0.9rem;margin:0 0 8px;">Remplacez <code>yourpassword</code> par votre mot de passe du Collège :</p>
+              <p style="font-size:0.9rem;margin:0 0 8px;">Remplacez <code style="color:#f87171;">VOTRE_IDENTIFIANT</code> par votre numéro d'étudiant et <code style="color:#f87171;">VOTRE_MOT_DE_PASSE</code> par votre mot de passe du Collège :</p>
               <div class="pre-wrapper">
                 <div class="pre-toolbar">
                   <button class="copy-btn" data-target="cmd-wifi-config">Copier</button>
@@ -1133,18 +1147,20 @@
   wifi-sec.key-mgmt wpa-eap \
   802-1x.eap peap \
   802-1x.phase2-auth mschapv2 \
-  802-1x.identity "2477966" \
-  802-1x.password "yourpassword"
+  802-1x.identity "VOTRE_IDENTIFIANT" \
+  802-1x.password "VOTRE_MOT_DE_PASSE"
 sudo nmcli con up "Montmorency-WiFi"</code></pre>
               </div>
               <div class="step-note">
-                <strong>Important :</strong> Remplacez <code>yourpassword</code> par votre vrai mot de passe avant d'exécuter cette commande. Le numéro <code>2477966</code> est un exemple — utilisez votre propre identifiant du Collège.
+                <strong>⚠ À modifier avant d'exécuter :</strong><br/>
+                — <code style="color:#f87171;">VOTRE_IDENTIFIANT</code> → votre numéro d'étudiant du Collège (ex. <code>2477966</code>)<br/>
+                — <code style="color:#f87171;">VOTRE_MOT_DE_PASSE</code> → votre mot de passe du portail Omnivox
               </div>
             </div>
           </div>
 
           <div class="step">
-            <div class="step-number">4</div>
+            <div class="step-number">5</div>
             <div class="step-content">
               <div class="step-title">Vérifier la connexion</div>
               <div class="pre-wrapper">
@@ -1158,7 +1174,7 @@ sudo nmcli con up "Montmorency-WiFi"</code></pre>
           </div>
 
           <div class="step">
-            <div class="step-number">5</div>
+            <div class="step-number">6</div>
             <div class="step-content">
               <div class="step-title">Lancer l'installation</div>
               <p style="font-size:0.9rem;margin:0 0 8px;">Cette commande télécharge et lance le script d'installation depuis GitHub :</p>
@@ -1337,6 +1353,359 @@ sudo nmcli con up "Montmorency-WiFi"</code></pre>
   </section>
 
 </main>
+
+<!-- ── Lanyard Card Section ──────────────────────────────────── -->
+<section id="lanyard-section" style="position:relative;z-index:1;padding:80px 0 0;text-align:center;overflow:hidden;">
+  <div style="max-width:960px;margin:0 auto;padding:0 24px 48px;">
+    <div class="section-eyebrow">Badge Interactif</div>
+    <h2 style="margin-bottom:12px;">Attrapez la carte.</h2>
+    <p style="margin:0 auto 0;max-width:420px;font-size:1rem;">Glissez le badge pour le faire bouger — notre ID de projet, suspendu.</p>
+  </div>
+  <div id="lanyard-canvas-wrap" style="width:100%;height:600px;position:relative;cursor:grab;">
+    <canvas id="lanyard-canvas" style="width:100%;height:100%;display:block;"></canvas>
+    <div id="lanyard-hint" style="position:absolute;bottom:24px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:rgba(156,163,175,0.5);pointer-events:none;transition:opacity 0.5s;">Glisser pour interagir</div>
+  </div>
+</section>
+
+<script>
+(function () {
+  'use strict';
+
+  const canvas = document.getElementById('lanyard-canvas');
+  const wrap   = document.getElementById('lanyard-canvas-wrap');
+  const hint   = document.getElementById('lanyard-hint');
+  const ctx    = canvas.getContext('2d');
+
+  let W, H, dpr;
+  function resize() {
+    dpr = window.devicePixelRatio || 1;
+    W   = wrap.offsetWidth;
+    H   = wrap.offsetHeight;
+    canvas.width  = W * dpr;
+    canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // ── Physics nodes ────────────────────────────────────────────
+  const GRAVITY   = 1800;
+  const DAMPING   = 0.985;
+  const ROPE_SEGS = 18;
+  const SEG_LEN   = 18;
+
+  // Anchor pinned at top-center
+  const anchor = { x: W / 2, y: 60 };
+
+  // rope nodes
+  const nodes = [];
+  for (let i = 0; i <= ROPE_SEGS; i++) {
+    nodes.push({ x: anchor.x + i * 2, y: anchor.y + i * SEG_LEN, px: anchor.x + i * 2, py: anchor.y + i * SEG_LEN });
+  }
+
+  // Card hangs from last node
+  const CARD_W = 200, CARD_H = 126;
+
+  // ── Interaction ──────────────────────────────────────────────
+  let dragging = false, dragOffX = 0, dragOffY = 0, mx = 0, my = 0;
+  let hinted = false;
+
+  function getCardRect() {
+    const last = nodes[nodes.length - 1];
+    return { x: last.x - CARD_W / 2, y: last.y, w: CARD_W, h: CARD_H };
+  }
+
+  function onDown(ex, ey) {
+    const r = getCardRect();
+    if (ex >= r.x && ex <= r.x + r.w && ey >= r.y && ey <= r.y + r.h) {
+      dragging = true;
+      dragOffX = ex - r.x - r.w / 2;
+      dragOffY = ey - r.y;
+      wrap.style.cursor = 'grabbing';
+      if (!hinted) { hint.style.opacity = '0'; hinted = true; }
+    }
+  }
+  function onMove(ex, ey) { mx = ex; my = ey; }
+  function onUp() { dragging = false; wrap.style.cursor = 'grab'; }
+
+  function toLocal(e) {
+    const r = canvas.getBoundingClientRect();
+    const t = e.touches ? e.touches[0] : e;
+    return [t.clientX - r.left, t.clientY - r.top];
+  }
+
+  canvas.addEventListener('mousedown',  e => { const [x,y]=toLocal(e); onDown(x,y); });
+  canvas.addEventListener('mousemove',  e => { const [x,y]=toLocal(e); onMove(x,y); });
+  canvas.addEventListener('mouseup',    onUp);
+  canvas.addEventListener('mouseleave', onUp);
+  canvas.addEventListener('touchstart', e => { e.preventDefault(); const [x,y]=toLocal(e); onDown(x,y); }, { passive: false });
+  canvas.addEventListener('touchmove',  e => { e.preventDefault(); const [x,y]=toLocal(e); onMove(x,y); }, { passive: false });
+  canvas.addEventListener('touchend',   onUp);
+
+  // ── Physics update ───────────────────────────────────────────
+  const SUB = 12;
+  let lastT = null;
+
+  function step(dt) {
+    const dtCap = Math.min(dt, 0.033);
+
+    if (dragging) {
+      const last = nodes[nodes.length - 1];
+      last.x = mx - dragOffX;
+      last.y = my - dragOffY + CARD_H * 0.1;
+      last.px = last.x;
+      last.py = last.y;
+    }
+
+    for (let s = 0; s < SUB; s++) {
+      const subDt = dtCap / SUB;
+
+      // integrate (skip anchor [0] and dragged last node)
+      for (let i = 1; i < nodes.length - (dragging ? 1 : 0); i++) {
+        const n = nodes[i];
+        const vx = (n.x - n.px) * DAMPING;
+        const vy = (n.y - n.py) * DAMPING;
+        n.px = n.x;
+        n.py = n.y;
+        n.x += vx + 0;
+        n.y += vy + GRAVITY * subDt * subDt;
+      }
+
+      // pin anchor
+      nodes[0].x = anchor.x;
+      nodes[0].y = anchor.y;
+
+      // constraints
+      for (let iter = 0; iter < 6; iter++) {
+        nodes[0].x = anchor.x;
+        nodes[0].y = anchor.y;
+        for (let i = 0; i < nodes.length - 1; i++) {
+          const a = nodes[i], b = nodes[i + 1];
+          const dx = b.x - a.x, dy = b.y - a.y;
+          const dist = Math.sqrt(dx * dx + dy * dy) || 0.001;
+          const diff = (dist - SEG_LEN) / dist * 0.5;
+          const ox = dx * diff, oy = dy * diff;
+          if (i > 0) { a.x += ox; a.y += oy; }
+          if (!(dragging && i === nodes.length - 2)) { b.x -= ox; b.y -= oy; }
+        }
+        nodes[0].x = anchor.x;
+        nodes[0].y = anchor.y;
+      }
+    }
+  }
+
+  // ── NixOS snowflake SVG path (rendered on card) ─────────────
+  function drawNixLogo(ctx2, cx, cy, size) {
+    ctx2.save();
+    ctx2.translate(cx, cy);
+    const r = size;
+    ctx2.strokeStyle = 'rgba(126,184,201,0.9)';
+    ctx2.lineWidth   = size * 0.14;
+    ctx2.lineCap     = 'round';
+    // 6-arm snowflake
+    for (let i = 0; i < 6; i++) {
+      ctx2.save();
+      ctx2.rotate((i * Math.PI) / 3);
+      ctx2.beginPath();
+      ctx2.moveTo(0, -r * 0.28);
+      ctx2.lineTo(0, -r);
+      ctx2.stroke();
+      // two small branches
+      [-0.38, 0.38].forEach(a => {
+        ctx2.save();
+        ctx2.translate(0, -r * 0.62);
+        ctx2.rotate(a);
+        ctx2.beginPath();
+        ctx2.moveTo(0, 0);
+        ctx2.lineTo(0, -r * 0.28);
+        ctx2.stroke();
+        ctx2.restore();
+      });
+      ctx2.restore();
+    }
+    // center dot
+    ctx2.beginPath();
+    ctx2.arc(0, 0, size * 0.14, 0, Math.PI * 2);
+    ctx2.fillStyle = 'rgba(126,184,201,0.9)';
+    ctx2.fill();
+    ctx2.restore();
+  }
+
+  // ── Montmorency "M" mono logo ────────────────────────────────
+  function drawMontLogo(ctx2, cx, cy, size) {
+    ctx2.save();
+    ctx2.translate(cx, cy);
+    ctx2.font = `900 ${size * 1.6}px 'Space Grotesk', sans-serif`;
+    ctx2.textAlign    = 'center';
+    ctx2.textBaseline = 'middle';
+    ctx2.fillStyle = 'rgba(120,190,32,0.95)'; // Montmorency green
+    ctx2.fillText('M', 0, 0);
+    ctx2.restore();
+  }
+
+  // ── Draw ─────────────────────────────────────────────────────
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+
+    // Rope / lanyard band
+    const last = nodes[nodes.length - 1];
+    const cardCX = last.x;
+    const cardTY = last.y;
+
+    // draw band as thick ribbon
+    ctx.save();
+    ctx.lineJoin = 'round';
+    ctx.lineCap  = 'round';
+
+    // stripe pattern along rope
+    const stripe1 = 'rgba(78,122,199,0.85)';
+    const stripe2 = 'rgba(126,184,201,0.65)';
+    for (let i = 0; i < nodes.length - 1; i++) {
+      const a = nodes[i], b = nodes[i + 1];
+      ctx.strokeStyle = i % 2 === 0 ? stripe1 : stripe2;
+      ctx.lineWidth = 8;
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
+      ctx.stroke();
+    }
+
+    // thin center line
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    nodes.forEach((n, i) => i === 0 ? ctx.moveTo(n.x, n.y) : ctx.lineTo(n.x, n.y));
+    ctx.stroke();
+    ctx.restore();
+
+    // anchor hole
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(anchor.x, anchor.y, 7, 0, Math.PI * 2);
+    ctx.fillStyle = '#1a1f2e';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(126,184,201,0.5)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.restore();
+
+    // metal clip at card top
+    ctx.save();
+    const clipX = cardCX - 8, clipY = cardTY - 8, clipW = 16, clipH = 14;
+    const clipGrad = ctx.createLinearGradient(clipX, clipY, clipX, clipY + clipH);
+    clipGrad.addColorStop(0, '#c0c8d8');
+    clipGrad.addColorStop(1, '#6b7280');
+    ctx.fillStyle = clipGrad;
+    ctx.beginPath();
+    ctx.roundRect(clipX, clipY, clipW, clipH, 3);
+    ctx.fill();
+    ctx.restore();
+
+    // ── Card body ────────────────────────────────────────────
+    const cX = cardCX - CARD_W / 2;
+    const cY = cardTY;
+
+    ctx.save();
+    // shadow
+    ctx.shadowColor   = 'rgba(0,0,0,0.55)';
+    ctx.shadowBlur    = 24;
+    ctx.shadowOffsetY = 8;
+
+    // card bg gradient
+    const cardGrad = ctx.createLinearGradient(cX, cY, cX + CARD_W, cY + CARD_H);
+    cardGrad.addColorStop(0,   '#0d1117');
+    cardGrad.addColorStop(0.5, '#111827');
+    cardGrad.addColorStop(1,   '#0a0d14');
+    ctx.fillStyle = cardGrad;
+    ctx.beginPath();
+    ctx.roundRect(cX, cY, CARD_W, CARD_H, 10);
+    ctx.fill();
+    ctx.shadowColor = 'transparent';
+
+    // card border glow
+    const borderGrad = ctx.createLinearGradient(cX, cY, cX + CARD_W, cY + CARD_H);
+    borderGrad.addColorStop(0,   'rgba(78,122,199,0.6)');
+    borderGrad.addColorStop(0.5, 'rgba(126,184,201,0.4)');
+    borderGrad.addColorStop(1,   'rgba(78,122,199,0.6)');
+    ctx.strokeStyle = borderGrad;
+    ctx.lineWidth   = 1;
+    ctx.beginPath();
+    ctx.roundRect(cX, cY, CARD_W, CARD_H, 10);
+    ctx.stroke();
+    ctx.restore();
+
+    // ── Card content ─────────────────────────────────────────
+    ctx.save();
+    ctx.beginPath();
+    ctx.roundRect(cX, cY, CARD_W, CARD_H, 10);
+    ctx.clip();
+
+    // subtle inner shine
+    const shineGrad = ctx.createLinearGradient(cX, cY, cX + CARD_W * 0.6, cY + CARD_H * 0.5);
+    shineGrad.addColorStop(0, 'rgba(255,255,255,0.04)');
+    shineGrad.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = shineGrad;
+    ctx.fillRect(cX, cY, CARD_W, CARD_H);
+
+    // Left half: NixOS logo + label
+    drawNixLogo(ctx, cX + CARD_W * 0.27, cY + CARD_H * 0.44, 22);
+    ctx.font         = '700 9px "Space Grotesk", sans-serif';
+    ctx.fillStyle    = 'rgba(126,184,201,0.7)';
+    ctx.textAlign    = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('NixOS', cX + CARD_W * 0.27, cY + CARD_H * 0.82);
+
+    // Divider
+    ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+    ctx.lineWidth   = 1;
+    ctx.beginPath();
+    ctx.moveTo(cX + CARD_W * 0.5, cY + 12);
+    ctx.lineTo(cX + CARD_W * 0.5, cY + CARD_H - 12);
+    ctx.stroke();
+
+    // Right half: Montmorency M + label
+    drawMontLogo(ctx, cX + CARD_W * 0.73, cY + CARD_H * 0.42, 18);
+    ctx.font         = '700 8px "Space Grotesk", sans-serif';
+    ctx.fillStyle    = 'rgba(120,190,32,0.75)';
+    ctx.textAlign    = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('Montmorency', cX + CARD_W * 0.73, cY + CARD_H * 0.82);
+
+    // DO2 title bar at bottom
+    const barY = cY + CARD_H - 22;
+    ctx.fillStyle = 'rgba(78,122,199,0.12)';
+    ctx.fillRect(cX, barY, CARD_W, 22);
+    ctx.font         = '600 9px "IBM Plex Mono", monospace';
+    ctx.fillStyle    = 'rgba(240,242,245,0.5)';
+    ctx.textAlign    = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('PROJET DO2  ·  HIVER 2026', cX + CARD_W / 2, barY + 11);
+
+    ctx.restore();
+  }
+
+  // ── Loop ─────────────────────────────────────────────────────
+  function loop(ts) {
+    if (lastT !== null) step((ts - lastT) / 1000);
+    lastT = ts;
+
+    // re-anchor on resize
+    anchor.x = W / 2;
+
+    draw();
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+
+  // update anchor & node positions on resize
+  window.addEventListener('resize', () => {
+    resize();
+    anchor.x = W / 2;
+    nodes[0].x = anchor.x;
+    nodes[0].px = anchor.x;
+  });
+})();
+</script>
 
 <div class="footer-curtain-wrapper">
   <footer class="cinematic-footer">
