@@ -24,6 +24,9 @@
   networking.hostName              = "do2laptop";
   networking.networkmanager.enable = true;
 
+  # ── Power Management ─────────────────────
+  services.power-profiles-daemon.enable = true;
+
   # French Canadian locale and timezone
   time.timeZone      = "America/Montreal";
   i18n.defaultLocale = "fr_CA.UTF-8";
@@ -137,7 +140,9 @@
 
   # ─── System packages ─────────────────────────────────────────────────────
   environment.systemPackages = with pkgs; [
-    google-chrome
+    (google-chrome.override {
+      commandLineArgs = "--password-store=basic --no-first-run --no-default-browser-check";
+    })
     libreoffice-fresh
     dialect          # GTK translator (Google, DeepL, LibreTranslate)
     mpv              # Lightweight video player
