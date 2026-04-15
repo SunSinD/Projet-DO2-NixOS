@@ -24,9 +24,6 @@
   networking.hostName              = "do2laptop";
   networking.networkmanager.enable = true;
 
-  # ── Power Management ─────────────────────
-  services.power-profiles-daemon.enable = true;
-
   # French Canadian locale and timezone
   time.timeZone      = "America/Montreal";
   i18n.defaultLocale = "fr_CA.UTF-8";
@@ -70,6 +67,7 @@
 
   # Battery / power management — important for laptops
   services.upower.enable = true;
+  services.power-profiles-daemon.enable = true;
 
   services.gnome.gnome-keyring.enable = true;
   security.pam.services.gdm-autologin.enableGnomeKeyring = true;
