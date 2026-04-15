@@ -3,25 +3,27 @@
 {
   imports = [ ./hardware-configuration.nix ];
 
-# ─── System & Performance ────────────────────────────────────────────────
-  # Using the default LTS kernel for maximum hardware compatibility on old laptops
-  # We will rely on preload for responsiveness instead of CPU-specific kernels
+  # ─── System & Compatibility ─────────────────────────────────────────────
+  # Using the standard kernel for maximum compatibility across all CPU types
+  boot.kernelPackages = pkgs.linuxPackages;
+
+  # Enable preload to help app launch speeds safely
   services.preload.enable = true;
 
-  # Firmware and hardware support
+  # Firmware support for older hardware (Wi-Fi, etc.)
   hardware.enableRedistributableFirmware = true;
   services.upower.enable = true;
   services.power-profiles-daemon.enable = true;
 
-  # ─── Bootloader (GRUB) ───────────────────────────────────────────────────
+  # ─── Universal Bootloader (GRUB) ────────────────────────────────────────
   boot.loader = {
-    efi.canTouchEfiVariables = true; 
+    efi.canTouchEfiVariables = true;
     efi.efiSysMountPoint     = "/boot";
     grub = {
       enable                = true;
       efiSupport            = true;
       efiInstallAsRemovable = true;
-      device                = device; # Changed back to variable for Legacy BIOS support
+      device                = device; 
       forceInstall          = false;
     };
   };
@@ -49,7 +51,7 @@
     enable = true;
     xkb.layout  = "us";
     xkb.variant = "";
-    wacom.enable = true; # Touchscreen/Pen support
+    wacom.enable = true;
   };
 
   services.displayManager = {
@@ -59,11 +61,11 @@
   };
   services.desktopManager.gnome.enable = true;
 
-  # Required fix for GNOME auto-login
+  # Fix for GNOME auto-login
   systemd.services."getty@tty1".enable  = false;
   systemd.services."autovt@tty1".enable = false;
 
-  # Remove default GNOME bloatware
+  # Remove default GNOME bloat
   environment.gnome.excludePackages = with pkgs; [
     gnome-tour gnome-connections epiphany geary totem gnome-music 
     gnome-characters gnome-contacts gnome-initial-setup gnome-maps 
@@ -96,9 +98,9 @@
     (google-chrome.override { commandLineArgs = "--password-store=basic --no-first-run --no-default-browser-check"; })
     libreoffice-fresh
     dialect
-    vlc              # Replaced mpv with vlc
+    vlc
     zoom-us
-    yad              # Powers the welcome popup
+    yad
     bat
     fastfetch
     tree
@@ -158,7 +160,7 @@
     '';
   };
 
-  # ─── GNOME dconf Settings ────────────────────────────────────────────────
+  # ─── GNOME UI Settings ──────────────────────────────────────────────────
   programs.dconf.enable = true;
   programs.dconf.profiles.user.databases = [{
     settings = {
@@ -198,7 +200,7 @@
     };
   }];
 
-  # ─── System Foundations ──────────────────────────────────────────────────
+  # ─── Foundations ─────────────────────────────────────────────────────────
   fonts.packages = with pkgs; [ noto-fonts noto-fonts-cjk-sans liberation_ttf ];
   
   swapDevices = [{ device = "/var/lib/swapfile"; size = 4096; }];
@@ -214,5 +216,5 @@
     config = { init.defaultBranch = "main"; pull.rebase = true; };
   };
 
-  system.stateVersion = "25.11"; # Ensure this matches your original flake
+  system.stateVersion = "24.11"; 
 }
