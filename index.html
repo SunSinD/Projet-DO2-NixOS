@@ -1362,7 +1362,8 @@ sudo nmcli con up "Montmorency-WiFi"</code></pre>
     <p style="margin:0 auto 0;max-width:420px;font-size:1rem;">Glissez le badge pour le faire bouger — notre ID de projet, suspendu.</p>
   </div>
   <div id="lanyard-canvas-wrap" style="width:100%;height:600px;position:relative;cursor:grab;">
-    <canvas id="lanyard-canvas" style="width:100%;height:100%;display:block;"></canvas>
+    <canvas id="lanyard-canvas" style="width:100%;height:100%;display:block;pointer-events:auto;"></canvas>
+    <div id="card-3d" style="position:absolute;top:0;left:0;pointer-events:none;transform-style:preserve-3d;will-change:transform;"></div>
     <div id="lanyard-hint" style="position:absolute;bottom:24px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:rgba(156,163,175,0.5);pointer-events:none;transition:opacity 0.5s;">Glisser pour interagir</div>
   </div>
 </section>
@@ -1389,8 +1390,8 @@ sudo nmcli con up "Montmorency-WiFi"</code></pre>
   window.addEventListener('resize', resize);
 
   // ── Physics nodes ────────────────────────────────────────────
-  const GRAVITY   = 1800;
-  const DAMPING   = 0.80;
+  const GRAVITY   = 2800;   // px/s² — applied once per frame
+  const DAMPING   = 0.93;   // per-frame velocity retention (NOT per substep)
   const ROPE_SEGS = 18;
   const SEG_LEN   = 18;
 
@@ -1475,128 +1476,138 @@ sudo nmcli con up "Montmorency-WiFi"</code></pre>
 
     if (dragging) {
       const last = nodes[nodes.length - 1];
-      last.x = mx - dragOffX;
-      last.y = my - dragOffY + CARD_H * 0.1;
+      // Clamp Y so card never goes above the top of the canvas
+      last.x  = mx - dragOffX;
+      last.y  = Math.max(anchor.y + 5, my - dragOffY + CARD_H * 0.1);
       last.px = last.x;
       last.py = last.y;
     }
 
+    // ── Integrate velocity ONCE per frame (not per substep) ────────
+    // Applying damping per substep was killing 93% of velocity each frame;
+    // now DAMPING is the true per-frame retention factor.
+    for (let i = 1; i < nodes.length - (dragging ? 1 : 0); i++) {
+      const n  = nodes[i];
+      const vx = (n.x - n.px) * DAMPING;
+      const vy = (n.y - n.py) * DAMPING;
+      n.px = n.x;
+      n.py = n.y;
+      n.x += vx;
+      n.y += vy + GRAVITY * dtCap * dtCap;
+    }
+
+    // ── Solve constraints in substep loop (stability) ──────────────
+    nodes[0].x = anchor.x;
+    nodes[0].y = anchor.y;
     for (let s = 0; s < SUB; s++) {
-      const subDt = dtCap / SUB;
-
-      // integrate (skip anchor [0] and dragged last node)
-      for (let i = 1; i < nodes.length - (dragging ? 1 : 0); i++) {
-        const n = nodes[i];
-        const vx = (n.x - n.px) * DAMPING;
-        const vy = (n.y - n.py) * DAMPING;
-        n.px = n.x;
-        n.py = n.y;
-        n.x += vx + 0;
-        n.y += vy + GRAVITY * subDt * subDt;
-      }
-
-      // pin anchor
       nodes[0].x = anchor.x;
       nodes[0].y = anchor.y;
-
-      // constraints
-      for (let iter = 0; iter < 6; iter++) {
-        nodes[0].x = anchor.x;
-        nodes[0].y = anchor.y;
-        for (let i = 0; i < nodes.length - 1; i++) {
-          const a = nodes[i], b = nodes[i + 1];
-          const dx = b.x - a.x, dy = b.y - a.y;
-          const dist = Math.sqrt(dx * dx + dy * dy) || 0.001;
-          const diff = (dist - SEG_LEN) / dist * 0.5;
-          const ox = dx * diff, oy = dy * diff;
-          if (i > 0) { a.x += ox; a.y += oy; }
-          if (!(dragging && i === nodes.length - 2)) { b.x -= ox; b.y -= oy; }
-        }
-        nodes[0].x = anchor.x;
-        nodes[0].y = anchor.y;
+      for (let i = 0; i < nodes.length - 1; i++) {
+        const a = nodes[i], b = nodes[i + 1];
+        const dx = b.x - a.x, dy = b.y - a.y;
+        const dist = Math.sqrt(dx * dx + dy * dy) || 0.001;
+        const diff = (dist - SEG_LEN) / dist * 0.5;
+        const ox = dx * diff, oy = dy * diff;
+        if (i > 0) { a.x += ox; a.y += oy; }
+        if (!(dragging && i === nodes.length - 2)) { b.x -= ox; b.y -= oy; }
       }
+      nodes[0].x = anchor.x;
+      nodes[0].y = anchor.y;
     }
   }
 
-  // ── Preload actual logos ──────────────────────────────────────
-  let nixImg = null, montImg = null;
+  // ── 3D Card overlay setup ─────────────────────────────────────
+  const card3dEl  = document.getElementById('card-3d');
+  const DPR2      = window.devicePixelRatio || 1;
+  const cardCv    = document.createElement('canvas');
+  cardCv.width    = CARD_W * DPR2;
+  cardCv.height   = CARD_H * DPR2;
+  cardCv.style.cssText = `width:${CARD_W}px;height:${CARD_H}px;border-radius:10px;display:block;` +
+    `box-shadow:0 16px 48px rgba(0,0,0,0.7),0 4px 12px rgba(0,0,0,0.4);`;
+  const cCtx = cardCv.getContext('2d');
+  cCtx.scale(DPR2, DPR2);
+  card3dEl.appendChild(cardCv);
 
+  // Preload Montmorency logo (no crossOrigin so imgbb loads freely;
+  // canvas is write-only anyway — no getImageData calls)
+  let montImg = null;
   (function () {
-    // No crossOrigin attribute — browser loads cross-origin images without
-    // CORS checks. Canvas gets write-tainted but we never call getImageData
-    // on this canvas, so drawing still works perfectly.
-    const nix = new Image();
-    nix.onload = () => { nixImg = nix; };
-    nix.src = 'https://nixos.org/logo/nixos-logo-only-hires.png';
-
-    const mont = new Image();
-    mont.onload = () => { montImg = mont; };
-    mont.src = 'https://i.ibb.co/MkJtYDLv/Montmorency.png';
+    const img = new Image();
+    img.onload = () => { montImg = img; };
+    img.src = 'https://i.ibb.co/MkJtYDLv/Montmorency.png';
   })();
 
-  // ── NixOS logo (image if loaded, else λ-snowflake fallback) ──
-  function drawNixLogo(ctx2, cx, cy, size) {
-    ctx2.save();
-    ctx2.translate(cx, cy);
+  // ── Draw card content onto the card canvas ────────────────────
+  function drawCard() {
+    const cw = CARD_W, ch = CARD_H;
+    cCtx.clearRect(0, 0, cw, ch);
 
-    if (nixImg) {
-      const s = size * 2.2;
-      ctx2.drawImage(nixImg, -s, -s, s * 2, s * 2);
-    } else {
-      // Fallback: NixOS-style lambda snowflake
-      const r = size;
-      ctx2.strokeStyle = 'rgba(126,184,201,0.95)';
-      ctx2.lineWidth   = size * 0.11;
-      ctx2.lineCap     = 'round';
-      ctx2.lineJoin    = 'round';
-      for (let i = 0; i < 6; i++) {
-        ctx2.save();
-        ctx2.rotate(i * Math.PI / 3);
-        ctx2.beginPath();
-        ctx2.moveTo(-r * 0.42, r * 0.18);
-        ctx2.lineTo(0, -r * 0.72);
-        ctx2.lineTo(r * 0.30, r * 0.06);
-        ctx2.stroke();
-        ctx2.restore();
-      }
-      ctx2.beginPath();
-      ctx2.arc(0, 0, size * 0.11, 0, Math.PI * 2);
-      ctx2.fillStyle = 'rgba(126,184,201,0.85)';
-      ctx2.fill();
-    }
+    // background gradient
+    const bg = cCtx.createLinearGradient(0, 0, cw, ch);
+    bg.addColorStop(0,   '#0d1117');
+    bg.addColorStop(0.5, '#111827');
+    bg.addColorStop(1,   '#0a0d14');
+    cCtx.fillStyle = bg;
+    cCtx.beginPath();
+    cCtx.roundRect(0, 0, cw, ch, 10);
+    cCtx.fill();
 
-    ctx2.restore();
-  }
+    // subtle top-left shine
+    const shine = cCtx.createLinearGradient(0, 0, cw * 0.65, ch * 0.5);
+    shine.addColorStop(0, 'rgba(255,255,255,0.06)');
+    shine.addColorStop(1, 'rgba(255,255,255,0)');
+    cCtx.fillStyle = shine;
+    cCtx.fillRect(0, 0, cw, ch);
 
-  // ── Montmorency logo (image if loaded, else text fallback) ───
-  function drawMontLogo(ctx2, cx, cy, size) {
-    ctx2.save();
-    ctx2.translate(cx, cy);
+    // ── Montmorency logo — fully centered ────────────────────────
+    const barH   = 24;
+    const logoSz = 44;                         // rendered pixel size
+    const logoX  = cw / 2;
+    const logoY  = (ch - barH) * 0.42;
+    const labelY = (ch - barH) * 0.80;
+
+    cCtx.save();
+    // clip to card shape so logo doesn't overflow rounded corners
+    cCtx.beginPath();
+    cCtx.roundRect(0, 0, cw, ch - barH, [10, 10, 0, 0]);
+    cCtx.clip();
 
     if (montImg) {
-      const s = size * 2.2;
-      ctx2.drawImage(montImg, -s, -s, s * 2, s * 2);
+      cCtx.drawImage(montImg, logoX - logoSz / 2, logoY - logoSz / 2, logoSz, logoSz);
     } else {
-      // Fallback: simple shield with M
-      const s = size;
-      ctx2.beginPath();
-      ctx2.moveTo(0, -s); ctx2.lineTo(s * 0.7, -s * 0.45);
-      ctx2.lineTo(s * 0.7, s * 0.25);
-      ctx2.quadraticCurveTo(s * 0.7, s * 0.85, 0, s);
-      ctx2.quadraticCurveTo(-s * 0.7, s * 0.85, -s * 0.7, s * 0.25);
-      ctx2.lineTo(-s * 0.7, -s * 0.45); ctx2.closePath();
-      ctx2.fillStyle = '#003A70'; ctx2.fill();
-      ctx2.save(); ctx2.clip();
-      ctx2.fillStyle = '#78BE20';
-      ctx2.fillRect(-s, -s, s * 2, s * 0.5);
-      ctx2.restore();
-      ctx2.font = `900 ${s * 1.1}px 'Space Grotesk', sans-serif`;
-      ctx2.textAlign = 'center'; ctx2.textBaseline = 'middle';
-      ctx2.fillStyle = '#ffffff';
-      ctx2.fillText('M', 0, s * 0.2);
+      // fallback simple crest
+      cCtx.font = '900 32px "Space Grotesk", sans-serif';
+      cCtx.textAlign    = 'center';
+      cCtx.textBaseline = 'middle';
+      cCtx.fillStyle    = '#78BE20';
+      cCtx.fillText('M', logoX, logoY);
     }
+    cCtx.restore();
 
-    ctx2.restore();
+    // logo label
+    cCtx.font         = '700 8.5px "Space Grotesk", sans-serif';
+    cCtx.fillStyle    = 'rgba(120,190,32,0.88)';
+    cCtx.textAlign    = 'center';
+    cCtx.textBaseline = 'middle';
+    cCtx.fillText('Collège Montmorency', logoX, labelY);
+
+    // bottom bar
+    const barY = ch - barH;
+    cCtx.fillStyle = 'rgba(78,122,199,0.18)';
+    cCtx.fillRect(0, barY, cw, barH);
+
+    // subtle top border on bar
+    cCtx.strokeStyle = 'rgba(78,122,199,0.35)';
+    cCtx.lineWidth   = 1;
+    cCtx.beginPath();
+    cCtx.moveTo(0, barY); cCtx.lineTo(cw, barY);
+    cCtx.stroke();
+
+    cCtx.font         = '600 9px "IBM Plex Mono", monospace';
+    cCtx.fillStyle    = 'rgba(240,242,245,0.62)';
+    cCtx.textAlign    = 'center';
+    cCtx.textBaseline = 'middle';
+    cCtx.fillText('PROJET D02  \u00b7  HIVER 2026', cw / 2, barY + barH / 2);
   }
 
   // ── Draw ─────────────────────────────────────────────────────
@@ -1657,84 +1668,22 @@ sudo nmcli con up "Montmorency-WiFi"</code></pre>
     ctx.fill();
     ctx.restore();
 
-    // ── Card body ────────────────────────────────────────────
-    const cX = cardCX - CARD_W / 2;
-    const cY = cardTY;
+    // ── Position the CSS 3D card overlay ─────────────────────
+    // Velocity for tilt (last node minus its previous position)
+    const velX = last.x  - last.px;
+    const velY = last.y  - last.py;
 
-    ctx.save();
-    // shadow
-    ctx.shadowColor   = 'rgba(0,0,0,0.55)';
-    ctx.shadowBlur    = 24;
-    ctx.shadowOffsetY = 8;
+    // Map velocity to 3D rotation angles (clamp to avoid crazy flips)
+    const tiltY = Math.max(-30, Math.min(30,  velX * 6));
+    const tiltX = Math.max(-20, Math.min(20, -velY * 3));
 
-    // card bg gradient
-    const cardGrad = ctx.createLinearGradient(cX, cY, cX + CARD_W, cY + CARD_H);
-    cardGrad.addColorStop(0,   '#0d1117');
-    cardGrad.addColorStop(0.5, '#111827');
-    cardGrad.addColorStop(1,   '#0a0d14');
-    ctx.fillStyle = cardGrad;
-    ctx.beginPath();
-    ctx.roundRect(cX, cY, CARD_W, CARD_H, 10);
-    ctx.fill();
-    ctx.shadowColor = 'transparent';
-    ctx.restore();
+    card3dEl.style.left = (cardCX - CARD_W / 2) + 'px';
+    card3dEl.style.top  = cardTY + 'px';
+    cardCv.style.transform =
+      `perspective(900px) rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
 
-    // ── Card content ─────────────────────────────────────────
-    ctx.save();
-    ctx.beginPath();
-    ctx.roundRect(cX, cY, CARD_W, CARD_H, 10);
-    ctx.clip();
-
-    // subtle inner shine
-    const shineGrad = ctx.createLinearGradient(cX, cY, cX + CARD_W * 0.6, cY + CARD_H * 0.5);
-    shineGrad.addColorStop(0, 'rgba(255,255,255,0.04)');
-    shineGrad.addColorStop(1, 'rgba(255,255,255,0)');
-    ctx.fillStyle = shineGrad;
-    ctx.fillRect(cX, cY, CARD_W, CARD_H);
-
-    // ── Card layout constants ──────────────────────────────────
-    const barH   = 24;
-    const logoY  = cY + (CARD_H - barH) * 0.44;
-    const labelY = cY + (CARD_H - barH) * 0.80;
-    const leftX  = cX + CARD_W * 0.27;
-    const rightX = cX + CARD_W * 0.73;
-
-    // Left half: NixOS logo + label
-    drawNixLogo(ctx, leftX, logoY, 26);
-    ctx.font         = '700 9px "Space Grotesk", sans-serif';
-    ctx.fillStyle    = 'rgba(126,184,201,0.82)';
-    ctx.textAlign    = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('NixOS', leftX, labelY);
-
-    // Divider
-    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-    ctx.lineWidth   = 1;
-    ctx.beginPath();
-    ctx.moveTo(cX + CARD_W * 0.5, cY + 12);
-    ctx.lineTo(cX + CARD_W * 0.5, cY + CARD_H - barH - 8);
-    ctx.stroke();
-
-    // Right half: Montmorency shield logo + label
-    drawMontLogo(ctx, rightX, logoY, 22);
-    ctx.font         = '700 8px "Space Grotesk", sans-serif';
-    ctx.fillStyle    = 'rgba(120,190,32,0.85)';
-    ctx.textAlign    = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('Montmorency', rightX, labelY);
-
-    // DO2 title bar at bottom — fully centered
-    const barY = cY + CARD_H - barH;
-    ctx.fillStyle = 'rgba(78,122,199,0.15)';
-    ctx.fillRect(cX, barY, CARD_W, barH);
-
-    ctx.font         = '600 9px "IBM Plex Mono", monospace';
-    ctx.fillStyle    = 'rgba(240,242,245,0.6)';
-    ctx.textAlign    = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('PROJET D02  \u00b7  HIVER 2026', cX + CARD_W / 2, barY + barH / 2);
-
-    ctx.restore();
+    // Draw the card content onto the card canvas
+    drawCard();
   }
 
   // ── Loop ─────────────────────────────────────────────────────
