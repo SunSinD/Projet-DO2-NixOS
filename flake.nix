@@ -2,7 +2,6 @@
   description = "DO2 - Dons d'ordinateurs, 2e vie — Stable & Compatible";
 
   inputs = {
-    # Switching to Stable (24.11) for maximum compatibility on old CPUs
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
     
     disko = {
