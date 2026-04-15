@@ -96,6 +96,8 @@ Attendez de voir des réponses avant de continuer.
 **4. Lancer l'installation :**
 ```bash
 sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/SunSinD/Projet-DO2-NixOS/main/install.sh)"
+
+*(Le script affiche une liste `[0]`, `[1]`, … : entrez **seulement le chiffre** (0 ou 1), pas `nvme0n1`. Si une ancienne copie demande le nom du disque, relancez la commande `curl` ci-dessus.)*
 ```
 
 Le script détecte le disque, partitionne, copie la configuration NixOS et installe le système. Durée : **10 à 30 minutes**. Ne fermez pas l'ordinateur pendant ce temps.
