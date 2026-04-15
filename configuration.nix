@@ -199,11 +199,31 @@
   # ─── Remove unwanted default GNOME applications ──────────────────────────
   environment.gnome.excludePackages = with pkgs; [
     gnome-tour
-    epiphany       # Replaced by Chrome
-    geary          # Replaced by Gmail web app
-    gnome-calendar
+    gnome-connections
+    gedit
+    epiphany
+    geary
+    evince
+    totem
     gnome-music
-    totem          # Replaced by mpv
+    gnome-characters
+    gnome-contacts
+    gnome-initial-setup
+    gnome-maps
+    gnome-weather
+    gnome-clocks
+    gnome-software
+    gnome-calendar
+    gnome-system-monitor
+    gnome-calculator
+    gnome-logs
+    gnome-font-viewer
+    gnome-disk-utility
+    simple-scan
+    cheese
+    yelp
+    file-roller
+    seahorse
   ];
 
   # ─── GNOME / dconf settings ──────────────────────────────────────────────
