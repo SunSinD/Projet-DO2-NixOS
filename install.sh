@@ -87,7 +87,6 @@ git add hardware-configuration.nix
 sudo nix --extra-experimental-features "nix-command flakes" run \
   github:nix-community/disko/latest -- \
   --mode destroy,format,mount \
-  --yes-wipe-all-disks \
   --flake ".#$FLAKE_ATTR"
 
 # ── Step 4 — Generate hardware config and lock flake ─────────────────────
