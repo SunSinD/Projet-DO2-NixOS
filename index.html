@@ -984,8 +984,8 @@
       </button>
 
       <button class="install-tab" data-tab="tab-manuel">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        Hors ligne
+        <svg viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1"/></svg>
+        Wi-Fi Montmorency
       </button>
 
       <button class="install-tab" data-tab="tab-terminal">
@@ -1024,7 +1024,9 @@
               <p style="font-size:0.9rem;margin:0 0 8px;">Votre téléphone doit être connecté au Wi-Fi <code>Le_College_Montmorency</code> et vous devez être connecté au portail du Collège (la page de connexion du Collège doit avoir été complétée dans votre navigateur). Branchez ensuite votre téléphone à l'ordinateur avec un câble USB.</p>
               <div class="step-note">
                 <strong>Android :</strong> Paramètres - Connexions - Point d'accès mobile - Modem USB - Activer.<br/>
-                <strong>iPhone :</strong> Réglages - Partage de connexion - Autoriser les autres à rejoindre, puis brancher le câble.
+                <strong>iPhone :</strong> Réglages - Partage de connexion - Autoriser les autres à rejoindre, puis brancher le câble.<br/><br/>
+                <strong>Android (English):</strong> Settings → Connections → Mobile Hotspot and Tethering → USB Tethering → Enable.<br/>
+                <strong>iPhone (English):</strong> Settings → Personal Hotspot → Allow Others to Join, then plug in the cable.
               </div>
             </div>
           </div>
@@ -1079,58 +1081,41 @@
       </div>
     </div>
 
-    <!-- TAB 2 - Hors ligne -->
+    <!-- TAB 2 - Wi-Fi Montmorency -->
     <div class="install-pane" id="tab-manuel">
       <div class="install-box">
-        <div class="terminal-bar">Hors ligne - Installation sans accès à GitHub</div>
+        <div class="terminal-bar">Wi-Fi Montmorency - Se connecter au réseau du Collège via le terminal</div>
         <div class="install-body">
 
-          <div class="step-badge">Utilisez cette méthode seulement si vous ne pouvez pas joindre GitHub</div>
+          <div class="step-badge">Utilisez cette méthode pour vous connecter au Wi-Fi du Collège Montmorency depuis le live USB NixOS</div>
 
-          <p style="font-size:0.9rem;color:var(--muted2);margin:0 0 24px;">Si l'ordinateur n'a pas accès à internet ou si GitHub est inaccessible, préparez une clé USB sur un autre ordinateur, puis installez depuis celle-ci.</p>
-
-          <hr class="step-divider"/>
-          <div class="step-badge" style="background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.1);color:var(--muted2);">
-            Partie A - Sur un ordinateur avec internet
-          </div>
+          <p style="font-size:0.9rem;color:var(--muted2);margin:0 0 24px;">Ces commandes sont à exécuter dans le terminal NixOS, après avoir démarré sur la clé USB. Remplacez <code>yourpassword</code> par votre vrai mot de passe du Collège avant de lancer la dernière commande.</p>
 
           <div class="step">
             <div class="step-number">1</div>
             <div class="step-content">
-              <div class="step-title">Copier le dépôt sur une clé USB</div>
-              <p style="font-size:0.9rem;margin:0 0 8px;">Sur une machine avec internet, montez votre clé USB (<code>/dev/sdX1</code>) et clonez le dépôt :</p>
+              <div class="step-title">Détecter automatiquement l'interface Wi-Fi</div>
               <div class="pre-wrapper">
                 <div class="pre-toolbar">
-                  <button class="copy-btn" data-target="cmd-b-clone">Copier</button>
+                  <button class="copy-btn" data-target="cmd-wifi-iface">Copier</button>
                 </div>
-                <pre><code id="cmd-b-clone">mkdir -p /media/usb/do2
-cd /media/usb/do2
-git clone https://github.com/SunSinD/Projet-DO2-NixOS.git .</code></pre>
+                <pre><code id="cmd-wifi-iface">IFACE=$(nmcli -t -f DEVICE,TYPE device | awk -F: '$2=="wifi"{print $1; exit}')</code></pre>
               </div>
               <div class="step-note">
-                Vous pouvez aussi télécharger l'archive ZIP depuis GitHub (Code - Download ZIP) et la décompresser sur la clé.
+                Cette commande détecte automatiquement le nom de votre interface Wi-Fi (ex. <code>wlan0</code>, <code>wlp3s0</code>) et le sauvegarde dans la variable <code>IFACE</code>.
               </div>
             </div>
-          </div>
-
-          <hr class="step-divider"/>
-          <div class="step-badge" style="background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.1);color:var(--muted2);">
-            Partie B - Sur la machine cible (NixOS live USB)
           </div>
 
           <div class="step">
             <div class="step-number">2</div>
             <div class="step-content">
-              <div class="step-title">Monter la clé USB avec la configuration</div>
-              <p style="font-size:0.9rem;margin:0 0 8px;">Repérez le bon périphérique (<code>lsblk</code>) puis montez-le :</p>
+              <div class="step-title">Créer le profil de connexion Wi-Fi</div>
               <div class="pre-wrapper">
                 <div class="pre-toolbar">
-                  <button class="copy-btn" data-target="cmd-b-mount">Copier</button>
+                  <button class="copy-btn" data-target="cmd-wifi-add">Copier</button>
                 </div>
-                <pre><code id="cmd-b-mount">lsblk
-# Repérez votre clé (ex. sdb1), puis :
-sudo mkdir -p /mnt/do2-usb
-sudo mount /dev/sdb1 /mnt/do2-usb</code></pre>
+                <pre><code id="cmd-wifi-add">sudo nmcli con add type wifi con-name "Montmorency-WiFi" ifname "$IFACE" ssid "Le College Montmorency"</code></pre>
               </div>
             </div>
           </div>
@@ -1138,19 +1123,22 @@ sudo mount /dev/sdb1 /mnt/do2-usb</code></pre>
           <div class="step">
             <div class="step-number">3</div>
             <div class="step-content">
-              <div class="step-title">Partitionner le disque</div>
+              <div class="step-title">Configurer l'authentification WPA-EAP et se connecter</div>
+              <p style="font-size:0.9rem;margin:0 0 8px;">Remplacez <code>yourpassword</code> par votre mot de passe du Collège :</p>
               <div class="pre-wrapper">
                 <div class="pre-toolbar">
-                  <button class="copy-btn" data-target="cmd-b-disk">Copier</button>
+                  <button class="copy-btn" data-target="cmd-wifi-config">Copier</button>
                 </div>
-                <pre><code id="cmd-b-disk"># Remplacez /dev/sda par le disque cible
-sudo parted /dev/sda -- mklabel gpt
-sudo parted /dev/sda -- mkpart ESP fat32 1MB 512MB
-sudo parted /dev/sda -- set 1 esp on
-sudo parted /dev/sda -- mkpart primary 512MB 100%
-
-sudo mkfs.fat -F32 /dev/sda1
-sudo mkfs.ext4 -L nixos /dev/sda2</code></pre>
+                <pre><code id="cmd-wifi-config">sudo nmcli connection modify "Montmorency-WiFi" \
+  wifi-sec.key-mgmt wpa-eap \
+  802-1x.eap peap \
+  802-1x.phase2-auth mschapv2 \
+  802-1x.identity "2477966" \
+  802-1x.password "yourpassword"
+sudo nmcli con up "Montmorency-WiFi"</code></pre>
+              </div>
+              <div class="step-note">
+                <strong>Important :</strong> Remplacez <code>yourpassword</code> par votre vrai mot de passe avant d'exécuter cette commande. Le numéro <code>2477966</code> est un exemple — utilisez votre propre identifiant du Collège.
               </div>
             </div>
           </div>
@@ -1158,50 +1146,31 @@ sudo mkfs.ext4 -L nixos /dev/sda2</code></pre>
           <div class="step">
             <div class="step-number">4</div>
             <div class="step-content">
-              <div class="step-title">Monter les partitions et copier la configuration</div>
+              <div class="step-title">Vérifier la connexion</div>
               <div class="pre-wrapper">
                 <div class="pre-toolbar">
-                  <button class="copy-btn" data-target="cmd-b-mnt">Copier</button>
+                  <button class="copy-btn" data-target="cmd-wifi-ping">Copier</button>
                 </div>
-                <pre><code id="cmd-b-mnt">sudo mount /dev/sda2 /mnt
-sudo mkdir -p /mnt/boot
-sudo mount /dev/sda1 /mnt/boot
-
-sudo mkdir -p /mnt/etc/nixos
-sudo cp -r /mnt/do2-usb/nixos/. /mnt/etc/nixos/</code></pre>
+                <pre><code id="cmd-wifi-ping">ping -c 3 github.com</code></pre>
               </div>
+              <p style="font-size:0.9rem;margin:8px 0 0;">Si vous recevez des réponses, la connexion est établie. Vous pouvez maintenant lancer l'installation.</p>
             </div>
           </div>
 
           <div class="step">
             <div class="step-number">5</div>
             <div class="step-content">
-              <div class="step-title">Générer la configuration et lancer l'installation</div>
+              <div class="step-title">Lancer l'installation</div>
+              <p style="font-size:0.9rem;margin:0 0 8px;">Cette commande télécharge et lance le script d'installation depuis GitHub :</p>
               <div class="pre-wrapper">
                 <div class="pre-toolbar">
-                  <button class="copy-btn" data-target="cmd-b-install">Copier</button>
+                  <button class="copy-btn" data-target="cmd-wifi-install">Copier</button>
                 </div>
-                <pre><code id="cmd-b-install">sudo nixos-generate-config --root /mnt
-sudo nixos-install --no-root-passwd</code></pre>
+                <pre><code id="cmd-wifi-install">sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/SunSinD/Projet-DO2-NixOS/main/install.sh)"</code></pre>
               </div>
               <div class="step-note">
-                <strong>Important :</strong> NixOS va essayer de télécharger des paquets depuis le cache. Si vous êtes vraiment hors ligne, ajoutez <code>--option substitute false</code> pour compiler depuis le code source - cela peut prendre plusieurs heures.<br/><br/>
-                <strong>Conseil :</strong> Si possible, connectez l'ordinateur à internet (tethering USB) juste pour cette étape.
+                Le script détecte le disque, partitionne, copie la configuration NixOS et installe le système. L'installation prend environ <strong>10 à 30 minutes</strong> selon la vitesse du réseau. Ne fermez pas l'ordinateur pendant ce temps.
               </div>
-            </div>
-          </div>
-
-          <div class="step">
-            <div class="step-number">6</div>
-            <div class="step-content">
-              <div class="step-title">Éteindre et retirer la clé</div>
-              <div class="pre-wrapper">
-                <div class="pre-toolbar">
-                  <button class="copy-btn" data-target="cmd-b-reboot">Copier</button>
-                </div>
-                <pre><code id="cmd-b-reboot">sudo reboot</code></pre>
-              </div>
-              <p style="font-size:0.9rem;margin:8px 0 0;">Retirez toutes les clés USB avant le redémarrage. Le système devrait démarrer sur NixOS.</p>
             </div>
           </div>
 
