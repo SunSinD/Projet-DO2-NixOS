@@ -32,8 +32,6 @@
   services.libinput.enable      = true;
   services.xserver.wacom.enable = true;
 
-  services.preload.enable = true;
-
   environment.gnome.excludePackages = with pkgs; [
     gnome-tour
     gnome-connections
