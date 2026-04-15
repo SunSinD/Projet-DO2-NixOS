@@ -1390,7 +1390,7 @@ sudo nmcli con up "Montmorency-WiFi"</code></pre>
 
   // ── Physics nodes ────────────────────────────────────────────
   const GRAVITY   = 1800;
-  const DAMPING   = 0.88;
+  const DAMPING   = 0.80;
   const ROPE_SEGS = 18;
   const SEG_LEN   = 18;
 
@@ -1415,36 +1415,56 @@ sudo nmcli con up "Montmorency-WiFi"</code></pre>
     return { x: last.x - CARD_W / 2, y: last.y, w: CARD_W, h: CARD_H };
   }
 
-  function onDown(ex, ey) {
-    const r = getCardRect();
-    if (ex >= r.x && ex <= r.x + r.w && ey >= r.y && ey <= r.y + r.h) {
-      dragging = true;
-      dragOffX = ex - r.x - r.w / 2;
-      dragOffY = ey - r.y;
-      wrap.style.cursor = 'grabbing';
-      if (!hinted) { hint.style.opacity = '0'; hinted = true; }
-    }
-  }
-  function onMove(ex, ey) {
-    // Clamp pointer within canvas bounds so card never escapes the viewport
-    mx = Math.max(CARD_W / 2, Math.min(W - CARD_W / 2, ex));
-    my = Math.max(anchor.y + SEG_LEN, Math.min(H - CARD_H - 10, ey));
-  }
-  function onUp() { dragging = false; wrap.style.cursor = 'grab'; }
-
   function toLocal(e) {
     const r = canvas.getBoundingClientRect();
     const t = e.touches ? e.touches[0] : e;
     return [t.clientX - r.left, t.clientY - r.top];
   }
 
-  canvas.addEventListener('mousedown',  e => { const [x,y]=toLocal(e); onDown(x,y); });
-  canvas.addEventListener('mousemove',  e => { const [x,y]=toLocal(e); onMove(x,y); });
-  canvas.addEventListener('mouseup',    onUp);
-  canvas.addEventListener('mouseleave', onUp);
-  canvas.addEventListener('touchstart', e => { e.preventDefault(); const [x,y]=toLocal(e); onDown(x,y); }, { passive: false });
-  canvas.addEventListener('touchmove',  e => { e.preventDefault(); const [x,y]=toLocal(e); onMove(x,y); }, { passive: false });
-  canvas.addEventListener('touchend',   onUp);
+  // mousedown on canvas to start drag
+  canvas.addEventListener('mousedown', e => {
+    const [x, y] = toLocal(e);
+    const r = getCardRect();
+    if (x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h) {
+      dragging = true;
+      dragOffX = x - r.x - r.w / 2;
+      dragOffY = y - r.y;
+      mx = x; my = y;
+      wrap.style.cursor = 'grabbing';
+      if (!hinted) { hint.style.opacity = '0'; hinted = true; }
+    }
+  });
+
+  // Track mouse on WINDOW so dragging outside canvas doesn't drop the card
+  window.addEventListener('mousemove', e => {
+    if (!dragging) return;
+    const [x, y] = toLocal(e);
+    mx = x; my = y;
+  });
+  window.addEventListener('mouseup', () => {
+    if (dragging) { dragging = false; wrap.style.cursor = 'grab'; }
+  });
+
+  // Touch events stay on canvas (preventDefault needed)
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    const [x, y] = toLocal(e);
+    const r = getCardRect();
+    if (x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h) {
+      dragging = true;
+      dragOffX = x - r.x - r.w / 2;
+      dragOffY = y - r.y;
+      mx = x; my = y;
+      if (!hinted) { hint.style.opacity = '0'; hinted = true; }
+    }
+  }, { passive: false });
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (!dragging) return;
+    const [x, y] = toLocal(e);
+    mx = x; my = y;
+  }, { passive: false });
+  canvas.addEventListener('touchend', () => { dragging = false; wrap.style.cursor = 'grab'; });
 
   // ── Physics update ───────────────────────────────────────────
   const SUB = 12;
@@ -1498,90 +1518,83 @@ sudo nmcli con up "Montmorency-WiFi"</code></pre>
     }
   }
 
-  // ── NixOS lambda-hexagon logo (accurate) ─────────────────────
-  // The real NixOS logo is 6 lambda (λ) shapes arranged in a hexagonal pattern.
+  // ── Preload actual logos ──────────────────────────────────────
+  let nixImg = null, montImg = null;
+
+  (function () {
+    // No crossOrigin attribute — browser loads cross-origin images without
+    // CORS checks. Canvas gets write-tainted but we never call getImageData
+    // on this canvas, so drawing still works perfectly.
+    const nix = new Image();
+    nix.onload = () => { nixImg = nix; };
+    nix.src = 'https://nixos.org/logo/nixos-logo-only-hires.png';
+
+    const mont = new Image();
+    mont.onload = () => { montImg = mont; };
+    mont.src = 'https://i.ibb.co/MkJtYDLv/Montmorency.png';
+  })();
+
+  // ── NixOS logo (image if loaded, else λ-snowflake fallback) ──
   function drawNixLogo(ctx2, cx, cy, size) {
     ctx2.save();
     ctx2.translate(cx, cy);
 
-    const r = size * 0.95;
-    // 6 lambdas arranged around the center, each rotated 60°
-    for (let i = 0; i < 6; i++) {
-      ctx2.save();
-      ctx2.rotate((i * Math.PI) / 3 + Math.PI / 6);
-
-      // Each lambda: two lines meeting at a tip, like an upward chevron (/\)
-      const tipY  = -r * 0.55;
-      const baseY =  r * 0.22;
-      const spread = r * 0.36;
-      const thick  = size * 0.12;
-
-      ctx2.lineWidth = thick;
-      ctx2.lineCap   = 'round';
-      ctx2.lineJoin  = 'round';
-      ctx2.strokeStyle = 'rgba(126,184,201,0.92)';
-
-      // Left arm of lambda
+    if (nixImg) {
+      const s = size * 2.2;
+      ctx2.drawImage(nixImg, -s, -s, s * 2, s * 2);
+    } else {
+      // Fallback: NixOS-style lambda snowflake
+      const r = size;
+      ctx2.strokeStyle = 'rgba(126,184,201,0.95)';
+      ctx2.lineWidth   = size * 0.11;
+      ctx2.lineCap     = 'round';
+      ctx2.lineJoin    = 'round';
+      for (let i = 0; i < 6; i++) {
+        ctx2.save();
+        ctx2.rotate(i * Math.PI / 3);
+        ctx2.beginPath();
+        ctx2.moveTo(-r * 0.42, r * 0.18);
+        ctx2.lineTo(0, -r * 0.72);
+        ctx2.lineTo(r * 0.30, r * 0.06);
+        ctx2.stroke();
+        ctx2.restore();
+      }
       ctx2.beginPath();
-      ctx2.moveTo(-spread, baseY);
-      ctx2.lineTo(0, tipY);
-      ctx2.stroke();
-
-      // Right arm of lambda
-      ctx2.beginPath();
-      ctx2.moveTo(0, tipY);
-      ctx2.lineTo(spread * 0.55, baseY * 0.4);
-      ctx2.stroke();
-
-      ctx2.restore();
+      ctx2.arc(0, 0, size * 0.11, 0, Math.PI * 2);
+      ctx2.fillStyle = 'rgba(126,184,201,0.85)';
+      ctx2.fill();
     }
-
-    // Center hex accent
-    ctx2.beginPath();
-    ctx2.arc(0, 0, size * 0.13, 0, Math.PI * 2);
-    ctx2.fillStyle = 'rgba(126,184,201,0.6)';
-    ctx2.fill();
 
     ctx2.restore();
   }
 
-  // ── Montmorency shield logo ───────────────────────────────────
-  // Uses Montmorency's navy (#003A70) and green (#78BE20) brand colors.
+  // ── Montmorency logo (image if loaded, else text fallback) ───
   function drawMontLogo(ctx2, cx, cy, size) {
     ctx2.save();
     ctx2.translate(cx, cy);
 
-    const s = size * 1.1;
-
-    // Shield outline
-    ctx2.beginPath();
-    ctx2.moveTo(0, -s);
-    ctx2.lineTo(s * 0.72, -s * 0.5);
-    ctx2.lineTo(s * 0.72,  s * 0.3);
-    ctx2.quadraticCurveTo(s * 0.72, s * 0.9, 0, s);
-    ctx2.quadraticCurveTo(-s * 0.72, s * 0.9, -s * 0.72, s * 0.3);
-    ctx2.lineTo(-s * 0.72, -s * 0.5);
-    ctx2.closePath();
-
-    // Navy fill
-    ctx2.fillStyle = 'rgba(0,58,112,0.92)';
-    ctx2.fill();
-
-    // Green top band
-    ctx2.save();
-    ctx2.clip();
-    ctx2.fillStyle = 'rgba(120,190,32,0.88)';
-    ctx2.fillRect(-s, -s, s * 2, s * 0.55);
-    ctx2.restore();
-
-    // White "M" letter centered in shield
-    ctx2.font = `900 ${s * 1.05}px 'Space Grotesk', sans-serif`;
-    ctx2.textAlign    = 'center';
-    ctx2.textBaseline = 'alphabetic';
-    const mMetrics = ctx2.measureText('M');
-    const mH = (mMetrics.actualBoundingBoxAscent || s * 0.7);
-    ctx2.fillStyle = 'rgba(255,255,255,0.95)';
-    ctx2.fillText('M', 0, s * 0.1 + mH / 2);
+    if (montImg) {
+      const s = size * 2.2;
+      ctx2.drawImage(montImg, -s, -s, s * 2, s * 2);
+    } else {
+      // Fallback: simple shield with M
+      const s = size;
+      ctx2.beginPath();
+      ctx2.moveTo(0, -s); ctx2.lineTo(s * 0.7, -s * 0.45);
+      ctx2.lineTo(s * 0.7, s * 0.25);
+      ctx2.quadraticCurveTo(s * 0.7, s * 0.85, 0, s);
+      ctx2.quadraticCurveTo(-s * 0.7, s * 0.85, -s * 0.7, s * 0.25);
+      ctx2.lineTo(-s * 0.7, -s * 0.45); ctx2.closePath();
+      ctx2.fillStyle = '#003A70'; ctx2.fill();
+      ctx2.save(); ctx2.clip();
+      ctx2.fillStyle = '#78BE20';
+      ctx2.fillRect(-s, -s, s * 2, s * 0.5);
+      ctx2.restore();
+      ctx2.font = `900 ${s * 1.1}px 'Space Grotesk', sans-serif`;
+      ctx2.textAlign = 'center'; ctx2.textBaseline = 'middle';
+      ctx2.fillStyle = '#ffffff';
+      ctx2.fillText('M', 0, s * 0.2);
+    }
 
     ctx2.restore();
   }
@@ -1664,17 +1677,6 @@ sudo nmcli con up "Montmorency-WiFi"</code></pre>
     ctx.roundRect(cX, cY, CARD_W, CARD_H, 10);
     ctx.fill();
     ctx.shadowColor = 'transparent';
-
-    // card border glow
-    const borderGrad = ctx.createLinearGradient(cX, cY, cX + CARD_W, cY + CARD_H);
-    borderGrad.addColorStop(0,   'rgba(78,122,199,0.6)');
-    borderGrad.addColorStop(0.5, 'rgba(126,184,201,0.4)');
-    borderGrad.addColorStop(1,   'rgba(78,122,199,0.6)');
-    ctx.strokeStyle = borderGrad;
-    ctx.lineWidth   = 1;
-    ctx.beginPath();
-    ctx.roundRect(cX, cY, CARD_W, CARD_H, 10);
-    ctx.stroke();
     ctx.restore();
 
     // ── Card content ─────────────────────────────────────────
@@ -1698,7 +1700,7 @@ sudo nmcli con up "Montmorency-WiFi"</code></pre>
     const rightX = cX + CARD_W * 0.73;
 
     // Left half: NixOS logo + label
-    drawNixLogo(ctx, leftX, logoY, 22);
+    drawNixLogo(ctx, leftX, logoY, 26);
     ctx.font         = '700 9px "Space Grotesk", sans-serif';
     ctx.fillStyle    = 'rgba(126,184,201,0.82)';
     ctx.textAlign    = 'center';
@@ -1714,7 +1716,7 @@ sudo nmcli con up "Montmorency-WiFi"</code></pre>
     ctx.stroke();
 
     // Right half: Montmorency shield logo + label
-    drawMontLogo(ctx, rightX, logoY, 18);
+    drawMontLogo(ctx, rightX, logoY, 22);
     ctx.font         = '700 8px "Space Grotesk", sans-serif';
     ctx.fillStyle    = 'rgba(120,190,32,0.85)';
     ctx.textAlign    = 'center';
