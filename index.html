@@ -363,7 +363,7 @@
       font-family: var(--font-display);
       font-size: 10px; font-weight: 600;
       letter-spacing: 0.18em; text-transform: uppercase;
-      animation: labelPulse 2s ease-in-out 1.5s infinite;
+      opacity: 0.65;
     }
     .scroll-arrow svg {
       width: 22px; height: 22px; stroke: currentColor; stroke-width: 1.5; fill: none;
@@ -446,8 +446,8 @@
     .install-box {
       background: #0a0b0e;
       border: 1px solid rgba(255,255,255,0.06);
-      border-radius: var(--radius);
-      overflow: hidden; margin-top: 40px;
+      border-radius: 0 8px 8px 8px;
+      overflow: hidden; margin-top: 0;
     }
     .terminal-bar {
       background: rgba(255,255,255,0.02);
@@ -483,6 +483,62 @@
     .pre-wrapper pre {
       border-radius: 0 0 8px 8px;
       margin: 0;
+    }
+
+    /* ── Install Tabs ─────────────────────────────── */
+    .install-tabs {
+      display: flex; gap: 6px; flex-wrap: wrap;
+      margin-top: 36px; margin-bottom: 0;
+    }
+    .install-tab {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-bottom: none;
+      border-radius: 8px 8px 0 0;
+      padding: 9px 18px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 12px; font-weight: 500;
+      color: var(--muted); letter-spacing: 0.03em;
+      cursor: pointer;
+      transition: color 0.2s, background 0.2s, border-color 0.2s;
+      position: relative; bottom: -1px;
+    }
+    .install-tab svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; flex-shrink: 0; }
+    .install-tab:hover { color: var(--muted2); background: var(--surface-hover); }
+    .install-tab.active {
+      background: #0a0b0e;
+      border-color: rgba(255,255,255,0.06);
+      border-bottom-color: #0a0b0e;
+      color: var(--accent2);
+    }
+    .install-pane { display: none; }
+    .install-pane.active { display: block; }
+    .install-box {
+      border-radius: 0 8px 8px 8px;
+    }
+    .step-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(78,122,199,0.1);
+      border: 1px solid rgba(78,122,199,0.2);
+      border-radius: 999px;
+      padding: 3px 10px;
+      font-size: 11px; font-weight: 600;
+      color: var(--accent2); letter-spacing: 0.04em;
+      margin-bottom: 12px;
+    }
+    .step-note {
+      background: rgba(126,184,201,0.05);
+      border-left: 2px solid rgba(126,184,201,0.35);
+      border-radius: 0 6px 6px 0;
+      padding: 10px 14px;
+      font-size: 0.85rem; color: var(--muted2);
+      line-height: 1.7; margin-top: 10px;
+    }
+    .step-note strong { color: var(--text); }
+    .step-divider {
+      border: none; border-top: 1px solid var(--border);
+      margin: 28px 0;
     }
 
     pre {
@@ -917,48 +973,319 @@
   <section id="installer" class="reveal">
     <div class="section-eyebrow">Protocole de déploiement</div>
     <h2>Installation automatisée</h2>
-    <p>Le processus a été optimisé pour flasher une machine en moins de 15 minutes avec une seule ligne de commande.</p>
+    <p>Le processus a été optimisé pour flasher une machine en moins de 15 minutes. Choisissez la méthode qui correspond à votre situation.</p>
 
-    <div class="install-box">
-      <div class="terminal-bar">Terminal nixos</div>
-      <div class="install-body">
+    <!-- ── Tab Selector ──────────────────────────────── -->
+    <div class="install-tabs" id="install-tabs">
 
-        <div class="step">
-          <div class="step-number">1</div>
-          <div class="step-content">
-            <div class="step-title">Séquence d'amorçage</div>
-            <p style="font-size:0.9rem;margin:0;">Insérez la clé USB NixOS. Appuyez sur <code>F12</code> au démarrage pour booter sur l'ISO live.</p>
-          </div>
-        </div>
+      <button class="install-tab active" data-tab="tab-nixos">
+        <svg viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+        Terminal nixos
+      </button>
 
-        <div class="step">
-          <div class="step-number">2</div>
-          <div class="step-content">
-            <div class="step-title">Établir la connexion réseau</div>
-            <div class="pre-wrapper">
-              <div class="pre-toolbar">
-                <button class="copy-btn" data-target="cmd-wifi">Copier</button>
+      <button class="install-tab" data-tab="tab-usb">
+        <svg viewBox="0 0 24 24"><path d="M12 2v20M5 8l7-7 7 7"/><rect x="8" y="14" width="8" height="6" rx="1"/></svg>
+        Tethering USB
+      </button>
+
+      <button class="install-tab" data-tab="tab-optionb">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Option B — Manuel
+      </button>
+
+    </div>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- TAB 1 — Terminal nixos                        -->
+    <!-- ══════════════════════════════════════════════ -->
+    <div class="install-pane active" id="tab-nixos">
+      <div class="install-box">
+        <div class="terminal-bar">Terminal nixos — Réseau Wi-Fi du Collège</div>
+        <div class="install-body">
+
+          <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <div class="step-title">Séquence d'amorçage</div>
+              <p style="font-size:0.9rem;margin:0 0 8px;">Insérez la clé USB NixOS dans la machine cible. Redémarrez et appuyez sur <code>F12</code> (ou <code>Échap</code> / <code>F2</code> selon le modèle) pour accéder au menu de démarrage, puis sélectionnez la clé USB.</p>
+              <div class="step-note">
+                <strong>Astuce :</strong> Si la touche <code>F12</code> ne fonctionne pas, essayez <code>F10</code>, <code>F11</code> ou <code>Del</code>. Sur certains ThinkPads, c'est le bouton <em>Novo</em> à côté de la prise d'alimentation.
               </div>
-              <pre><code id="cmd-wifi">nmcli device wifi connect "WIFI_NAME" password "SECRET"</code></pre>
             </div>
           </div>
-        </div>
 
-        <div class="step">
-          <div class="step-number">3</div>
-          <div class="step-content">
-            <div class="step-title">Exécuter le script de déploiement</div>
-            <div class="pre-wrapper">
-              <div class="pre-toolbar">
-                <button class="copy-btn" data-target="cmd-install">Copier</button>
+          <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <div class="step-title">Connexion au Wi-Fi — <code>Le_College_Montmorency</code></div>
+              <p style="font-size:0.9rem;margin:0 0 8px;">Une fois dans l'environnement live NixOS, connectez-vous au réseau sans fil du Collège avec la commande suivante :</p>
+              <div class="pre-wrapper">
+                <div class="pre-toolbar">
+                  <button class="copy-btn" data-target="cmd-wifi-nixos">Copier</button>
+                </div>
+                <pre><code id="cmd-wifi-nixos">nmcli device wifi connect "Le_College_Montmorency" password ""</code></pre>
               </div>
-              <pre><code id="cmd-install">sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/SunSinD/Projet-DO2-NixOS/main/install.sh)"</code></pre>
+              <div class="step-note">
+                <strong>Note :</strong> Le réseau <code>Le_College_Montmorency</code> est un réseau ouvert (pas de mot de passe). Si une authentification supplémentaire est requise, consultez le portail captif depuis un navigateur.
+              </div>
             </div>
           </div>
-        </div>
 
+          <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <div class="step-title">Vérifier la connectivité</div>
+              <div class="pre-wrapper">
+                <div class="pre-toolbar">
+                  <button class="copy-btn" data-target="cmd-ping-nixos">Copier</button>
+                </div>
+                <pre><code id="cmd-ping-nixos">ping -c 3 github.com</code></pre>
+              </div>
+              <p style="font-size:0.9rem;margin:8px 0 0;">Attendez de voir des réponses avant de passer à l'étape suivante. Si aucune réponse, vérifiez votre connexion.</p>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-number">4</div>
+            <div class="step-content">
+              <div class="step-title">Exécuter le script de déploiement</div>
+              <p style="font-size:0.9rem;margin:0 0 8px;">Cette commande télécharge et exécute le script d'installation automatique depuis GitHub :</p>
+              <div class="pre-wrapper">
+                <div class="pre-toolbar">
+                  <button class="copy-btn" data-target="cmd-install-nixos">Copier</button>
+                </div>
+                <pre><code id="cmd-install-nixos">sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/SunSinD/Projet-DO2-NixOS/main/install.sh)"</code></pre>
+              </div>
+              <div class="step-note">
+                Le script partitionne automatiquement le disque, copie la configuration NixOS et installe le système. L'opération prend environ <strong>10–15 minutes</strong> selon la vitesse du réseau.
+              </div>
+            </div>
+          </div>
+
+        </div>
       </div>
     </div>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- TAB 2 — Tethering USB                         -->
+    <!-- ══════════════════════════════════════════════ -->
+    <div class="install-pane" id="tab-usb">
+      <div class="install-box">
+        <div class="terminal-bar">Tethering USB — Partager la connexion de votre téléphone</div>
+        <div class="install-body">
+
+          <div class="step-badge">📱 Méthode recommandée si le Wi-Fi du Collège est indisponible</div>
+
+          <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <div class="step-title">Préparer votre téléphone</div>
+              <p style="font-size:0.9rem;margin:0 0 8px;">Assurez-vous que votre téléphone est connecté à un réseau mobile (données cellulaires activées). Branchez-le à l'ordinateur cible avec un câble USB.</p>
+              <div class="step-note">
+                <strong>Android :</strong> Paramètres → Connexions → Point d'accès mobile et modem → <em>Modem USB</em> → Activer.<br/>
+                <strong>iPhone :</strong> Réglages → Partage de connexion → <em>Autoriser les autres à rejoindre</em>, puis connecter le câble.
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <div class="step-title">Vérifier que l'interface USB est reconnue</div>
+              <p style="font-size:0.9rem;margin:0 0 8px;">Dans le terminal NixOS live, vérifiez que l'interface réseau USB apparaît :</p>
+              <div class="pre-wrapper">
+                <div class="pre-toolbar">
+                  <button class="copy-btn" data-target="cmd-usb-check">Copier</button>
+                </div>
+                <pre><code id="cmd-usb-check">nmcli device status</code></pre>
+              </div>
+              <p style="font-size:0.9rem;margin:8px 0 0;">Cherchez une interface nommée <code>usb0</code>, <code>enp0s20u1</code> ou similaire. Son état doit être <code>connected</code> ou <code>unmanaged</code>.</p>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <div class="step-title">Activer la connexion USB (si nécessaire)</div>
+              <div class="pre-wrapper">
+                <div class="pre-toolbar">
+                  <button class="copy-btn" data-target="cmd-usb-up">Copier</button>
+                </div>
+                <pre><code id="cmd-usb-up">sudo dhcpcd usb0
+# ou, si l'interface s'appelle autrement :
+sudo dhcpcd enp0s20u1</code></pre>
+              </div>
+              <div class="step-note">
+                <strong>Note :</strong> Remplacez <code>usb0</code> par le nom réel de votre interface si différent. La commande <code>ip link</code> liste toutes les interfaces disponibles.
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-number">4</div>
+            <div class="step-content">
+              <div class="step-title">Confirmer l'accès à internet</div>
+              <div class="pre-wrapper">
+                <div class="pre-toolbar">
+                  <button class="copy-btn" data-target="cmd-usb-ping">Copier</button>
+                </div>
+                <pre><code id="cmd-usb-ping">ping -c 3 github.com</code></pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-number">5</div>
+            <div class="step-content">
+              <div class="step-title">Exécuter le script de déploiement</div>
+              <div class="pre-wrapper">
+                <div class="pre-toolbar">
+                  <button class="copy-btn" data-target="cmd-usb-install">Copier</button>
+                </div>
+                <pre><code id="cmd-usb-install">sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/SunSinD/Projet-DO2-NixOS/main/install.sh)"</code></pre>
+              </div>
+              <div class="step-note">
+                Identique à la méthode Wi-Fi — le script ne fait pas de différence entre les interfaces réseau. L'installation prend <strong>10–15 minutes</strong>.
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- TAB 3 — Option B : Manuel (sans GitHub)       -->
+    <!-- ══════════════════════════════════════════════ -->
+    <div class="install-pane" id="tab-optionb">
+      <div class="install-box">
+        <div class="terminal-bar">Option B — Installation manuelle (sans accès à GitHub)</div>
+        <div class="install-body">
+
+          <div class="step-badge">⚠ Utilisez cette méthode uniquement si vous ne pouvez pas joindre GitHub</div>
+
+          <p style="font-size:0.9rem;color:var(--muted2);margin:0 0 24px;">Si la machine cible n'a aucun accès à internet ou si GitHub est inaccessible, suivez ces étapes pour préparer un support USB sur un autre ordinateur, puis installer manuellement.</p>
+
+          <hr class="step-divider"/>
+          <div class="step-badge" style="background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.1);color:var(--muted2);">
+            Partie A — Sur un ordinateur avec internet
+          </div>
+
+          <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <div class="step-title">Cloner le dépôt sur une clé USB</div>
+              <p style="font-size:0.9rem;margin:0 0 8px;">Sur une machine fonctionnelle avec internet, montez votre clé USB (<code>/dev/sdX1</code>) et clonez le dépôt :</p>
+              <div class="pre-wrapper">
+                <div class="pre-toolbar">
+                  <button class="copy-btn" data-target="cmd-b-clone">Copier</button>
+                </div>
+                <pre><code id="cmd-b-clone">mkdir -p /media/usb/do2
+cd /media/usb/do2
+git clone https://github.com/SunSinD/Projet-DO2-NixOS.git .</code></pre>
+              </div>
+              <div class="step-note">
+                Vous pouvez aussi télécharger l'archive ZIP depuis GitHub (Code → Download ZIP) et la décompresser sur la clé.
+              </div>
+            </div>
+          </div>
+
+          <hr class="step-divider"/>
+          <div class="step-badge" style="background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.1);color:var(--muted2);">
+            Partie B — Sur la machine cible (NixOS live USB)
+          </div>
+
+          <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <div class="step-title">Monter la clé USB contenant la configuration</div>
+              <p style="font-size:0.9rem;margin:0 0 8px;">Identifiez le périphérique USB (<code>lsblk</code>) puis montez-le :</p>
+              <div class="pre-wrapper">
+                <div class="pre-toolbar">
+                  <button class="copy-btn" data-target="cmd-b-mount">Copier</button>
+                </div>
+                <pre><code id="cmd-b-mount">lsblk
+# Repérez votre clé (ex. sdb1), puis :
+sudo mkdir -p /mnt/do2-usb
+sudo mount /dev/sdb1 /mnt/do2-usb</code></pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <div class="step-title">Partitionner et formater le disque cible</div>
+              <div class="pre-wrapper">
+                <div class="pre-toolbar">
+                  <button class="copy-btn" data-target="cmd-b-disk">Copier</button>
+                </div>
+                <pre><code id="cmd-b-disk"># Remplacez /dev/sda par le disque cible
+sudo parted /dev/sda -- mklabel gpt
+sudo parted /dev/sda -- mkpart ESP fat32 1MB 512MB
+sudo parted /dev/sda -- set 1 esp on
+sudo parted /dev/sda -- mkpart primary 512MB 100%
+
+sudo mkfs.fat -F32 /dev/sda1
+sudo mkfs.ext4 -L nixos /dev/sda2</code></pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-number">4</div>
+            <div class="step-content">
+              <div class="step-title">Monter les partitions et copier la configuration</div>
+              <div class="pre-wrapper">
+                <div class="pre-toolbar">
+                  <button class="copy-btn" data-target="cmd-b-mnt">Copier</button>
+                </div>
+                <pre><code id="cmd-b-mnt">sudo mount /dev/sda2 /mnt
+sudo mkdir -p /mnt/boot
+sudo mount /dev/sda1 /mnt/boot
+
+sudo mkdir -p /mnt/etc/nixos
+sudo cp -r /mnt/do2-usb/nixos/. /mnt/etc/nixos/</code></pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-number">5</div>
+            <div class="step-content">
+              <div class="step-title">Générer la config matérielle et lancer l'installation</div>
+              <div class="pre-wrapper">
+                <div class="pre-toolbar">
+                  <button class="copy-btn" data-target="cmd-b-install">Copier</button>
+                </div>
+                <pre><code id="cmd-b-install">sudo nixos-generate-config --root /mnt
+sudo nixos-install --no-root-passwd</code></pre>
+              </div>
+              <div class="step-note">
+                <strong>Important :</strong> NixOS tentera de télécharger des paquets depuis le cache binaire. Si vous êtes vraiment hors ligne, ajoutez l'option <code>--option substitute false</code> pour compiler depuis le code source — cela peut prendre plusieurs heures.<br/><br/>
+                <strong>Conseil :</strong> Si possible, connectez temporairement la machine à internet (tethering USB) juste pour l'étape d'installation, puis déconnectez ensuite.
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-number">6</div>
+            <div class="step-content">
+              <div class="step-title">Redémarrer</div>
+              <div class="pre-wrapper">
+                <div class="pre-toolbar">
+                  <button class="copy-btn" data-target="cmd-b-reboot">Copier</button>
+                </div>
+                <pre><code id="cmd-b-reboot">sudo reboot</code></pre>
+              </div>
+              <p style="font-size:0.9rem;margin:8px 0 0;">Retirez toutes les clés USB avant le redémarrage. Le système devrait démarrer directement sur NixOS.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
   </section>
 
   <section id="faq" class="reveal">
@@ -1296,6 +1623,16 @@
       card.style.transform = `perspective(700px) rotateX(${-y * 5}deg) rotateY(${x * 5}deg) translateZ(4px)`;
     });
     card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+  });
+
+  // Install Tabs
+  document.querySelectorAll('.install-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.install-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.install-pane').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById(tab.dataset.tab).classList.add('active');
+    });
   });
 
   // Copy to Clipboard
