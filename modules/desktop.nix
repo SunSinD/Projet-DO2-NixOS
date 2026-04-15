@@ -34,31 +34,10 @@
 
   environment.gnome.excludePackages = with pkgs; [
     gnome-tour
-    gnome-connections
-    gedit
     epiphany
     geary
-    evince
     totem
     gnome-music
-    gnome-characters
-    gnome-contacts
-    gnome-initial-setup
-    gnome-maps
-    gnome-weather
-    gnome-clocks
-    gnome-software
-    gnome-calendar
-    gnome-system-monitor
-    gnome-calculator
-    gnome-logs
-    gnome-font-viewer
-    gnome-disk-utility
-    simple-scan
-    cheese
-    yelp
-    file-roller
-    seahorse
   ];
 
   programs.dconf.enable = true;

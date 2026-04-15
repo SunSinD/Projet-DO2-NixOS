@@ -46,15 +46,11 @@ in
 
   environment.systemPackages = with pkgs; [
     chrome
-    libreoffice-fresh
+    libreoffice-still
     dialect
     vlc
     zoom-us
     yad
-    bat
-    fastfetch
-    tree
-    curl
     gnomeExtensions.dash-to-dock
     gnomeExtensions.no-overview
 
