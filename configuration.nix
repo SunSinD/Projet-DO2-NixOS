@@ -1,16 +1,11 @@
 { config, pkgs, lib, inputs, device ? "nodev", ... }:
 
 {
-  imports = [ ./hardware-configuration.nix ];
-
-  # ─── System & Compatibility ─────────────────────────────────────────────
-  boot.kernelPackages = pkgs.linuxPackages;
-  services.preload.enable = true;
-  hardware.enableRedistributableFirmware = true;
-  services.upower.enable = true;
-  services.power-profiles-daemon.enable = true;
-
-  # ─── Universal Bootloader (GRUB) ────────────────────────────────────────
+  imports = [
+    ./hardware-configuration.nix
+  ];
+  
+  # ─── Bootloader (Fixed for Legacy & UEFI) ────────────────────────────────
   boot.loader = {
     efi.canTouchEfiVariables = true;
     efi.efiSysMountPoint     = "/boot";
@@ -18,17 +13,36 @@
       enable                = true;
       efiSupport            = true;
       efiInstallAsRemovable = true;
-      # This uses the device passed by the installer, or "nodev" if EFI
-      device                = device; 
+      device                = device; # Uses the variable passed by your installer
       forceInstall          = false;
     };
   };
 
-  # ─── Networking & Localization ───────────────────────────────────────────
+  # ─── System & Compatibility ──────────────────────────────────────────────
+  # Using standard kernel to avoid "Illegal Instruction" crashes on old CPUs
+  boot.kernelPackages = pkgs.linuxPackages;
+  services.preload.enable = true;
+  hardware.enableRedistributableFirmware = true;
+  services.upower.enable = true;
+  services.power-profiles-daemon.enable = true;
+
+  # ─── Networking & French-Canadian Locale ─────────────────────────────────
   networking.hostName              = "do2laptop";
   networking.networkmanager.enable = true;
-  time.timeZone = "America/Montreal";
+
+  time.timeZone      = "America/Montreal";
   i18n.defaultLocale = "fr_CA.UTF-8";
+  i18n.extraLocaleSettings = {
+    LC_ADDRESS        = "fr_CA.UTF-8";
+    LC_IDENTIFICATION = "fr_CA.UTF-8";
+    LC_MEASUREMENT    = "fr_CA.UTF-8";
+    LC_MONETARY       = "fr_CA.UTF-8";
+    LC_NAME           = "fr_CA.UTF-8";
+    LC_NUMERIC        = "fr_CA.UTF-8";
+    LC_PAPER          = "fr_CA.UTF-8";
+    LC_TELEPHONE      = "fr_CA.UTF-8";
+    LC_TIME           = "fr_CA.UTF-8";
+  };
 
   # ─── Desktop Environment (GNOME) ─────────────────────────────────────────
   services.xserver = {
@@ -44,18 +58,14 @@
   };
   services.desktopManager.gnome.enable = true;
 
-  # Fix for GNOME auto-login
-  systemd.services."getty@tty1".enable  = false;
-  systemd.services."autovt@tty1".enable = false;
-
-  # Remove default GNOME bloat
+  # Remove GNOME default apps you don't want
   environment.gnome.excludePackages = with pkgs; [
     gnome-tour gnome-connections epiphany geary totem gnome-music 
     gnome-characters gnome-contacts gnome-initial-setup gnome-maps 
     gnome-weather gnome-clocks gnome-software yelp
   ];
 
-  # ─── Audio & Input ───────────────────────────────────────────────────────
+  # ─── Audio & User ────────────────────────────────────────────────────────
   security.rtkit.enable = true;
   services.pipewire = {
     enable            = true;
@@ -63,9 +73,7 @@
     alsa.support32Bit = true;
     pulse.enable      = true;
   };
-  services.libinput.enable = true;
 
-  # ─── User Account ────────────────────────────────────────────────────────
   users.users.user = {
     isNormalUser    = true;
     description     = "Utilisateur";
@@ -73,14 +81,10 @@
     initialPassword = "pass";
   };
 
-  services.gnome.gnome-keyring.enable = true;
-  security.pam.services.gdm-autologin.enableGnomeKeyring = true;
-
-  # ─── System Packages & Web Apps ──────────────────────────────────────────
+  # ─── System Packages & DO2 Web Apps ─────────────────────────────────────
   environment.systemPackages = with pkgs; [
-    (google-chrome.override { commandLineArgs = "--password-store=basic --no-first-run --no-default-browser-check"; })
+    (google-chrome.override { commandLineArgs = "--password-store=basic --no-first-run"; })
     libreoffice-fresh
-    dialect
     vlc
     zoom-us
     yad
@@ -88,7 +92,7 @@
     gnomeExtensions.dash-to-dock
     gnomeExtensions.no-overview
 
-    # Web Apps Desktop Items
+    # Web Apps
     (pkgs.makeDesktopItem {
       name = "microsoft-teams-web"; desktopName = "Microsoft Teams";
       exec = "${pkgs.google-chrome}/bin/google-chrome-stable --app=https://teams.microsoft.com";
@@ -99,28 +103,26 @@
       exec = "${pkgs.google-chrome}/bin/google-chrome-stable --app=https://mail.google.com";
       icon = "/etc/icons/gmail.png"; categories = [ "Network" ];
     })
+    (pkgs.makeDesktopItem {
+      name = "outlook-web"; desktopName = "Outlook";
+      exec = "${pkgs.google-chrome}/bin/google-chrome-stable --app=https://outlook.live.com";
+      icon = "/etc/icons/outlook.png"; categories = [ "Network" ];
+    })
   ];
 
-  # ─── Static Assets & Welcome Script ──────────────────────────────────────
+  # ─── Assets & Wallpaper ──────────────────────────────────────────────────
   environment.etc = {
     "backgrounds/do2-wallpaper.png".source = ./assets/do2-wallpaper.png;
     "icons/teams.png".source               = ./assets/teams.png;
     "icons/gmail.png".source               = ./assets/gmail.png;
+    "icons/outlook.png".source             = ./assets/outlook.png;
     "scripts/do2-welcome.sh" = {
       source = ./do2-welcome.sh;
       mode   = "0755";
     };
-    "xdg/autostart/do2-welcome.desktop".text = ''
-      [Desktop Entry]
-      Type=Application
-      Name=DO2 Bienvenue
-      Exec=/etc/scripts/do2-welcome.sh
-      Terminal=false
-      X-GNOME-Autostart-enabled=true
-    '';
   };
 
-  # ─── GNOME UI Settings ──────────────────────────────────────────────────
+  # ─── GNOME UI Layout ─────────────────────────────────────────────────────
   programs.dconf.enable = true;
   programs.dconf.profiles.user.databases = [{
     settings = {
@@ -136,16 +138,11 @@
     };
   }];
 
-  # ─── Foundations ─────────────────────────────────────────────────────────
-  fonts.packages = with pkgs; [ noto-fonts liberation_ttf ];
-  swapDevices = [{ device = "/var/lib/swapfile"; size = 4096; }];
-  
-  nix.settings = {
-    experimental-features = [ "nix-command" "flakes" ];
-    trusted-users = [ "root" "@wheel" ];
-  };
+  # ─── System Foundations ──────────────────────────────────────────────────
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
   nixpkgs.config.allowUnfree = true;
+  swapDevices = [{ device = "/var/lib/swapfile"; size = 4096; }];
 
-  # Make sure this matches the version in your flake.nix (24.11 is recommended)
+  # IMPORTANT: Set this to 24.11 for stability
   system.stateVersion = "24.11"; 
 }
