@@ -1,8 +1,9 @@
 {
-  description = "DO2 - Dons d'ordinateurs, 2e vie — Projet Collège Montmorency";
+  description = "DO2 - Dons d'ordinateurs, 2e vie — Stable & Compatible";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    # Switching to Stable (24.11) for maximum compatibility on old CPUs
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
     
     disko = {
       url = "github:nix-community/disko";
@@ -13,10 +14,7 @@
   outputs = inputs@{ self, nixpkgs, ... }: {
     nixosConfigurations.do2 = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
-      specialArgs = {
-        inherit inputs self;
-        device = "CHANGE_ME"; 
-      };
+      specialArgs = { inherit inputs self; };
       modules = [
         inputs.disko.nixosModules.disko
         ./disko-config.nix
