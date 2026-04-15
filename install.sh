@@ -2,7 +2,6 @@
 set -euo pipefail
 
 # DO2 NixOS Install Script — by SunSinD, pour DO2 - Collège Montmorency
-# Improvements: ISO-disk exclusion + cleanup trap (from greyxp1/nixos-config)
 
 REPO_URL="https://github.com/SunSinD/Projet-DO2-NixOS.git"
 FLAKE_ATTR="do2"
@@ -35,21 +34,6 @@ git clone "$REPO_URL" "$WORK_DIR"
 cd "$WORK_DIR"
 
 # ── Step 2 — Disk selection ────────────────────────────────────────────────
-echo "------------------------------------------------------------------------"
-echo "Select the target disk (INTERNAL drives are usually nvme0n1 or sda):"
-lsblk -dno NAME,SIZE,MODEL | grep -v "loop"
-echo "------------------------------------------------------------------------"
-
-read -p "Enter disk name (e.g., nvme0n1 or sda): " SELECTED_DISK
-TARGET_DEVICE="/dev/$SELECTED_DISK"
-
-# Safety check: Is this the USB?
-if lsblk -no TRAN "$TARGET_DEVICE" | grep -q "usb"; then
-    echo "ERROR: $TARGET_DEVICE appears to be a USB drive! Stay safe."
-    exit 1
-fi
-
-# Exclude the disk that the live ISO is running from (borrowed from greyxp1)
 ISO_SOURCE=$(findmnt -n -o SOURCE /iso 2>/dev/null || true)
 ISO_DISK=""
 [[ -n "$ISO_SOURCE" ]] && ISO_DISK=$(lsblk -no PKNAME "$ISO_SOURCE" 2>/dev/null || true)
@@ -63,18 +47,33 @@ mapfile -t DISK_NAMES < <(
 
 [[ ${#DISK_NAMES[@]} -eq 0 ]] && { echo "ERREUR : Aucun disque éligible trouvé."; exit 1; }
 
+echo "------------------------------------------------------------------------"
+echo "Sélectionnez le disque cible :"
 i=0
 for name in "${DISK_NAMES[@]}"; do
-  SIZE=$( SIZE  "/dev/$name")
+  SIZE=$(lsblk -dno SIZE "/dev/$name")
   MODEL=$(lsblk -dno MODEL "/dev/$name" 2>/dev/null || echo "Inconnu")
   echo "  [$i] /dev/$name  ($SIZE)  $MODEL"
   i=$((i+1))
 done
+echo "------------------------------------------------------------------------"
 
-echo ""
 exec < /dev/tty
-read -rp "Sur quel disque voulez-vous installer ? (Entrez le numéro) : " CHOICE
+read -rp "Entrez le numéro du disque : " CHOICE
+
+# Validate input
+if [[ -z "${DISK_NAMES[$CHOICE]+x}" ]]; then
+  echo "ERREUR : Choix invalide."
+  exit 1
+fi
+
 DEV="/dev/${DISK_NAMES[$CHOICE]}"
+
+# Safety check: Is this a USB?
+if lsblk -no TRAN "$DEV" | grep -q "usb"; then
+    echo "ERREUR : $DEV semble être une clé USB ! Installation annulée par sécurité."
+    exit 1
+fi
 
 echo ""
 echo "  Disque sélectionné : $DEV"
@@ -93,6 +92,7 @@ sed -i "s|device = \".*\"; # Default|device = \"$DEV\"; # Default|" flake.nix
 git add flake.nix
 echo "{ }" > hardware-configuration.nix
 git add hardware-configuration.nix
+
 sudo nix --extra-experimental-features "nix-command flakes" run \
   github:nix-community/disko/latest -- \
   --mode destroy,format,mount \
@@ -110,14 +110,14 @@ nix --extra-experimental-features "nix-command flakes" flake update
 git add .
 git -c user.email="do2@montmorency.qc.ca" \
     -c user.name="DO2-Installer" \
-    commit -m "Local setup for $(hostname)"
+    commit -m "Configuration locale pour $(hostname)"
 
 # ── Step 5 — Temporary swap (for the installer only) ─────────────────────
 echo ""
-echo "[4/5] Configuration du swap..."
+echo "[4/5] Configuration du swap temporaire..."
 sudo fallocate -l 4G /mnt/swapfile
 sudo chmod 600       /mnt/swapfile
-sudo mkswap          /mnt/swapfile
+sudo mkswap          /mnt/swapfile > /dev/null
 sudo swapon          /mnt/swapfile
 
 # ── Step 6 — Install ──────────────────────────────────────────────────────
@@ -128,7 +128,9 @@ sudo nixos-install \
   --flake "$WORK_DIR#$FLAKE_ATTR" \
   --no-root-passwd \
   --impure \
-  --option "extra-experimental-features" "nix-command flakes"
+  --option "extra-experimental-features" "nix-command flakes" \
+  --option substituters "https://cache.nixos.org https://nix-community.cachix.org" \
+  --option trusted-public-keys "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
 
 echo ""
 echo "========================================"
