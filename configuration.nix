@@ -3,11 +3,9 @@
 {
   imports = [ ./hardware-configuration.nix ];
 
-  # ─── System & Performance ────────────────────────────────────────────────
-  # Utilize the CachyOS kernel for vastly improved smoothness and app launch times
-  boot.kernelPackages = pkgs.linuxPackages_cachyos;
-  
-  # Enable preload to cache frequently used apps (like Chrome/VLC) in RAM for instant launching
+# ─── System & Performance ────────────────────────────────────────────────
+  # Using the default LTS kernel for maximum hardware compatibility on old laptops
+  # We will rely on preload for responsiveness instead of CPU-specific kernels
   services.preload.enable = true;
 
   # Firmware and hardware support
@@ -17,13 +15,13 @@
 
   # ─── Bootloader (GRUB) ───────────────────────────────────────────────────
   boot.loader = {
-    efi.canTouchEfiVariables = true; # Allow standard UEFI management
+    efi.canTouchEfiVariables = true; 
     efi.efiSysMountPoint     = "/boot";
     grub = {
       enable                = true;
       efiSupport            = true;
       efiInstallAsRemovable = true;
-      device                = "nodev"; # Better practice for EFI systems
+      device                = device; # Changed back to variable for Legacy BIOS support
       forceInstall          = false;
     };
   };
