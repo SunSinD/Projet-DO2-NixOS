@@ -24,6 +24,7 @@
   };
 
   services.upower.enable = true;
+  services.power-profiles-daemon.enable = true;
 
   services.gnome.gnome-keyring.enable = true;
   security.pam.services.gdm-autologin.enableGnomeKeyring = true;
@@ -35,11 +36,31 @@
 
   environment.gnome.excludePackages = with pkgs; [
     gnome-tour
+    gnome-connections
+    gedit
     epiphany
     geary
-    gnome-calendar
-    gnome-music
+    evince
     totem
+    gnome-music
+    gnome-characters
+    gnome-contacts
+    gnome-initial-setup
+    gnome-maps
+    gnome-weather
+    gnome-clocks
+    gnome-software
+    gnome-calendar
+    gnome-system-monitor
+    gnome-calculator
+    gnome-logs
+    gnome-font-viewer
+    gnome-disk-utility
+    simple-scan
+    cheese
+    yelp
+    file-roller
+    seahorse
   ];
 
   programs.dconf.enable = true;

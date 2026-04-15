@@ -2,9 +2,12 @@
 { config, pkgs, ... }:
 
 let
+  chrome = pkgs.google-chrome.override {
+    commandLineArgs = "--password-store=basic --no-first-run --no-default-browser-check";
+  };
   # Desktop Exec= must not use shell quoting; keep a single argv vector as one line.
   chromeApp = url:
-    "${pkgs.google-chrome}/bin/google-chrome-stable "
+    "${chrome}/bin/google-chrome-stable "
     + "--ozone-platform-hint=auto "
     + "--disable-backgrounding-occluded-windows "
     + "--disable-renderer-backgrounding "
@@ -42,7 +45,7 @@ in
   };
 
   environment.systemPackages = with pkgs; [
-    google-chrome
+    chrome
     libreoffice-fresh
     dialect
     vlc

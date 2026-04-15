@@ -64,21 +64,43 @@ Le projet DO2, Don d'ordinateur, Deuxième vie, redonne vie à des ordinateurs u
 
 ## Installation
 
-**1. Booter depuis la clé USB NixOS** (ISO minimal, pas graphique)
+**1. Démarrer depuis la clé USB NixOS** (ISO minimal, pas graphique)
 
-**2. Se connecter au Wi-Fi** si pas de câble Ethernet :
+Insérez la clé USB dans l'ordinateur. Allumez-le et appuyez sur `F12` (ou `Échap` / `F2` selon le modèle) pour ouvrir le menu de démarrage, puis sélectionnez la clé USB.
+
+> **Important :** Dans le menu NixOS, choisissez la première option - **NixOS LTS**. Ne choisissez pas la version avec des chiffres.
+
+> **Hint :** Si `F12` ne fonctionne pas, essayez `F10`, `F11` ou `Del`. Sur certains ThinkPads, c'est le bouton *Novo* près du port d'alimentation.
+
+**2. Se connecter au réseau**
+
+**Méthode recommandée - Tethering USB (au Collège) :**
+
+Votre téléphone doit être connecté au Wi-Fi `Le_College_Montmorency` et vous devez être connecté au portail du Collège (la page de connexion du Collège doit avoir été complétée dans votre navigateur). Branchez votre téléphone à l'ordinateur avec un câble USB, puis activez le tethering USB.
+
+- **Android :** Paramètres - Connexions - Point d'accès mobile - Modem USB - Activer
+- **iPhone :** Réglages - Partage de connexion - Autoriser les autres à rejoindre, puis brancher le câble
+
+**Autre lieu (à la maison ou réseau Wi-Fi normal) :**
 ```bash
 nmcli device wifi connect "NOM_DU_WIFI" password "MOT_DE_PASSE"
 ```
+Remplacez `NOM_DU_WIFI` et `MOT_DE_PASSE` par les informations de votre réseau.
 
-**3. Lancer l'installation :**
+**3. Vérifier la connexion :**
+```bash
+ping -c 3 github.com
+```
+Attendez de voir des réponses avant de continuer.
+
+**4. Lancer l'installation :**
 ```bash
 sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/SunSinD/Projet-DO2-NixOS/main/install.sh)"
 ```
 
-Le script détecte le disque, partitionne, installe tout et redémarre automatiquement. Durée : **10 à 30 minutes**.
+Le script détecte le disque, partitionne, copie la configuration NixOS et installe le système. Durée : **10 à 30 minutes**. Ne fermez pas l'ordinateur pendant ce temps.
 
-> Identifiants par défaut — Utilisateur : `user` · Mot de passe : `pass`
+> Identifiants par défaut - Utilisateur : `user` - Mot de passe : `pass`
 
 ---
 

@@ -35,10 +35,19 @@ git clone "$REPO_URL" "$WORK_DIR"
 cd "$WORK_DIR"
 
 # ── Step 2 — Disk selection ────────────────────────────────────────────────
-echo ""
 echo "------------------------------------------------------------------------"
-echo "Disques physiques détectés :"
-echo ""
+echo "Select the target disk (INTERNAL drives are usually nvme0n1 or sda):"
+lsblk -dno NAME,SIZE,MODEL | grep -v "loop"
+echo "------------------------------------------------------------------------"
+
+read -p "Enter disk name (e.g., nvme0n1 or sda): " SELECTED_DISK
+TARGET_DEVICE="/dev/$SELECTED_DISK"
+
+# Safety check: Is this the USB?
+if lsblk -no TRAN "$TARGET_DEVICE" | grep -q "usb"; then
+    echo "ERROR: $TARGET_DEVICE appears to be a USB drive! Stay safe."
+    exit 1
+fi
 
 # Exclude the disk that the live ISO is running from (borrowed from greyxp1)
 ISO_SOURCE=$(findmnt -n -o SOURCE /iso 2>/dev/null || true)
@@ -56,7 +65,7 @@ mapfile -t DISK_NAMES < <(
 
 i=0
 for name in "${DISK_NAMES[@]}"; do
-  SIZE=$(lsblk -dno SIZE  "/dev/$name")
+  SIZE=$( SIZE  "/dev/$name")
   MODEL=$(lsblk -dno MODEL "/dev/$name" 2>/dev/null || echo "Inconnu")
   echo "  [$i] /dev/$name  ($SIZE)  $MODEL"
   i=$((i+1))
@@ -91,7 +100,6 @@ git add hardware-configuration.nix
 sudo nix --extra-experimental-features "nix-command flakes" run \
   github:nix-community/disko/latest -- \
   --mode destroy,format,mount \
-  --yes-wipe-all-disks \
   --flake ".#$FLAKE_ATTR"
 
 # ── Step 4 — Generate hardware config and lock flake ─────────────────────
