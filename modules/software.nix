@@ -18,7 +18,6 @@ in
   environment.variables = {
     SAL_USE_VCLPLUGIN = "gtk3";
   };
-
   environment.etc = {
     "backgrounds/do2-wallpaper.png".source = ../assets/do2-wallpaper.png;
 
@@ -51,6 +50,7 @@ in
     vlc
     zoom-us
     yad
+    gimp
     gnomeExtensions.dash-to-dock
     gnomeExtensions.no-overview
 
@@ -95,7 +95,6 @@ in
       comment     = "Tableau de dessin collaboratif (web)";
     })
   ];
-
   fonts.packages = with pkgs; [
     noto-fonts
     noto-fonts-cjk-sans
