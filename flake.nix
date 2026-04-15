@@ -12,7 +12,7 @@
       system = "x86_64-linux";
       specialArgs = {
         inherit inputs self;
-        device = "/dev/CHANGE_ME";
+        device = "CHANGE_ME"; 
       };
       modules = [
         inputs.disko.nixosModules.disko
