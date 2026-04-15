@@ -12,7 +12,7 @@
       system = "x86_64-linux";
       specialArgs = {
         inherit inputs self;
-        device = "/dev/sda"; # Default — replaced at install time by install.sh
+        device = "/dev/nvme0n1";
       };
       modules = [
         inputs.disko.nixosModules.disko
