@@ -69,7 +69,7 @@
 
   environment.systemPackages = [
     (pkgs.writeShellScriptBin "rebuild" ''
-      sudo bash -c "cd /etc/nixos/config && git fetch origin && git reset --hard origin/main && nixos-rebuild switch --flake .#do2 && sudo -u user DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus dconf write /org/gnome/shell/favorite-apps \"['google-chrome.desktop', 'microsoft-teams-web.desktop', 'outlook-web.desktop', 'libreoffice-calc.desktop', 'libreoffice-writer.desktop', 'org.gnome.Nautilus.desktop']\" && sudo -u user DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus dconf write /org/gnome/desktop/app-folders/folder-children \"['LibreOffice', 'Communication', 'Médias', 'Internet', 'Outils']\""
+      sudo bash -c "cd /etc/nixos/config && git fetch origin && git reset --hard origin/main && nixos-rebuild switch --flake .#do2 && sudo -u user DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus dconf reset -f /org/gnome/shell/favorite-apps && sudo -u user DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus dconf reset -f /org/gnome/desktop/app-folders"
     '')
   ];
 }
