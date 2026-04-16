@@ -71,7 +71,7 @@
         animate-show-apps = false;
       };
       "org/gnome/desktop/app-folders" = {
-        folder-children = [ "LibreOffice" "Communication" "Medias" "Internet" "Outils" ];
+        folder-children = [ "LibreOffice" "Communication" "Médias" "Internet" "Outils" ];
       };
       "org/gnome/desktop/app-folders/folders/LibreOffice" = {
         name = "LibreOffice";
@@ -95,12 +95,14 @@
           "Zoom.desktop"
         ];
       };
-      "org/gnome/desktop/app-folders/folders/Medias" = {
+      "org/gnome/desktop/app-folders/folders/Médias" = {
         name = "Médias";
         apps = [
           "vlc.desktop"
           "excalidraw-web.desktop"
           "gimp.desktop"
+          "org.gnome.Loupe.desktop"
+          "eog.desktop"
         ];
       };
 
@@ -116,6 +118,11 @@
         apps = [
           "dialect.desktop"
           "yad.desktop"
+          "xterm.desktop"
+          "gnome-system-monitor.desktop"
+          "seahorse.desktop"
+          "gnome-font-viewer.desktop"
+          "nixos-manual.desktop"
         ];
       };
 
