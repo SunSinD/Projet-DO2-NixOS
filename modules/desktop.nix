@@ -51,19 +51,15 @@
 
   programs.dconf.enable = true;
 
-  # dconf profile for the "user" account
-  environment.etc."dconf/profile/user".text = ''
-    user-db:user
-    system-db:do2
-  '';
-
-  # Write the dconf system database keyfiles and compile them.
-  # Using an activation script instead of environment.etc because
-  # programs.dconf.enable owns /etc/dconf/ in the Nix store (read-only),
-  # which prevents environment.etc from creating symlinks inside it.
   system.activationScripts.dconf-db = {
     deps = [ "etc" ];
     text = ''
+      mkdir -p /etc/dconf/profile
+      cat > /etc/dconf/profile/user << 'EOF'
+user-db:user
+system-db:do2
+EOF
+
       mkdir -p /etc/dconf/db/do2.d/locks
 
       cat > /etc/dconf/db/do2.d/00-nixos << 'EOF'
