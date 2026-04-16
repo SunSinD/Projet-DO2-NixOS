@@ -126,18 +126,18 @@
           ];
         };
         "org/gnome/shell/extensions/dash-to-dock" = {
-          dock-position    = "BOTTOM";
-          show-apps-at-top = false;
-          extend-height    = false;
-          show-trash       = false;
-          show-mounts      = false;
+          dock-position     = "BOTTOM";
+          show-apps-at-top  = false;
+          extend-height     = false;
+          show-trash        = false;
+          show-mounts       = false;
           animate-show-apps = false;
         };
         "org/gnome/mutter" = {
           dynamic-workspaces = false;
         };
         "org/gnome/desktop/wm/preferences" = {
-          num-workspaces = 1;
+          num-workspaces = lib.gvariant.mkInt32 1;
         };
         "org/gnome/desktop/background" = {
           picture-uri      = "file:///etc/backgrounds/do2-wallpaper.png";
