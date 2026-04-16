@@ -57,68 +57,72 @@
     system-db:do2
   '';
 
-  # Write the system database keyfile
-  environment.etc."dconf/db/do2.d/00-nixos".text = ''
-    [org/gnome/shell]
-    favorite-apps=['google-chrome.desktop', 'microsoft-teams-web.desktop', 'outlook-web.desktop', 'libreoffice-calc.desktop', 'libreoffice-writer.desktop', 'org.gnome.Nautilus.desktop']
-    enabled-extensions=['dash-to-dock@micxgx.gmail.com', 'no-overview@fthx']
-    disable-user-extensions=false
+  # Build the full do2.d directory (keyfile + locks/) as a single store path
+  # to avoid the environment.etc symlink-vs-directory conflict.
+  environment.etc."dconf/db/do2.d".source = pkgs.runCommand "dconf-do2.d" {} ''
+    mkdir -p $out/locks
 
-    [org/gnome/desktop/interface]
-    enable-animations=false
+    cat > $out/00-nixos << 'EOF'
+[org/gnome/shell]
+favorite-apps=['google-chrome.desktop', 'microsoft-teams-web.desktop', 'outlook-web.desktop', 'libreoffice-calc.desktop', 'libreoffice-writer.desktop', 'org.gnome.Nautilus.desktop']
+enabled-extensions=['dash-to-dock@micxgx.gmail.com', 'no-overview@fthx']
+disable-user-extensions=false
 
-    [org/gnome/desktop/app-folders]
-    folder-children=['LibreOffice', 'Communication', 'Médias', 'Internet', 'Outils']
+[org/gnome/desktop/interface]
+enable-animations=false
 
-    [org/gnome/desktop/app-folders/folders/LibreOffice]
-    name='LibreOffice'
-    apps=['libreoffice-startcenter.desktop', 'libreoffice-writer.desktop', 'libreoffice-calc.desktop', 'libreoffice-impress.desktop', 'libreoffice-draw.desktop', 'libreoffice-math.desktop', 'libreoffice-base.desktop']
+[org/gnome/desktop/app-folders]
+folder-children=['LibreOffice', 'Communication', 'Médias', 'Internet', 'Outils']
 
-    [org/gnome/desktop/app-folders/folders/Communication]
-    name='Communication'
-    apps=['gmail-web.desktop', 'microsoft-teams-web.desktop', 'google-meet-web.desktop', 'outlook-web.desktop', 'Zoom.desktop']
+[org/gnome/desktop/app-folders/folders/LibreOffice]
+name='LibreOffice'
+apps=['libreoffice-startcenter.desktop', 'libreoffice-writer.desktop', 'libreoffice-calc.desktop', 'libreoffice-impress.desktop', 'libreoffice-draw.desktop', 'libreoffice-math.desktop', 'libreoffice-base.desktop']
 
-    [org/gnome/desktop/app-folders/folders/Médias]
-    name='Médias'
-    apps=['vlc.desktop', 'excalidraw-web.desktop', 'gimp.desktop', 'org.gnome.Loupe.desktop', 'eog.desktop']
+[org/gnome/desktop/app-folders/folders/Communication]
+name='Communication'
+apps=['gmail-web.desktop', 'microsoft-teams-web.desktop', 'google-meet-web.desktop', 'outlook-web.desktop', 'Zoom.desktop']
 
-    [org/gnome/desktop/app-folders/folders/Internet]
-    name='Internet'
-    apps=['google-chrome.desktop']
+[org/gnome/desktop/app-folders/folders/Médias]
+name='Médias'
+apps=['vlc.desktop', 'excalidraw-web.desktop', 'gimp.desktop', 'org.gnome.Loupe.desktop', 'eog.desktop']
 
-    [org/gnome/desktop/app-folders/folders/Outils]
-    name='Outils'
-    apps=['dialect.desktop', 'yad.desktop', 'xterm.desktop', 'gnome-system-monitor.desktop', 'seahorse.desktop', 'gnome-font-viewer.desktop', 'nixos-manual.desktop', 'org.gnome.Terminal.desktop', 'org.gnome.Settings.desktop', 'org.gnome.Calculator.desktop']
+[org/gnome/desktop/app-folders/folders/Internet]
+name='Internet'
+apps=['google-chrome.desktop']
 
-    [org/gnome/shell/extensions/dash-to-dock]
-    dock-position='BOTTOM'
-    show-apps-at-top=false
-    extend-height=false
-    show-trash=false
-    show-mounts=false
-    animate-show-apps=false
+[org/gnome/desktop/app-folders/folders/Outils]
+name='Outils'
+apps=['dialect.desktop', 'yad.desktop', 'xterm.desktop', 'gnome-system-monitor.desktop', 'seahorse.desktop', 'gnome-font-viewer.desktop', 'nixos-manual.desktop', 'org.gnome.Terminal.desktop', 'org.gnome.Settings.desktop', 'org.gnome.Calculator.desktop']
 
-    [org/gnome/mutter]
-    dynamic-workspaces=false
+[org/gnome/shell/extensions/dash-to-dock]
+dock-position='BOTTOM'
+show-apps-at-top=false
+extend-height=false
+show-trash=false
+show-mounts=false
+animate-show-apps=false
 
-    [org/gnome/desktop/wm/preferences]
-    num-workspaces=1
+[org/gnome/mutter]
+dynamic-workspaces=false
 
-    [org/gnome/desktop/background]
-    picture-uri='file:///etc/backgrounds/do2-wallpaper.png'
-    picture-uri-dark='file:///etc/backgrounds/do2-wallpaper.png'
-  '';
+[org/gnome/desktop/wm/preferences]
+num-workspaces=1
 
-  # Lock keys so user can't override them
-  environment.etc."dconf/db/do2.d/locks/00-locks".text = ''
-    /org/gnome/shell/favorite-apps
-    /org/gnome/shell/enabled-extensions
-    /org/gnome/desktop/app-folders/folder-children
-    /org/gnome/desktop/app-folders/folders/LibreOffice/apps
-    /org/gnome/desktop/app-folders/folders/Communication/apps
-    /org/gnome/desktop/app-folders/folders/Médias/apps
-    /org/gnome/desktop/app-folders/folders/Internet/apps
-    /org/gnome/desktop/app-folders/folders/Outils/apps
+[org/gnome/desktop/background]
+picture-uri='file:///etc/backgrounds/do2-wallpaper.png'
+picture-uri-dark='file:///etc/backgrounds/do2-wallpaper.png'
+EOF
+
+    cat > $out/locks/00-locks << 'EOF'
+/org/gnome/shell/favorite-apps
+/org/gnome/shell/enabled-extensions
+/org/gnome/desktop/app-folders/folder-children
+/org/gnome/desktop/app-folders/folders/LibreOffice/apps
+/org/gnome/desktop/app-folders/folders/Communication/apps
+/org/gnome/desktop/app-folders/folders/Médias/apps
+/org/gnome/desktop/app-folders/folders/Internet/apps
+/org/gnome/desktop/app-folders/folders/Outils/apps
+EOF
   '';
 
   # Compile the dconf database after writing the keyfiles
