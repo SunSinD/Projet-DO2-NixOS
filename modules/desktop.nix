@@ -51,18 +51,22 @@
 
   programs.dconf.enable = true;
 
-  # Write dconf profile for the "user" account
+  # dconf profile for the "user" account
   environment.etc."dconf/profile/user".text = ''
     user-db:user
     system-db:do2
   '';
 
-  # Build the full do2.d directory (keyfile + locks/) as a single store path
-  # to avoid the environment.etc symlink-vs-directory conflict.
-  environment.etc."dconf/db/do2.d".source = pkgs.runCommand "dconf-do2.d" {} ''
-    mkdir -p $out/locks
+  # Write the dconf system database keyfiles and compile them.
+  # Using an activation script instead of environment.etc because
+  # programs.dconf.enable owns /etc/dconf/ in the Nix store (read-only),
+  # which prevents environment.etc from creating symlinks inside it.
+  system.activationScripts.dconf-db = {
+    deps = [ "etc" ];
+    text = ''
+      mkdir -p /etc/dconf/db/do2.d/locks
 
-    cat > $out/00-nixos << 'EOF'
+      cat > /etc/dconf/db/do2.d/00-nixos << 'EOF'
 [org/gnome/shell]
 favorite-apps=['google-chrome.desktop', 'microsoft-teams-web.desktop', 'outlook-web.desktop', 'libreoffice-calc.desktop', 'libreoffice-writer.desktop', 'org.gnome.Nautilus.desktop']
 enabled-extensions=['dash-to-dock@micxgx.gmail.com', 'no-overview@fthx']
@@ -113,7 +117,7 @@ picture-uri='file:///etc/backgrounds/do2-wallpaper.png'
 picture-uri-dark='file:///etc/backgrounds/do2-wallpaper.png'
 EOF
 
-    cat > $out/locks/00-locks << 'EOF'
+      cat > /etc/dconf/db/do2.d/locks/00-locks << 'EOF'
 /org/gnome/shell/favorite-apps
 /org/gnome/shell/enabled-extensions
 /org/gnome/desktop/app-folders/folder-children
@@ -123,11 +127,8 @@ EOF
 /org/gnome/desktop/app-folders/folders/Internet/apps
 /org/gnome/desktop/app-folders/folders/Outils/apps
 EOF
-  '';
 
-  # Compile the dconf database after writing the keyfiles
-  system.activationScripts.dconf-update = {
-    deps = [ "etc" ];
-    text = "${pkgs.dconf}/bin/dconf update";
+      ${pkgs.dconf}/bin/dconf update
+    '';
   };
 }
