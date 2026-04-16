@@ -1,4 +1,4 @@
-# GNOME session, audio, input, dconf defaults (lightweight UI on old hardware).
+```# GNOME session, audio, input, dconf defaults (lightweight UI on old hardware).
 { config, pkgs, lib, ... }:
 
 {
@@ -113,6 +113,7 @@
         "org/gnome/desktop/app-folders/folders/Outils" = {
           name = "Outils";
           apps = [
+            "org.gnome.Nautilus.desktop"
             "dialect.desktop"
             "yad.desktop"
             "xterm.desktop"
