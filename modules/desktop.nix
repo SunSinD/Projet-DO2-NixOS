@@ -57,7 +57,9 @@
           "microsoft-teams-web.desktop"
           "outlook-web.desktop"
           "libreoffice-calc.desktop"
+          "libreoffice-calc"
           "libreoffice-writer.desktop"
+          "libreoffice-writer"
           "org.gnome.Nautilus.desktop"
         ];
       };
@@ -123,6 +125,9 @@
           "seahorse.desktop"
           "gnome-font-viewer.desktop"
           "nixos-manual.desktop"
+          "org.gnome.Terminal.desktop"
+          "org.gnome.Settings.desktop"
+          "org.gnome.Calculator.desktop"
         ];
       };
 
