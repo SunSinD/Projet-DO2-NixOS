@@ -57,9 +57,7 @@
           "microsoft-teams-web.desktop"
           "outlook-web.desktop"
           "libreoffice-calc.desktop"
-          "libreoffice-calc"
           "libreoffice-writer.desktop"
-          "libreoffice-writer"
           "org.gnome.Nautilus.desktop"
         ];
       };
