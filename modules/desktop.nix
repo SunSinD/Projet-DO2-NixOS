@@ -38,6 +38,17 @@
     totem
     gnome-music
   ];
+
+  systemd.services.reset-user-dconf = {
+    description = "Reset user dconf to system defaults";
+    before      = [ "display-manager.service" ];
+    wantedBy    = [ "multi-user.target" ];
+    serviceConfig = {
+      Type      = "oneshot";
+      ExecStart = "${pkgs.coreutils}/bin/rm -f /home/user/.config/dconf/user";
+    };
+  };
+
   programs.dconf.enable = true;
   programs.dconf.profiles.user.databases = [{
     locks = [
