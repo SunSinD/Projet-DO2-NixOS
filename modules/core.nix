@@ -9,7 +9,6 @@
       enable                = true;
       efiSupport            = true;
       efiInstallAsRemovable = true;
-      device                = device;
       forceInstall          = false;
     };
   };
