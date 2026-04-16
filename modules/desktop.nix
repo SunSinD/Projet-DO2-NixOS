@@ -37,6 +37,9 @@
     geary
     totem
     gnome-music
+    gnome-contacts
+    simple-scan
+    gnome-software
   ];
 
   systemd.services.reset-user-dconf = {
@@ -115,7 +118,6 @@
           apps = [
             "org.gnome.Nautilus.desktop"
             "dialect.desktop"
-            "yad.desktop"
             "xterm.desktop"
             "gnome-system-monitor.desktop"
             "seahorse.desktop"
