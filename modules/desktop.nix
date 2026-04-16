@@ -1,4 +1,4 @@
-```# GNOME session, audio, input, dconf defaults (lightweight UI on old hardware).
+# GNOME session, audio, input, dconf defaults (lightweight UI on old hardware).
 { config, pkgs, lib, ... }:
 
 {
