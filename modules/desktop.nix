@@ -49,82 +49,111 @@
     };
   };
 
-  programs.dconf.enable = true;
-
-  system.activationScripts.dconf-db = {
-    deps = [ "etc" ];
-    text = ''
-      mkdir -p /etc/dconf/profile
-      cat > /etc/dconf/profile/user << 'EOF'
-user-db:user
-system-db:do2
-EOF
-
-      mkdir -p /etc/dconf/db/do2.d/locks
-
-      cat > /etc/dconf/db/do2.d/00-nixos << 'EOF'
-[org/gnome/shell]
-favorite-apps=['google-chrome.desktop', 'microsoft-teams-web.desktop', 'outlook-web.desktop', 'libreoffice-calc.desktop', 'libreoffice-writer.desktop', 'org.gnome.Nautilus.desktop']
-enabled-extensions=['dash-to-dock@micxgx.gmail.com', 'no-overview@fthx']
-disable-user-extensions=false
-
-[org/gnome/desktop/interface]
-enable-animations=false
-
-[org/gnome/desktop/app-folders]
-folder-children=['LibreOffice', 'Communication', 'Médias', 'Internet', 'Outils']
-
-[org/gnome/desktop/app-folders/folders/LibreOffice]
-name='LibreOffice'
-apps=['libreoffice-startcenter.desktop', 'libreoffice-writer.desktop', 'libreoffice-calc.desktop', 'libreoffice-impress.desktop', 'libreoffice-draw.desktop', 'libreoffice-math.desktop', 'libreoffice-base.desktop']
-
-[org/gnome/desktop/app-folders/folders/Communication]
-name='Communication'
-apps=['gmail-web.desktop', 'microsoft-teams-web.desktop', 'google-meet-web.desktop', 'outlook-web.desktop', 'Zoom.desktop']
-
-[org/gnome/desktop/app-folders/folders/Médias]
-name='Médias'
-apps=['vlc.desktop', 'excalidraw-web.desktop', 'gimp.desktop', 'org.gnome.Loupe.desktop', 'eog.desktop']
-
-[org/gnome/desktop/app-folders/folders/Internet]
-name='Internet'
-apps=['google-chrome.desktop']
-
-[org/gnome/desktop/app-folders/folders/Outils]
-name='Outils'
-apps=['dialect.desktop', 'yad.desktop', 'xterm.desktop', 'gnome-system-monitor.desktop', 'seahorse.desktop', 'gnome-font-viewer.desktop', 'nixos-manual.desktop', 'org.gnome.Terminal.desktop', 'org.gnome.Settings.desktop', 'org.gnome.Calculator.desktop']
-
-[org/gnome/shell/extensions/dash-to-dock]
-dock-position='BOTTOM'
-show-apps-at-top=false
-extend-height=false
-show-trash=false
-show-mounts=false
-animate-show-apps=false
-
-[org/gnome/mutter]
-dynamic-workspaces=false
-
-[org/gnome/desktop/wm/preferences]
-num-workspaces=1
-
-[org/gnome/desktop/background]
-picture-uri='file:///etc/backgrounds/do2-wallpaper.png'
-picture-uri-dark='file:///etc/backgrounds/do2-wallpaper.png'
-EOF
-
-      cat > /etc/dconf/db/do2.d/locks/00-locks << 'EOF'
-/org/gnome/shell/favorite-apps
-/org/gnome/shell/enabled-extensions
-/org/gnome/desktop/app-folders/folder-children
-/org/gnome/desktop/app-folders/folders/LibreOffice/apps
-/org/gnome/desktop/app-folders/folders/Communication/apps
-/org/gnome/desktop/app-folders/folders/Médias/apps
-/org/gnome/desktop/app-folders/folders/Internet/apps
-/org/gnome/desktop/app-folders/folders/Outils/apps
-EOF
-
-      ${pkgs.dconf}/bin/dconf update
-    '';
+  programs.dconf = {
+    enable = true;
+    profiles.user.databases = [{
+      settings = {
+        "org/gnome/shell" = {
+          favorite-apps = [
+            "google-chrome.desktop"
+            "microsoft-teams-web.desktop"
+            "outlook-web.desktop"
+            "libreoffice-calc.desktop"
+            "libreoffice-writer.desktop"
+            "org.gnome.Nautilus.desktop"
+          ];
+          enabled-extensions = [
+            "dash-to-dock@micxgx.gmail.com"
+            "no-overview@fthx"
+          ];
+          disable-user-extensions = false;
+        };
+        "org/gnome/desktop/interface" = {
+          enable-animations = false;
+        };
+        "org/gnome/desktop/app-folders" = {
+          folder-children = [ "LibreOffice" "Communication" "Médias" "Internet" "Outils" ];
+        };
+        "org/gnome/desktop/app-folders/folders/LibreOffice" = {
+          name = "LibreOffice";
+          apps = [
+            "libreoffice-startcenter.desktop"
+            "libreoffice-writer.desktop"
+            "libreoffice-calc.desktop"
+            "libreoffice-impress.desktop"
+            "libreoffice-draw.desktop"
+            "libreoffice-math.desktop"
+            "libreoffice-base.desktop"
+          ];
+        };
+        "org/gnome/desktop/app-folders/folders/Communication" = {
+          name = "Communication";
+          apps = [
+            "gmail-web.desktop"
+            "microsoft-teams-web.desktop"
+            "google-meet-web.desktop"
+            "outlook-web.desktop"
+            "Zoom.desktop"
+          ];
+        };
+        "org/gnome/desktop/app-folders/folders/Médias" = {
+          name = "Médias";
+          apps = [
+            "vlc.desktop"
+            "excalidraw-web.desktop"
+            "gimp.desktop"
+            "org.gnome.Loupe.desktop"
+            "eog.desktop"
+          ];
+        };
+        "org/gnome/desktop/app-folders/folders/Internet" = {
+          name = "Internet";
+          apps = [ "google-chrome.desktop" ];
+        };
+        "org/gnome/desktop/app-folders/folders/Outils" = {
+          name = "Outils";
+          apps = [
+            "dialect.desktop"
+            "yad.desktop"
+            "xterm.desktop"
+            "gnome-system-monitor.desktop"
+            "seahorse.desktop"
+            "gnome-font-viewer.desktop"
+            "nixos-manual.desktop"
+            "org.gnome.Terminal.desktop"
+            "org.gnome.Settings.desktop"
+            "org.gnome.Calculator.desktop"
+          ];
+        };
+        "org/gnome/shell/extensions/dash-to-dock" = {
+          dock-position    = "BOTTOM";
+          show-apps-at-top = false;
+          extend-height    = false;
+          show-trash       = false;
+          show-mounts      = false;
+          animate-show-apps = false;
+        };
+        "org/gnome/mutter" = {
+          dynamic-workspaces = false;
+        };
+        "org/gnome/desktop/wm/preferences" = {
+          num-workspaces = 1;
+        };
+        "org/gnome/desktop/background" = {
+          picture-uri      = "file:///etc/backgrounds/do2-wallpaper.png";
+          picture-uri-dark = "file:///etc/backgrounds/do2-wallpaper.png";
+        };
+      };
+      locks = [
+        "/org/gnome/shell/favorite-apps"
+        "/org/gnome/shell/enabled-extensions"
+        "/org/gnome/desktop/app-folders/folder-children"
+        "/org/gnome/desktop/app-folders/folders/LibreOffice/apps"
+        "/org/gnome/desktop/app-folders/folders/Communication/apps"
+        "/org/gnome/desktop/app-folders/folders/Médias/apps"
+        "/org/gnome/desktop/app-folders/folders/Internet/apps"
+        "/org/gnome/desktop/app-folders/folders/Outils/apps"
+      ];
+    }];
   };
 }
