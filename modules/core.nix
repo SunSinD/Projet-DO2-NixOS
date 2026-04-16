@@ -3,14 +3,9 @@
 
 {
   boot.loader = {
-    efi.canTouchEfiVariables = false;
+    efi.canTouchEfiVariables = true;
     efi.efiSysMountPoint     = "/boot";
-    grub = {
-      enable                = true;
-      efiSupport            = true;
-      efiInstallAsRemovable = true;
-      forceInstall          = false;
-    };
+    systemd-boot.enable      = true;
   };
 
   hardware.enableRedistributableFirmware = true;
