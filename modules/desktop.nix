@@ -42,8 +42,13 @@
   programs.dconf.profiles.user.databases = [{
     locks = [
       "/org/gnome/shell/favorite-apps"
-      "/org/gnome/desktop/app-folders/folder-children"
       "/org/gnome/shell/enabled-extensions"
+      "/org/gnome/desktop/app-folders/folder-children"
+      "/org/gnome/desktop/app-folders/folders/LibreOffice/apps"
+      "/org/gnome/desktop/app-folders/folders/Communication/apps"
+      "/org/gnome/desktop/app-folders/folders/Médias/apps"
+      "/org/gnome/desktop/app-folders/folders/Internet/apps"
+      "/org/gnome/desktop/app-folders/folders/Outils/apps"
     ];
     settings = {
 
