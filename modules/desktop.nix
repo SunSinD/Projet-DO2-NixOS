@@ -40,7 +40,6 @@
   ];
   programs.dconf.enable = true;
   programs.dconf.profiles.user.databases = [{
-  programs.dconf.profiles.user.databases = [{
     locks = [
       "/org/gnome/shell/favorite-apps"
       "/org/gnome/desktop/app-folders/folder-children"
