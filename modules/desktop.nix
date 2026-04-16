@@ -37,17 +37,17 @@
     geary
     totem
     gnome-music
+    gnome-contacts
+    gnome-weather
+    gnome-maps
+    gnome-clocks
+    gnome-characters
+    gnome-logs
+    gnome-disk-utility
+    gnome-software
   ];
 
-  systemd.services.reset-user-dconf = {
-    description = "Reset user dconf to system defaults";
-    before      = [ "display-manager.service" ];
-    wantedBy    = [ "multi-user.target" ];
-    serviceConfig = {
-      Type      = "oneshot";
-      ExecStart = "${pkgs.coreutils}/bin/rm -f /home/user/.config/dconf/user";
-    };
-  };
+
 
   programs.dconf = {
     enable = true;

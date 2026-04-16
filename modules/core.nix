@@ -69,7 +69,7 @@
 
   environment.systemPackages = [
     (pkgs.writeShellScriptBin "rebuild" ''
-      sudo bash -c "cd /etc/nixos/config && git fetch origin && git reset --hard origin/main && nixos-rebuild switch --flake .#do2 && sudo -u user DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus dconf reset -f /org/gnome/shell/favorite-apps && sudo -u user DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus dconf reset -f /org/gnome/desktop/app-folders"
+      sudo nixos-rebuild switch --flake /etc/nixos/config#do2
     '')
   ];
 }
