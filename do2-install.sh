@@ -140,6 +140,11 @@ sudo nixos-install \
   --option "extra-experimental-features" "nix-command flakes"
 
 echo ""
+echo "[6/6] Sauvegarde permanente de la config..."
+sudo mkdir -p /mnt/etc/nixos
+sudo cp -r "$WORK_DIR" /mnt/etc/nixos/config
+
+echo ""
 echo "========================================"
 echo "  Installation terminée ! Redémarrage..."
 echo "========================================"

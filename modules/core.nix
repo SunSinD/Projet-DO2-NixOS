@@ -71,4 +71,10 @@
   };
 
   services.fstrim.enable = true;
+
+  environment.systemPackages = [
+    (pkgs.writeShellScriptBin "rebuild" ''
+      sudo nixos-rebuild switch --flake /etc/nixos/config#do2
+    '')
+  ];
 }
