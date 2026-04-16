@@ -5,10 +5,8 @@
   boot.loader = {
     efi.canTouchEfiVariables = true;
     efi.efiSysMountPoint     = "/boot";
-    systemd-boot = {
-      enable  = true;
-      timeout = 0;
-    };
+    systemd-boot.enable      = true;
+    timeout                  = 0;
   };
 
   hardware.enableRedistributableFirmware = true;
