@@ -110,7 +110,7 @@
         "org/cinnamon" = {
           panels-enabled = [ "1:0:bottom" ];
           panels-height  = [ "1:40" ];
-          favorite-apps  = [ "nemo.desktop" "google-chrome.desktop" ];
+          favorite-apps  = [ "nemo.desktop" "cinnamon-settings.desktop" ];
           enabled-applets = [
             "panel1:left:0:menu@cinnamon.org:0"
             "panel1:left:1:grouped-window-list@cinnamon.org:2"

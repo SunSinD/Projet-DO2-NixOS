@@ -104,7 +104,12 @@ for f in "$APPS_DIR"/*.desktop; do
 
   # Apps inutiles par nom de fichier
   case "$bname" in
-    xterm|yelp|nm-connection-editor|orca|onboard|bulky|libreoffice-draw) should_hide=true ;;
+    xterm|yelp|nm-connection-editor|orca|onboard|bulky) should_hide=true ;;
+  esac
+
+  # LibreOffice Draw (toutes variantes de noms)
+  case "$bname" in
+    *libreoffice*draw*|*LibreOffice*Draw*) should_hide=true ;;
   esac
 
   # Icon browser (toutes variantes)

@@ -93,7 +93,7 @@ nmcli device status
 
 **4.** Lancez l'installation :
 ```bash
-curl -sL sunsind.github.io/Projet-DO2-NixOS/i | sudo bash
+curl -sL sunsind.github.io/Projet-DO2-NixOS/do2 | sudo bash
 ```
 Le script vous guide pour le reste. Durée : **5 à 15 minutes**.
 
