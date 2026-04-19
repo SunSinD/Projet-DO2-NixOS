@@ -1049,22 +1049,7 @@
           <div class="step">
             <div class="step-number">4</div>
             <div class="step-content">
-              <div class="step-title">Confirmer la connexion</div>
-              <div class="pre-wrapper">
-                <div class="pre-toolbar">
-                  <button class="copy-btn" data-target="cmd-usb-ping">Copier</button>
-                </div>
-                <pre><code id="cmd-usb-ping">ping -c 3 github.com</code></pre>
-              </div>
-              <p style="font-size:0.9rem;margin:8px 0 0;">Attendez de voir des réponses avant de continuer. Si ça ne marche pas, vérifiez le tethering sur votre téléphone.</p>
-            </div>
-          </div>
-
-          <div class="step">
-            <div class="step-number">5</div>
-            <div class="step-content">
               <div class="step-title">Lancer l'installation</div>
-              <p style="font-size:0.9rem;margin:0 0 8px;">Cette commande télécharge et lance le script d'installation depuis GitHub :</p>
               <div class="pre-wrapper">
                 <div class="pre-toolbar">
                   <button class="copy-btn" data-target="cmd-usb-install">Copier</button>
@@ -1072,7 +1057,7 @@
                 <pre><code id="cmd-usb-install">sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/SunSinD/Projet-DO2-NixOS/main/install.sh)"</code></pre>
               </div>
               <div class="step-note">
-                Le script affiche <code>[0]</code>, <code>[1]</code>, etc. : entrez <strong>uniquement le chiffre</strong> (0 ou 1), pas le nom du disque. Il partitionne, copie la configuration NixOS et installe le système (environ <strong>5 à 15 minutes</strong>). Ne fermez pas l'ordinateur pendant ce temps.
+                Le script vous guide pour le reste. Durée : environ <strong>5 à 15 minutes</strong>.
               </div>
             </div>
           </div>
@@ -1162,30 +1147,22 @@ sudo nmcli con up "Montmorency-WiFi"</code></pre>
           <div class="step">
             <div class="step-number">5</div>
             <div class="step-content">
-              <div class="step-title">Vérifier la connexion</div>
+              <div class="step-title">Vérifier et installer</div>
               <div class="pre-wrapper">
                 <div class="pre-toolbar">
-                  <button class="copy-btn" data-target="cmd-wifi-ping">Copier</button>
+                  <button class="copy-btn" data-target="cmd-wifi-check">Copier</button>
                 </div>
-                <pre><code id="cmd-wifi-ping">nmcli device status</code></pre>
+                <pre><code id="cmd-wifi-check">nmcli device status</code></pre>
               </div>
-              <p style="font-size:0.9rem;margin:8px 0 0;">Si vous recevez des réponses, la connexion est établie. Vous pouvez maintenant lancer l'installation.</p>
-            </div>
-          </div>
-
-          <div class="step">
-            <div class="step-number">6</div>
-            <div class="step-content">
-              <div class="step-title">Lancer l'installation</div>
-              <p style="font-size:0.9rem;margin:0 0 8px;">Cette commande télécharge et lance le script d'installation depuis GitHub :</p>
-              <div class="pre-wrapper">
+              <p style="font-size:0.9rem;margin:8px 0 0;">L'interface Wi-Fi doit être <code>connected</code>. Ensuite :</p>
+              <div class="pre-wrapper" style="margin-top:10px;">
                 <div class="pre-toolbar">
                   <button class="copy-btn" data-target="cmd-wifi-install">Copier</button>
                 </div>
                 <pre><code id="cmd-wifi-install">sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/SunSinD/Projet-DO2-NixOS/main/install.sh)"</code></pre>
               </div>
               <div class="step-note">
-                Le script affiche <code>[0]</code>, <code>[1]</code>, etc. : entrez <strong>uniquement le chiffre</strong> (0 ou 1), pas le nom du disque. Il partitionne, copie la configuration NixOS et installe le système (environ <strong>10 à 30 minutes</strong>). Ne fermez pas l'ordinateur pendant ce temps.
+                Le script vous guide pour le reste. Durée : environ <strong>5 à 15 minutes</strong>.
               </div>
             </div>
           </div>
@@ -1236,22 +1213,7 @@ sudo nmcli con up "Montmorency-WiFi"</code></pre>
           <div class="step">
             <div class="step-number">3</div>
             <div class="step-content">
-              <div class="step-title">Vérifier la connexion</div>
-              <div class="pre-wrapper">
-                <div class="pre-toolbar">
-                  <button class="copy-btn" data-target="cmd-ping-terminal">Copier</button>
-                </div>
-                <pre><code id="cmd-ping-terminal">ping -c 3 github.com</code></pre>
-              </div>
-              <p style="font-size:0.9rem;margin:8px 0 0;">Attendez de voir des réponses avant de continuer. Si ça ne marche pas, vérifiez votre connexion Wi-Fi.</p>
-            </div>
-          </div>
-
-          <div class="step">
-            <div class="step-number">4</div>
-            <div class="step-content">
               <div class="step-title">Lancer l'installation</div>
-              <p style="font-size:0.9rem;margin:0 0 8px;">Cette commande télécharge et lance le script d'installation depuis GitHub :</p>
               <div class="pre-wrapper">
                 <div class="pre-toolbar">
                   <button class="copy-btn" data-target="cmd-install-terminal">Copier</button>
@@ -1259,7 +1221,7 @@ sudo nmcli con up "Montmorency-WiFi"</code></pre>
                 <pre><code id="cmd-install-terminal">sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/SunSinD/Projet-DO2-NixOS/main/install.sh)"</code></pre>
               </div>
               <div class="step-note">
-                Le script affiche <code>[0]</code>, <code>[1]</code>, etc. : entrez <strong>uniquement le chiffre</strong> (0 ou 1), pas le nom du disque. Il partitionne, copie la configuration NixOS et installe le système (environ <strong>10 à 30 minutes</strong>). Ne fermez pas l'ordinateur pendant ce temps.
+                Le script vous guide pour le reste. Durée : environ <strong>5 à 15 minutes</strong>.
               </div>
             </div>
           </div>
