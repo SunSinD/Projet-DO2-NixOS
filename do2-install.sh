@@ -4,7 +4,6 @@ set -euo pipefail
 # DO2 - installateur complet (telecharge par install.sh).
 INSTALL_SCRIPT_REV="2026-04-18.2"
 
-REPO_URL="https://github.com/SunSinD/Projet-DO2-NixOS.git"
 FLAKE_ATTR="do2"
 WORK_DIR="/tmp/do2config"
 
@@ -18,7 +17,7 @@ trap cleanup EXIT
 
 echo ""
 echo "  ╔══════════════════════════════════════╗"
-echo "  ║   DO2 - Dons d'ordinateurs, 2e vie   ║"
+echo "  ║   DO2 - Dons d'ordinateurs, 2e vie  ║"
 echo "  ║   Installation automatique NixOS     ║"
 echo "  ╚══════════════════════════════════════╝"
 echo ""
@@ -103,7 +102,7 @@ sudo nixos-generate-config --root /mnt --no-filesystems
 sudo cp /mnt/etc/nixos/hardware-configuration.nix "$WORK_DIR/hardware-configuration.nix"
 git add hardware-configuration.nix
 
-nix --extra-experimental-features "nix-command flakes" flake update
+nix --extra-experimental-features "nix-command flakes" flake update --quiet 2>&1 | grep -v 'warning:' || true
 git add .
 git -c user.email="do2@montmorency.qc.ca" \
     -c user.name="DO2-Installer" \
