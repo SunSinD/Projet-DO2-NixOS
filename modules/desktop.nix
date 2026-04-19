@@ -11,8 +11,7 @@
   services.xserver.desktopManager.cinnamon.enable   = lib.mkDefault true;
 
   # Connexion automatique
-  services.displayManager.autoLogin.enable = true;
-  services.displayManager.autoLogin.user   = "user";
+  services.displayManager.autoLogin.enable = false;
 
   # ── Exclure les apps Cinnamon inutiles ──────────────────────────────────
   environment.cinnamon.excludePackages = with pkgs; [
@@ -32,7 +31,7 @@
   '';
 
   # ── Arret/redemarrage rapide ────────────────────────────────────────────
-  systemd.settings.Manager.DefaultTimeoutStopSec = "2s";
+  systemd.settings.Manager.DefaultTimeoutStopSec = "1s";
 
   # ── Audio (PipeWire) ────────────────────────────────────────────────────
   security.rtkit.enable = true;
