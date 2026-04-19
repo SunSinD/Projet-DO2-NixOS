@@ -18,7 +18,7 @@ trap cleanup EXIT
 
 echo ""
 echo "  ╔══════════════════════════════════════╗"
-echo "  ║   DO2 - Dons d'ordinateurs, 2e vie  ║"
+echo "  ║   DO2 - Dons d'ordinateurs, 2e vie   ║"
 echo "  ║   Installation automatique NixOS     ║"
 echo "  ╚══════════════════════════════════════╝"
 echo ""
