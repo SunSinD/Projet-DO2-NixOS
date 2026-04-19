@@ -3,9 +3,9 @@ set -euo pipefail
 
 # Bootstrap léger : télécharge toujours le vrai installateur depuis main.
 # Utilisation depuis l'ISO NixOS Minimal :
-#   sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/SunSinD/Projet-DO2-Nixbook/main/install.sh)"
+#   sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/SunSinD/Projet-DO2-NixOS/main/install.sh)"
 
-BASE="https://raw.githubusercontent.com/SunSinD/Projet-DO2-Nixbook/main"
+BASE="https://raw.githubusercontent.com/SunSinD/Projet-DO2-NixOS/main"
 TMP_INSTALL="$(mktemp)"
 cleanup_tmp() { rm -f "$TMP_INSTALL" 2>/dev/null || true; }
 trap cleanup_tmp EXIT
