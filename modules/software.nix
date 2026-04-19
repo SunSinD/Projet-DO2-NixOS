@@ -26,6 +26,7 @@ in
     "icons/teams.png".source      = ../assets/teams.png;
     "icons/outlook.png".source    = ../assets/outlook.png;
     "icons/excalidraw.png".source = ../assets/excalidraw.png;
+    "icons/meet.png".source       = ../assets/meet.png;
   };
 
   # ── Paquets système ─────────────────────────────────────────────────────
@@ -51,6 +52,7 @@ in
     yad                   # Dialogues graphiques (bienvenue, scripts)
     gnome-calculator
     gnome-screenshot
+    xed-editor            # Éditeur de texte (Bloc-notes)
     system-config-printer
     gnome-software        # Logithèque pour installer des apps via GUI
     libnotify
@@ -85,6 +87,14 @@ in
       icon        = "/etc/icons/excalidraw.png";
       categories  = [ "Graphics" "2DGraphics" ];
       comment     = "Tableau de dessin collaboratif (web)";
+    })
+    (makeDesktopItem {
+      name        = "google-meet-web";
+      desktopName = "Google Meet";
+      exec        = chromeApp "https://meet.google.com";
+      icon        = "/etc/icons/meet.png";
+      categories  = [ "Network" "VideoConference" ];
+      comment     = "Google Meet (web)";
     })
 
     # Gestionnaire de lien zoommtg://
