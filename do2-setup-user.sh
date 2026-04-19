@@ -155,6 +155,10 @@ done
 
 # ══════════════════════════════════════════════════════════════════════════
 
+# Forcer Cinnamon à recharger le menu
+update-desktop-database "$LOCAL_APPS" 2>/dev/null || true
+xdg-desktop-menu forceupdate 2>/dev/null || true
+
 echo "$SETUP_VERSION" > "$MARKER"
 
 if [ ! -f "$HOME/.do2-welcome-shown" ]; then
