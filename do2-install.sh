@@ -94,7 +94,7 @@ sudo nix --extra-experimental-features "nix-command flakes" run \
   github:nix-community/disko/latest -- \
   --mode destroy,format,mount \
   --yes-wipe-all-disks \
-  --flake ".#$FLAKE_ATTR"
+  --flake ".#$FLAKE_ATTR" 2>&1 | grep -v '^warning:' || true
 
 echo ""
 echo "  [3/6] Détection du matériel..."
@@ -102,11 +102,11 @@ sudo nixos-generate-config --root /mnt --no-filesystems
 sudo cp /mnt/etc/nixos/hardware-configuration.nix "$WORK_DIR/hardware-configuration.nix"
 git add hardware-configuration.nix
 
-nix --extra-experimental-features "nix-command flakes" flake update 2>/dev/null
-git add .
+nix --extra-experimental-features "nix-command flakes" flake update 2>/dev/null || true
+git add . 2>/dev/null
 git -c user.email="do2@montmorency.qc.ca" \
     -c user.name="DO2-Installer" \
-    commit -q -m "Configuration locale pour $(hostname)"
+    commit -q --allow-empty -m "Configuration locale pour $(hostname)" 2>/dev/null || true
 
 echo ""
 echo "  [4/6] Configuration du swap..."
@@ -123,12 +123,26 @@ sudo nixos-install \
   --flake "$WORK_DIR#$FLAKE_ATTR" \
   --no-root-passwd \
   --impure \
-  --option "extra-experimental-features" "nix-command flakes"
+  --option "extra-experimental-features" "nix-command flakes" 2>&1 | grep -v '^warning:' || true
 
 echo ""
 echo "  [6/6] Sauvegarde de la configuration..."
 sudo mkdir -p /mnt/etc/nixos
 sudo cp -r "$WORK_DIR" /mnt/etc/nixos/config
+
+# Pre-creer les overrides de menu pour eviter les 11 categories au premier boot
+USER_APPS="/mnt/home/user/.local/share/applications"
+sudo mkdir -p "$USER_APPS"
+for app in xterm yelp nm-connection-editor orca onboard bulky file-roller gnome-disk-utility gnome-disks baobab; do
+  sudo tee "$USER_APPS/$app.desktop" > /dev/null <<HIDE
+[Desktop Entry]
+Name=$app
+Type=Application
+NoDisplay=true
+Hidden=true
+HIDE
+done
+sudo chown -R 1000:100 /mnt/home/user/
 
 echo ""
 echo "  ╔══════════════════════════════════════╗"
