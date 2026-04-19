@@ -1,0 +1,75 @@
+{
+    "layout": {
+        "type": "layout",
+        "pages": ["panelPage"],
+        "panelPage": {
+            "type": "page",
+            "title": "Panel",
+            "sections": ["appButtonsSection"]
+        },
+        "appButtonsSection": {
+            "type": "section",
+            "title": "Application Buttons",
+            "keys": ["pinned-apps"]
+        }
+    },
+    "pinned-apps": {
+        "type": "generic",
+        "default": [
+            "nemo.desktop",
+            "google-chrome.desktop"
+        ],
+        "value": [
+            "google-chrome.desktop",
+            "microsoft-teams-web.desktop",
+            "outlook-web.desktop"
+        ]
+    },
+    "group-apps": {
+        "type": "checkbox",
+        "default": true,
+        "description": "Group windows by application",
+        "value": true
+    },
+    "title-display": {
+        "type": "combobox",
+        "default": 1,
+        "description": "Button label",
+        "options": {
+            "None": 1,
+            "Application name": 2,
+            "Window title": 3
+        },
+        "value": 1
+    },
+    "number-display": {
+        "type": "checkbox",
+        "default": true,
+        "description": "Show window count numbers",
+        "value": true
+    },
+    "enable-app-button-dragging": {
+        "type": "checkbox",
+        "default": true,
+        "description": "Enable app button dragging",
+        "value": true
+    },
+    "show-thumbnails": {
+        "type": "checkbox",
+        "default": true,
+        "description": "Show thumbnails",
+        "value": true
+    },
+    "enable-hover-peek": {
+        "type": "checkbox",
+        "default": true,
+        "description": "Show the window when hovering its thumbnail",
+        "value": true
+    },
+    "super-num-hotkeys": {
+        "type": "checkbox",
+        "default": true,
+        "description": "Enable Super+<number> shortcut to switch/open apps",
+        "value": true
+    }
+}

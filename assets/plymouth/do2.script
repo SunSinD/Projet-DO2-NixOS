@@ -1,0 +1,81 @@
+// Plymouth script for DO2 boot splash
+// Shows Collège Montmorency logo centered with a subtle loading animation
+
+Window.SetBackgroundTopColor(0.05, 0.05, 0.10);
+Window.SetBackgroundBottomColor(0.02, 0.02, 0.05);
+
+logo_image = Image("logo.png");
+
+// Scale logo to reasonable size (max 300px wide)
+logo_width = logo_image.GetWidth();
+logo_height = logo_image.GetHeight();
+scale = 300 / logo_width;
+scaled_logo = logo_image.Scale(logo_width * scale, logo_height * scale);
+
+logo_sprite = Sprite(scaled_logo);
+logo_sprite.SetX(Window.GetWidth() / 2 - scaled_logo.GetWidth() / 2);
+logo_sprite.SetY(Window.GetHeight() / 2 - scaled_logo.GetHeight() / 2 - 30);
+logo_sprite.SetZ(10);
+
+// Loading dots animation
+dot_count = 3;
+dot_images = [];
+dot_sprites = [];
+dot_opacity = [];
+
+for (i = 0; i < dot_count; i++) {
+  dot_images[i] = Image.Text("●", 0.6, 0.7, 0.9);
+  dot_sprites[i] = Sprite(dot_images[i]);
+  dot_sprites[i].SetZ(10);
+  dot_opacity[i] = 0;
+}
+
+progress = 0;
+
+fun refresh_callback() {
+  progress++;
+  
+  base_x = Window.GetWidth() / 2 - 30;
+  base_y = Window.GetHeight() / 2 + scaled_logo.GetHeight() / 2 + 20;
+  
+  for (i = 0; i < dot_count; i++) {
+    dot_sprites[i].SetX(base_x + i * 20);
+    dot_sprites[i].SetY(base_y);
+    
+    phase = (progress / 15 + i * 2) % 6;
+    if (phase < 3)
+      opacity = phase / 3;
+    else
+      opacity = 1 - (phase - 3) / 3;
+    
+    dot_sprites[i].SetOpacity(opacity);
+  }
+}
+
+Plymouth.SetRefreshFunction(refresh_callback);
+
+// Hide messages and password prompts styling
+fun message_callback(text) { }
+Plymouth.SetMessageFunction(message_callback);
+
+fun display_password_callback(prompt, bullets) {
+  pass_image = Image.Text(prompt, 0.7, 0.7, 0.8);
+  pass_sprite = Sprite(pass_image);
+  pass_sprite.SetX(Window.GetWidth() / 2 - pass_image.GetWidth() / 2);
+  pass_sprite.SetY(Window.GetHeight() / 2 + scaled_logo.GetHeight() / 2 + 60);
+  pass_sprite.SetZ(10);
+  
+  bullet_text = "";
+  for (i = 0; i < bullets; i++)
+    bullet_text += "● ";
+  
+  if (bullets > 0) {
+    bullet_image = Image.Text(bullet_text, 1, 1, 1);
+    bullet_sprite = Sprite(bullet_image);
+    bullet_sprite.SetX(Window.GetWidth() / 2 - bullet_image.GetWidth() / 2);
+    bullet_sprite.SetY(Window.GetHeight() / 2 + scaled_logo.GetHeight() / 2 + 90);
+    bullet_sprite.SetZ(10);
+  }
+}
+
+Plymouth.SetDisplayPasswordFunction(display_password_callback);

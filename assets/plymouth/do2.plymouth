@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=DO2
+Description=Collège Montmorency boot splash
+ModuleName=script
+
+[script]
+ImageDir=/share/plymouth/themes/do2
+ScriptFile=/share/plymouth/themes/do2/do2.script

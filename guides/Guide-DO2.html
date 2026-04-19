@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guide DO2</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Noto Sans', 'Liberation Sans', sans-serif;
+      background: linear-gradient(135deg, #2c3e50 0%, #1a5276 50%, #148f77 100%);
+      color: #2c3e50;
+      min-height: 100vh;
+      padding: 30px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      padding: 40px;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 3px solid #a0c835;
+    }
+    .header h1 { font-size: 28px; color: #2c3e50; margin-bottom: 8px; }
+    .header p { color: #7f8c8d; font-size: 14px; }
+    h2 {
+      color: #1a5276;
+      font-size: 20px;
+      margin: 25px 0 12px;
+      padding-left: 12px;
+      border-left: 4px solid #a0c835;
+    }
+    p, li { font-size: 16px; line-height: 1.7; margin-bottom: 8px; }
+    ul, ol { padding-left: 24px; margin-bottom: 16px; }
+    .app-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 16px 0;
+    }
+    .app-card {
+      background: #f0f4f8;
+      border-radius: 10px;
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .app-card .emoji { font-size: 28px; }
+    .app-card .info strong { display: block; font-size: 15px; }
+    .app-card .info span { font-size: 13px; color: #555; }
+    .tip {
+      background: #e8f8f5;
+      border-left: 4px solid #1abc9c;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin: 16px 0;
+      font-size: 15px;
+    }
+    .warning {
+      background: #fef9e7;
+      border-left: 4px solid #f39c12;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin: 16px 0;
+      font-size: 15px;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 2px solid #ecf0f1;
+      color: #95a5a6;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Bienvenue sur votre ordinateur DO2!</h1>
+      <p>Dons d'ordinateurs, 2<sup>e</sup> vie - Collège Montmorency</p>
+    </div>
+
+    <p>Cet ordinateur a été préparé spécialement pour vous. Il est <strong>prêt à utiliser</strong>, tout est déjà installé!</p>
+
+    <h2>Vos applications</h2>
+    <p>Voici les applications installées sur votre ordinateur :</p>
+
+    <div class="app-grid">
+      <div class="app-card">
+        <span class="emoji">🌐</span>
+        <div class="info">
+          <strong>Google Chrome</strong>
+          <span>Navigateur Internet</span>
+        </div>
+      </div>
+      <div class="app-card">
+        <span class="emoji">💬</span>
+        <div class="info">
+          <strong>Microsoft Teams</strong>
+          <span>Messages et appels vidéo</span>
+        </div>
+      </div>
+      <div class="app-card">
+        <span class="emoji">📧</span>
+        <div class="info">
+          <strong>Outlook</strong>
+          <span>Courriel</span>
+        </div>
+      </div>
+      <div class="app-card">
+        <span class="emoji">📝</span>
+        <div class="info">
+          <strong>LibreOffice Writer</strong>
+          <span>Traitement de texte (comme Word)</span>
+        </div>
+      </div>
+      <div class="app-card">
+        <span class="emoji">📊</span>
+        <div class="info">
+          <strong>LibreOffice Calc</strong>
+          <span>Tableur (comme Excel)</span>
+        </div>
+      </div>
+      <div class="app-card">
+        <span class="emoji">🎥</span>
+        <div class="info">
+          <strong>Zoom</strong>
+          <span>Vidéoconférence</span>
+        </div>
+      </div>
+      <div class="app-card">
+        <span class="emoji">🌍</span>
+        <div class="info">
+          <strong>Dialect</strong>
+          <span>Traducteur de langues</span>
+        </div>
+      </div>
+      <div class="app-card">
+        <span class="emoji">🖼️</span>
+        <div class="info">
+          <strong>GIMP / VLC</strong>
+          <span>Images et vidéos</span>
+        </div>
+      </div>
+    </div>
+
+    <h2>Se connecter au Wi-Fi</h2>
+    <ol>
+      <li>Regardez en <strong>bas à droite</strong> de votre écran.</li>
+      <li>Cliquez sur l'<strong>icône de réseau</strong> (les petites barres).</li>
+      <li>Choisissez votre <strong>réseau Wi-Fi</strong> dans la liste.</li>
+      <li>Entrez le <strong>mot de passe</strong> du Wi-Fi et cliquez "Connecter".</li>
+    </ol>
+
+    <h2>Changer votre nom et mot de passe</h2>
+    <p>Le nom d'utilisateur par défaut est <strong>"Utilisateur"</strong> et le mot de passe par défaut est <strong>"pass"</strong>.</p>
+    <ol>
+      <li>Cliquez sur le bouton <strong>"Menu"</strong> en bas à gauche.</li>
+      <li>Tapez <strong>"Utilisateurs"</strong> dans la barre de recherche.</li>
+      <li>Cliquez sur <strong>"Utilisateurs et groupes"</strong>.</li>
+      <li>Cliquez sur <strong>"Utilisateur"</strong> dans la liste.</li>
+      <li>Pour changer le nom : cliquez sur <strong>"Utilisateur"</strong> et tapez le nouveau nom.</li>
+      <li>Pour changer le mot de passe : cliquez sur <strong>"Mot de passe"</strong>, entrez <strong>"pass"</strong> comme ancien mot de passe, puis tapez votre nouveau mot de passe et confirmez.</li>
+    </ol>
+
+    <div class="tip">
+      <strong>Astuce :</strong> Le mot de passe actuel est <strong>"pass"</strong>. Nous vous recommandons de le changer.
+    </div>
+
+    <h2>Installer de nouvelles applications</h2>
+    <ol>
+      <li>Cliquez sur le bouton <strong>"Menu"</strong> en bas à gauche.</li>
+      <li>Cherchez <strong>"Logithèque"</strong> (ou "Software").</li>
+      <li>Parcourez ou cherchez l'application souhaitée.</li>
+      <li>Cliquez sur <strong>"Installer"</strong>.</li>
+    </ol>
+
+    <div class="tip">
+      <strong>Astuce :</strong> Toutes les applications de la Logithèque sont <strong>gratuites</strong> et sécuritaires.
+    </div>
+
+    <h2>Utiliser le traducteur</h2>
+    <ol>
+      <li>Ouvrez <strong>Dialect</strong> depuis le menu.</li>
+      <li>Choisissez la <strong>langue source</strong> (votre langue) à gauche.</li>
+      <li>Choisissez <strong>Français</strong> à droite.</li>
+      <li>Tapez ou collez le texte à traduire.</li>
+      <li>La traduction apparaît automatiquement!</li>
+    </ol>
+
+    <h2>Utiliser Microsoft Office en ligne</h2>
+    <p>Vous avez <strong>LibreOffice</strong> sur votre bureau (Writer = Word, Calc = Excel). Si vous avez besoin de Microsoft Office :</p>
+    <ol>
+      <li>Ouvrez <strong>Google Chrome</strong>.</li>
+      <li>Allez à <strong>office.com</strong>.</li>
+      <li>Connectez-vous avec votre compte Microsoft.</li>
+    </ol>
+
+    <h2>Redémarrer l'ordinateur</h2>
+    <ol>
+      <li>Cliquez sur le bouton <strong>"Menu"</strong> en bas à gauche.</li>
+      <li>Cliquez sur l'icône <strong>d'arrêt</strong> (en bas du menu).</li>
+      <li>Choisissez <strong>"Redémarrer"</strong> ou <strong>"Éteindre"</strong>.</li>
+    </ol>
+
+    <div class="warning">
+      <strong>Important :</strong> Si quelque chose ne fonctionne pas, essayez de <strong>redémarrer</strong> l'ordinateur. Cela règle la plupart des problèmes!
+    </div>
+
+    <div class="footer">
+      <p><strong>DO2 - Dons d'ordinateurs, 2<sup>e</sup> vie</strong></p>
+      <p>Collège Montmorency</p>
+    </div>
+  </div>
+</body>
+</html>
