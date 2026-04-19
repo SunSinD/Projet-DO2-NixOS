@@ -15,6 +15,11 @@
   services.displayManager.autoLogin.enable = true;
   services.displayManager.autoLogin.user   = "user";
 
+  # Fond noir avant que Cinnamon se charge (pas de flash du bureau)
+  services.xserver.displayManager.sessionCommands = ''
+    ${pkgs.xorg.xsetroot}/bin/xsetroot -solid black &
+  '';
+
   # ── Exclure les apps Cinnamon inutiles ──────────────────────────────────
   environment.cinnamon.excludePackages = with pkgs; [
     celluloid        # on a VLC

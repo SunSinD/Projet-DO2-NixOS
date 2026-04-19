@@ -62,8 +62,8 @@ in
     # Shutdown/reboot instantane (remplace cinnamon-session-quit)
     (lib.hiPrio (pkgs.writeShellScriptBin "cinnamon-session-quit" ''
       case "$*" in
-        *--power-off*) exec systemctl poweroff ;;
-        *--reboot*)    exec systemctl reboot ;;
+        *--power-off*) ${pkgs.kbd}/bin/chvt 1; exec systemctl poweroff ;;
+        *--reboot*)    ${pkgs.kbd}/bin/chvt 1; exec systemctl reboot ;;
         *) exec /run/current-system/sw/lib/cinnamon-session/cinnamon-session-quit "$@" ;;
       esac
     ''))
