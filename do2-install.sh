@@ -5,7 +5,7 @@ set -euo pipefail
 # Menu de disques : CHIFFRES UNIQUEMENT - 0, 1, 2, ...
 INSTALL_SCRIPT_REV="2026-04-18.1"
 
-REPO_URL="https://github.com/SunSinD/Projet-DO2-Nixbook.git"
+REPO_URL="https://github.com/SunSinD/Projet-DO2-NixOS.git"
 FLAKE_ATTR="do2"
 WORK_DIR="/tmp/do2config"
 
