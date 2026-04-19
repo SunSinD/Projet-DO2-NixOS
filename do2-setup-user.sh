@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Setup bureau utilisateur - v6
+# Setup bureau utilisateur - v7
 set -euo pipefail
 
 SETUP_VERSION="7"

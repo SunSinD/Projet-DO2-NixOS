@@ -132,7 +132,7 @@ sudo mkswap          /mnt/var/lib/swapfile
 sudo swapon          /mnt/var/lib/swapfile
 
 echo ""
-echo "[5/6] Installation de NixOS (cela peut prendre 15-30 minutes)..."
+echo "[5/6] Installation de NixOS (cela peut prendre 5-15 minutes)..."
 sudo nixos-install \
   --root /mnt \
   --flake "$WORK_DIR#$FLAKE_ATTR" \
