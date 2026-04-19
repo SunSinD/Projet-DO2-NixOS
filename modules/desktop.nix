@@ -35,6 +35,17 @@
   # ── Arret/redemarrage rapide ────────────────────────────────────────────
   systemd.settings.Manager.DefaultTimeoutStopSec = "1s";
 
+  # Cacher le bureau immediatement au shutdown/reboot (affiche ecran noir)
+  systemd.services.hide-desktop-on-shutdown = {
+    description = "Switch to blank VT on shutdown";
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.kbd}/bin/chvt 1";
+    };
+    before = [ "shutdown.target" "reboot.target" ];
+    wantedBy = [ "shutdown.target" "reboot.target" ];
+  };
+
   # ── Audio (PipeWire) ────────────────────────────────────────────────────
   security.rtkit.enable = true;
   services.pipewire = {
@@ -78,12 +89,12 @@
   environment.etc."do2/config/cinnamon/spices/menu@cinnamon.org/0.json".source =
     ../config/config/cinnamon/spices + "/menu@cinnamon.org/0.json";
 
-  # Verrouiller via light-locker (utilise LightDM = mot de passe visible instantanement)
+  # Verrouiller l'ecran apres le chargement de Cinnamon
   environment.etc."xdg/autostart/do2-lock-screen.desktop".text = ''
     [Desktop Entry]
     Type=Application
     Name=DO2 Lock Screen
-    Exec=light-locker --lock-on-lid --no-lock-on-suspend --no-late-locking
+    Exec=bash -c "sleep 3 && cinnamon-screensaver-command --lock"
     Terminal=false
     X-GNOME-Autostart-enabled=true
     NoDisplay=true

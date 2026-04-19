@@ -55,7 +55,6 @@ in
     xed-editor            # Éditeur de texte (Bloc-notes)
     system-config-printer
     gnome-software        # Logithèque pour installer des apps via GUI
-    lightlocker           # Verrouillage ecran via LightDM
     libnotify
     gawk
     sudo
