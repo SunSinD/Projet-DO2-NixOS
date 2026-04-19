@@ -10,32 +10,27 @@
             rel="stylesheet"
         />
         <style>
-            *,
-            *::before,
-            *::after {
+            *, *::before, *::after {
                 box-sizing: border-box;
                 margin: 0;
                 padding: 0;
             }
 
             :root {
-                --bg: #0c0c0c;
-                --s1: #141414;
-                --s2: #1c1c1c;
-                --b1: #252525;
-                --b2: #333333;
-                --b3: #4a4a4a;
-                --text: #d4d4d4;
-                --sub: #888888;
-                --dim: #444444;
-                --white: #f0f0f0;
+                --bg:     #0c0c0c;
+                --s1:     #141414;
+                --s2:     #1c1c1c;
+                --b1:     #252525;
+                --b2:     #333333;
+                --b3:     #4a4a4a;
+                --text:   #d4d4d4;
+                --sub:    #888888;
+                --dim:    #444444;
+                --white:  #f0f0f0;
+                --accent: var(--b3);
             }
 
-            html,
-            body {
-                width: 100%;
-                min-height: 100vh;
-            }
+            html, body { width: 100%; min-height: 100vh; }
 
             body {
                 font-family: "IBM Plex Sans", sans-serif;
@@ -45,30 +40,39 @@
                 flex-direction: column;
             }
 
+            /* ── Centered wrapper ── */
+            .wrapper {
+                width: 100%;
+                max-width: 1140px;
+                margin: 0 auto;
+                padding: 0 2.5rem;
+            }
+
             /* ── Header ── */
             header {
                 width: 100%;
                 border-bottom: 1px solid var(--b1);
-                padding: 5vh 6vw 4vh;
                 background: var(--s1);
+                padding: 5rem 0 4rem;
+                text-align: center;
             }
 
             .eyebrow {
                 font-family: "IBM Plex Mono", monospace;
-                font-size: 11px;
-                letter-spacing: 0.16em;
+                font-size: 10px;
+                letter-spacing: 0.18em;
                 text-transform: uppercase;
                 color: var(--dim);
-                margin-bottom: 1.2rem;
+                margin-bottom: 1.1rem;
             }
 
             header h1 {
-                font-size: clamp(2.2rem, 5vw, 4rem);
+                font-size: clamp(2.8rem, 6vw, 5rem);
                 font-weight: 300;
                 color: var(--white);
                 letter-spacing: -0.03em;
                 line-height: 1;
-                margin-bottom: 0.6rem;
+                margin-bottom: 0.7rem;
             }
 
             header .sub {
@@ -81,19 +85,22 @@
             main {
                 flex: 1;
                 width: 100%;
-                padding: 5vh 6vw;
+                padding: 4rem 0 5rem;
                 display: flex;
                 flex-direction: column;
-                gap: 5vh;
+                gap: 4rem;
             }
+
+            section { width: 100%; }
 
             .section-label {
                 font-family: "IBM Plex Mono", monospace;
                 font-size: 9px;
-                letter-spacing: 0.2em;
+                letter-spacing: 0.22em;
                 text-transform: uppercase;
                 color: var(--dim);
-                margin-bottom: 1.2rem;
+                margin-bottom: 1rem;
+                text-align: center;
             }
 
             /* ── Link cards ── */
@@ -101,7 +108,7 @@
                 display: grid;
                 grid-template-columns: repeat(3, 1fr);
                 border: 1px solid var(--b1);
-                border-radius: 8px;
+                border-radius: 10px;
                 overflow: hidden;
             }
 
@@ -109,105 +116,101 @@
                 display: block;
                 text-decoration: none;
                 background: var(--s1);
-                padding: 2.4rem 2.8rem;
-                transition: background 0.2s ease;
-                cursor: pointer;
+                padding: 2.6rem 2.4rem;
+                transition: background 0.18s ease;
+                position: relative;
+                text-align: center;
             }
 
-            .link-card + .link-card {
-                border-left: 1px solid var(--b1);
+            .link-card + .link-card { border-left: 1px solid var(--b1); }
+
+            .link-card::after {
+                content: '';
+                position: absolute;
+                bottom: 0; left: 0; right: 0;
+                height: 2px;
+                background: var(--accent);
+                transform: scaleX(0);
+                transform-origin: left;
+                transition: transform 0.22s ease;
             }
 
-            .link-card:hover {
-                background: var(--s2);
-            }
+            .link-card:hover { background: var(--s2); }
+            .link-card:hover::after { transform: scaleX(1); }
 
             .card-title {
-                font-size: 1.05rem;
+                font-size: 1.1rem;
                 font-weight: 500;
                 color: var(--white);
-                margin-bottom: 0.5rem;
-                transition: color 0.2s;
+                margin-bottom: 0.55rem;
             }
 
             .card-desc {
                 font-size: 0.85rem;
                 color: var(--sub);
-                line-height: 1.6;
-                margin-bottom: 1.6rem;
+                line-height: 1.65;
+                margin-bottom: 2rem;
                 font-weight: 300;
             }
 
             .card-url {
                 font-family: "IBM Plex Mono", monospace;
-                font-size: 13px;
-                color: var(--sub);
-                transition: color 0.2s;
+                font-size: 11px;
+                color: var(--b3);
+                transition: color 0.18s;
+                word-break: break-all;
             }
 
-            .link-card:hover .card-url {
-                color: var(--text);
-            }
+            .link-card:hover .card-url { color: var(--sub); }
 
             /* ── App grid ── */
             .app-grid {
                 display: grid;
                 grid-template-columns: repeat(4, 1fr);
                 border: 1px solid var(--b1);
-                border-radius: 8px;
+                border-radius: 10px;
                 overflow: hidden;
             }
 
             .app-card {
                 background: var(--s1);
-                padding: 1.3rem 1.6rem;
+                padding: 1.2rem 1.5rem;
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
                 gap: 10px;
-                transition: background 0.2s ease;
+                transition: background 0.18s ease;
                 border-right: 1px solid var(--b1);
                 border-bottom: 1px solid var(--b1);
             }
 
-            .app-card:nth-child(4n) {
-                border-right: none;
-            }
-            .app-card:nth-last-child(-n + 4) {
-                border-bottom: none;
-            }
-
-            .app-card:hover {
-                background: var(--s2);
-            }
+            .app-card:nth-child(4n)        { border-right: none; }
+            .app-card:nth-last-child(-n+4) { border-bottom: none; }
+            .app-card:hover                { background: var(--s2); }
 
             .app-name {
-                font-size: 0.85rem;
+                font-size: 0.83rem;
                 font-weight: 400;
                 color: var(--text);
-                transition: color 0.2s;
+                transition: color 0.18s;
             }
 
-            .app-card:hover .app-name {
-                color: var(--white);
-            }
+            .app-card:hover .app-name { color: var(--white); }
 
             .app-desc {
-                font-size: 0.72rem;
+                font-size: 0.7rem;
                 color: var(--dim);
                 font-weight: 300;
                 margin-top: 2px;
-                transition: color 0.2s;
+                transition: color 0.18s;
             }
 
-            .app-card:hover .app-desc {
-                color: var(--sub);
-            }
+            .app-card:hover .app-desc { color: var(--sub); }
 
             .check {
                 flex-shrink: 0;
-                width: 16px;
-                height: 16px;
+                width: 15px;
+                height: 15px;
                 border-radius: 50%;
                 border: 1px solid var(--b2);
                 display: flex;
@@ -220,7 +223,10 @@
                 width: 100%;
                 border-top: 1px solid var(--b1);
                 background: var(--s1);
-                padding: 1.8rem 6vw;
+                padding: 1.6rem 0;
+            }
+
+            footer .wrapper {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
@@ -235,353 +241,149 @@
                 letter-spacing: 0.06em;
             }
 
-            @media (max-width: 900px) {
-                .link-grid {
-                    grid-template-columns: 1fr;
-                }
-                .link-card + .link-card {
-                    border-left: none;
-                    border-top: 1px solid var(--b1);
-                }
-                .app-grid {
-                    grid-template-columns: repeat(2, 1fr);
-                }
-                .app-card:nth-child(4n) {
-                    border-right: 1px solid var(--b1);
-                }
-                .app-card:nth-child(2n) {
-                    border-right: none;
-                }
-                .app-card:nth-last-child(-n + 4) {
-                    border-bottom: 1px solid var(--b1);
-                }
-                .app-card:nth-last-child(-n + 2) {
-                    border-bottom: none;
-                }
+            /* ── Responsive ── */
+            @media (max-width: 960px) {
+                .link-grid { grid-template-columns: 1fr; }
+                .link-card + .link-card { border-left: none; border-top: 1px solid var(--b1); }
+                .app-grid { grid-template-columns: repeat(2, 1fr); }
+                .app-card:nth-child(4n)        { border-right: 1px solid var(--b1); }
+                .app-card:nth-child(2n)        { border-right: none; }
+                .app-card:nth-last-child(-n+4) { border-bottom: 1px solid var(--b1); }
+                .app-card:nth-last-child(-n+2) { border-bottom: none; }
+            }
+
+            @media (max-width: 540px) {
+                .wrapper { padding: 0 1.2rem; }
+                main { padding: 2.5rem 0 3.5rem; gap: 2.5rem; }
+                header { padding: 2.5rem 0 2rem; }
             }
         </style>
     </head>
     <body>
         <header>
-            <p class="eyebrow">Collège Montmorency — H2026</p>
-            <h1>Projet DO2</h1>
-            <p class="sub">Documents et ressources techniques du projet.</p>
+            <div class="wrapper">
+                <p class="eyebrow">Collège Montmorency — H2026</p>
+                <h1>Projet DO2</h1>
+                <p class="sub">Documents et ressources techniques du projet.</p>
+            </div>
         </header>
 
         <main>
             <section>
-                <p class="section-label">Liens du projet</p>
-                <div class="link-grid">
-                    <a
-                        class="link-card"
-                        href="https://github.com/SunSinD/Projet-DO2-NixOS"
-                        target="_blank"
-                    >
-                        <p class="card-title">Dépôt GitHub</p>
-                        <p class="card-desc">
-                            Configuration NixOS et scripts de déploiement
-                            automatisé.
-                        </p>
-                        <p class="card-url">
-                            github.com/SunSinD/Projet-DO2-NixOS
-                        </p>
-                    </a>
-
-                    <a
-                        class="link-card"
-                        href="https://sunsind.github.io/Projet-DO2-NixOS/"
-                        target="_blank"
-                    >
-                        <p class="card-title">Site web du projet</p>
-                        <p class="card-desc">
-                            Page officielle du projet DO2, présentation et
-                            informations.
-                        </p>
-                        <p class="card-url">
-                            sunsind.github.io/Projet-DO2-NixOS
-                        </p>
-                    </a>
-
-                    <a class="link-card" href="https://sunsind.github.io/Projet-DO2-NixOS/guides/Guide-DO2.html" target="_blank">
-                        <p class="card-title">Manuel d'utilisation</p>
-                        <p class="card-desc">
-                            Guide pour les utilisateurs, Wi-Fi, applications,
-                            conseils.
-                        </p>
-                        <p class="card-url">sunsind.github.io/.../guides/Guide-DO2.html</p>
-                    </a>
+                <div class="wrapper">
+                    <p class="section-label">Liens du projet</p>
+                    <div class="link-grid">
+                        <a class="link-card" href="https://github.com/SunSinD/Projet-DO2-NixOS" target="_blank">
+                            <p class="card-title">Dépôt GitHub</p>
+                            <p class="card-desc">Configuration NixOS et scripts de déploiement automatisé.</p>
+                            <p class="card-url">github.com/SunSinD/Projet-DO2-NixOS</p>
+                        </a>
+                        <a class="link-card" href="https://sunsind.github.io/Projet-DO2-NixOS/" target="_blank">
+                            <p class="card-title">Site web du projet</p>
+                            <p class="card-desc">Page officielle du projet DO2, présentation et informations.</p>
+                            <p class="card-url">sunsind.github.io/Projet-DO2-NixOS</p>
+                        </a>
+                        <a class="link-card" href="https://sunsind.github.io/Projet-DO2-NixOS/guides/Guide-DO2.html" target="_blank">
+                            <p class="card-title">Manuel d'utilisation</p>
+                            <p class="card-desc">Guide pour les utilisateurs, Wi-Fi, applications, conseils.</p>
+                            <p class="card-url">sunsind.github.io/Projet-DO2-NixOS/guides/Guide-DO2.html</p>
+                        </a>
+                    </div>
                 </div>
             </section>
 
             <section>
-                <p class="section-label">Applications installées</p>
-                <div class="app-grid">
-                    <div class="app-card">
-                        <div>
-                            <p class="app-name">Google Chrome</p>
-                            <p class="app-desc">Navigateur Internet</p>
-                        </div>
-                        <div class="check">
-                            <svg
-                                width="8"
-                                height="8"
-                                viewBox="0 0 10 10"
-                                fill="none"
-                            >
-                                <polyline
-                                    points="1.5,5 4,7.5 8.5,2.5"
-                                    stroke="#555"
-                                    stroke-width="1.6"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                />
-                            </svg>
-                        </div>
-                    </div>
+                <div class="wrapper">
+                    <p class="section-label">Applications installées</p>
+                    <div class="app-grid">
 
-                    <div class="app-card">
-                        <div>
-                            <p class="app-name">Microsoft Teams</p>
-                            <p class="app-desc">Messages et appels vidéo</p>
+                        <div class="app-card">
+                            <div><p class="app-name">Google Chrome</p><p class="app-desc">Navigateur Internet</p></div>
+                            <div class="check"><svg width="8" height="8" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="#555" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
                         </div>
-                        <div class="check">
-                            <svg
-                                width="8"
-                                height="8"
-                                viewBox="0 0 10 10"
-                                fill="none"
-                            >
-                                <polyline
-                                    points="1.5,5 4,7.5 8.5,2.5"
-                                    stroke="#555"
-                                    stroke-width="1.6"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                />
-                            </svg>
-                        </div>
-                    </div>
 
-                    <div class="app-card">
-                        <div>
-                            <p class="app-name">Outlook</p>
-                            <p class="app-desc">Courriel</p>
+                        <div class="app-card">
+                            <div><p class="app-name">Microsoft Teams</p><p class="app-desc">Messages et appels vidéo</p></div>
+                            <div class="check"><svg width="8" height="8" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="#555" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
                         </div>
-                        <div class="check">
-                            <svg
-                                width="8"
-                                height="8"
-                                viewBox="0 0 10 10"
-                                fill="none"
-                            >
-                                <polyline
-                                    points="1.5,5 4,7.5 8.5,2.5"
-                                    stroke="#555"
-                                    stroke-width="1.6"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                />
-                            </svg>
-                        </div>
-                    </div>
 
-                    <div class="app-card">
-                        <div>
-                            <p class="app-name">LibreOffice Writer</p>
-                            <p class="app-desc">Traitement de texte</p>
+                        <div class="app-card">
+                            <div><p class="app-name">Outlook</p><p class="app-desc">Courriel</p></div>
+                            <div class="check"><svg width="8" height="8" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="#555" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
                         </div>
-                        <div class="check">
-                            <svg
-                                width="8"
-                                height="8"
-                                viewBox="0 0 10 10"
-                                fill="none"
-                            >
-                                <polyline
-                                    points="1.5,5 4,7.5 8.5,2.5"
-                                    stroke="#555"
-                                    stroke-width="1.6"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                />
-                            </svg>
-                        </div>
-                    </div>
 
-                    <div class="app-card">
-                        <div>
-                            <p class="app-name">LibreOffice Calc</p>
-                            <p class="app-desc">Tableur</p>
+                        <div class="app-card">
+                            <div><p class="app-name">LibreOffice Writer</p><p class="app-desc">Traitement de texte</p></div>
+                            <div class="check"><svg width="8" height="8" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="#555" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
                         </div>
-                        <div class="check">
-                            <svg
-                                width="8"
-                                height="8"
-                                viewBox="0 0 10 10"
-                                fill="none"
-                            >
-                                <polyline
-                                    points="1.5,5 4,7.5 8.5,2.5"
-                                    stroke="#555"
-                                    stroke-width="1.6"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                />
-                            </svg>
-                        </div>
-                    </div>
 
-                    <div class="app-card">
-                        <div>
-                            <p class="app-name">Zoom</p>
-                            <p class="app-desc">Vidéoconférence</p>
+                        <div class="app-card">
+                            <div><p class="app-name">LibreOffice Calc</p><p class="app-desc">Tableur</p></div>
+                            <div class="check"><svg width="8" height="8" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="#555" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
                         </div>
-                        <div class="check">
-                            <svg
-                                width="8"
-                                height="8"
-                                viewBox="0 0 10 10"
-                                fill="none"
-                            >
-                                <polyline
-                                    points="1.5,5 4,7.5 8.5,2.5"
-                                    stroke="#555"
-                                    stroke-width="1.6"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                />
-                            </svg>
-                        </div>
-                    </div>
 
-                    <div class="app-card">
-                        <div>
-                            <p class="app-name">Dialect</p>
-                            <p class="app-desc">Traducteur de langues</p>
+                        <div class="app-card">
+                            <div><p class="app-name">Zoom</p><p class="app-desc">Vidéoconférence</p></div>
+                            <div class="check"><svg width="8" height="8" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="#555" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
                         </div>
-                        <div class="check">
-                            <svg
-                                width="8"
-                                height="8"
-                                viewBox="0 0 10 10"
-                                fill="none"
-                            >
-                                <polyline
-                                    points="1.5,5 4,7.5 8.5,2.5"
-                                    stroke="#555"
-                                    stroke-width="1.6"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                />
-                            </svg>
-                        </div>
-                    </div>
 
-                    <div class="app-card">
-                        <div>
-                            <p class="app-name">GIMP / VLC</p>
-                            <p class="app-desc">Images et vidéos</p>
+                        <div class="app-card">
+                            <div><p class="app-name">Dialect</p><p class="app-desc">Traducteur de langues</p></div>
+                            <div class="check"><svg width="8" height="8" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="#555" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
                         </div>
-                        <div class="check">
-                            <svg
-                                width="8"
-                                height="8"
-                                viewBox="0 0 10 10"
-                                fill="none"
-                            >
-                                <polyline
-                                    points="1.5,5 4,7.5 8.5,2.5"
-                                    stroke="#555"
-                                    stroke-width="1.6"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                />
-                            </svg>
-                        </div>
-                    </div>
 
-                    <div class="app-card">
-                        <div>
-                            <p class="app-name">Google Meet</p>
-                            <p class="app-desc">Vidéoconférence</p>
+                        <div class="app-card">
+                            <div><p class="app-name">GIMP</p><p class="app-desc">Éditeur d'images</p></div>
+                            <div class="check"><svg width="8" height="8" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="#555" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
                         </div>
-                        <div class="check">
-                            <svg
-                                width="8"
-                                height="8"
-                                viewBox="0 0 10 10"
-                                fill="none"
-                            >
-                                <polyline
-                                    points="1.5,5 4,7.5 8.5,2.5"
-                                    stroke="#555"
-                                    stroke-width="1.6"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                />
-                            </svg>
-                        </div>
-                    </div>
 
-                    <div class="app-card">
-                        <div>
-                            <p class="app-name">Éditeur de texte</p>
-                            <p class="app-desc">Bloc-notes</p>
+                        <div class="app-card">
+                            <div><p class="app-name">VLC</p><p class="app-desc">Lecteur multimédia</p></div>
+                            <div class="check"><svg width="8" height="8" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="#555" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
                         </div>
-                        <div class="check">
-                            <svg
-                                width="8"
-                                height="8"
-                                viewBox="0 0 10 10"
-                                fill="none"
-                            >
-                                <polyline
-                                    points="1.5,5 4,7.5 8.5,2.5"
-                                    stroke="#555"
-                                    stroke-width="1.6"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                />
-                            </svg>
-                        </div>
-                    </div>
 
-                    <div class="app-card">
-                        <div>
-                            <p class="app-name">Capture d'écran</p>
-                            <p class="app-desc">Photo de l'écran</p>
+                        <div class="app-card">
+                            <div><p class="app-name">Google Meet</p><p class="app-desc">Vidéoconférence</p></div>
+                            <div class="check"><svg width="8" height="8" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="#555" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
                         </div>
-                        <div class="check">
-                            <svg
-                                width="8"
-                                height="8"
-                                viewBox="0 0 10 10"
-                                fill="none"
-                            >
-                                <polyline
-                                    points="1.5,5 4,7.5 8.5,2.5"
-                                    stroke="#555"
-                                    stroke-width="1.6"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                />
-                            </svg>
-                        </div>
-                    </div>
 
-                    <div
-                        class="app-card"
-                        style="pointer-events: none; border-right: none"
-                    ></div>
+                        <div class="app-card">
+                            <div><p class="app-name">OBS Studio</p><p class="app-desc">Enregistrement vidéo</p></div>
+                            <div class="check"><svg width="8" height="8" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="#555" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                        </div>
+
+                        <div class="app-card">
+                            <div><p class="app-name">Éditeur de texte</p><p class="app-desc">Bloc-notes</p></div>
+                            <div class="check"><svg width="8" height="8" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="#555" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                        </div>
+
+                        <div class="app-card">
+                            <div><p class="app-name">Capture d'écran</p><p class="app-desc">Photo de l'écran</p></div>
+                            <div class="check"><svg width="8" height="8" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="#555" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                        </div>
+
+                        <div class="app-card">
+                            <div><p class="app-name">Excalidraw</p><p class="app-desc">Dessin collaboratif</p></div>
+                            <div class="check"><svg width="8" height="8" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="#555" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                        </div>
+
+                        <div class="app-card">
+                            <div><p class="app-name">Logithèque</p><p class="app-desc">Installation d'apps</p></div>
+                            <div class="check"><svg width="8" height="8" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="#555" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                        </div>
+
+                        <div class="app-card" style="pointer-events:none; border-right:none;"></div>
+
+                    </div>
                 </div>
             </section>
         </main>
 
         <footer>
-            <p>
-                Projet DO2 &nbsp;·&nbsp; Collège Montmorency &nbsp;·&nbsp; 2026
-            </p>
-            <p>NixOS &nbsp;·&nbsp; Francisation</p>
+            <div class="wrapper">
+                <p>Projet DO2 &nbsp;·&nbsp; Collège Montmorency &nbsp;·&nbsp; 2026</p>
+                <p>NixOS &nbsp;·&nbsp; Francisation</p>
+            </div>
         </footer>
     </body>
 </html>
