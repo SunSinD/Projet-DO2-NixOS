@@ -1,0 +1,587 @@
+<!doctype html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Projet DO2</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+            href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            *,
+            *::before,
+            *::after {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            :root {
+                --bg: #0c0c0c;
+                --s1: #141414;
+                --s2: #1c1c1c;
+                --b1: #252525;
+                --b2: #333333;
+                --b3: #4a4a4a;
+                --text: #d4d4d4;
+                --sub: #888888;
+                --dim: #444444;
+                --white: #f0f0f0;
+            }
+
+            html,
+            body {
+                width: 100%;
+                min-height: 100vh;
+            }
+
+            body {
+                font-family: "IBM Plex Sans", sans-serif;
+                background: var(--bg);
+                color: var(--text);
+                display: flex;
+                flex-direction: column;
+            }
+
+            /* ── Header ── */
+            header {
+                width: 100%;
+                border-bottom: 1px solid var(--b1);
+                padding: 5vh 6vw 4vh;
+                background: var(--s1);
+            }
+
+            .eyebrow {
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 11px;
+                letter-spacing: 0.16em;
+                text-transform: uppercase;
+                color: var(--dim);
+                margin-bottom: 1.2rem;
+            }
+
+            header h1 {
+                font-size: clamp(2.2rem, 5vw, 4rem);
+                font-weight: 300;
+                color: var(--white);
+                letter-spacing: -0.03em;
+                line-height: 1;
+                margin-bottom: 0.6rem;
+            }
+
+            header .sub {
+                font-size: 1rem;
+                color: var(--sub);
+                font-weight: 300;
+            }
+
+            /* ── Main ── */
+            main {
+                flex: 1;
+                width: 100%;
+                padding: 5vh 6vw;
+                display: flex;
+                flex-direction: column;
+                gap: 5vh;
+            }
+
+            .section-label {
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 9px;
+                letter-spacing: 0.2em;
+                text-transform: uppercase;
+                color: var(--dim);
+                margin-bottom: 1.2rem;
+            }
+
+            /* ── Link cards ── */
+            .link-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                border: 1px solid var(--b1);
+                border-radius: 8px;
+                overflow: hidden;
+            }
+
+            .link-card {
+                display: block;
+                text-decoration: none;
+                background: var(--s1);
+                padding: 2.4rem 2.8rem;
+                transition: background 0.2s ease;
+                cursor: pointer;
+            }
+
+            .link-card + .link-card {
+                border-left: 1px solid var(--b1);
+            }
+
+            .link-card:hover {
+                background: var(--s2);
+            }
+
+            .card-title {
+                font-size: 1.05rem;
+                font-weight: 500;
+                color: var(--white);
+                margin-bottom: 0.5rem;
+                transition: color 0.2s;
+            }
+
+            .card-desc {
+                font-size: 0.85rem;
+                color: var(--sub);
+                line-height: 1.6;
+                margin-bottom: 1.6rem;
+                font-weight: 300;
+            }
+
+            .card-url {
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 13px;
+                color: var(--sub);
+                transition: color 0.2s;
+            }
+
+            .link-card:hover .card-url {
+                color: var(--text);
+            }
+
+            /* ── App grid ── */
+            .app-grid {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                border: 1px solid var(--b1);
+                border-radius: 8px;
+                overflow: hidden;
+            }
+
+            .app-card {
+                background: var(--s1);
+                padding: 1.3rem 1.6rem;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 10px;
+                transition: background 0.2s ease;
+                border-right: 1px solid var(--b1);
+                border-bottom: 1px solid var(--b1);
+            }
+
+            .app-card:nth-child(4n) {
+                border-right: none;
+            }
+            .app-card:nth-last-child(-n + 4) {
+                border-bottom: none;
+            }
+
+            .app-card:hover {
+                background: var(--s2);
+            }
+
+            .app-name {
+                font-size: 0.85rem;
+                font-weight: 400;
+                color: var(--text);
+                transition: color 0.2s;
+            }
+
+            .app-card:hover .app-name {
+                color: var(--white);
+            }
+
+            .app-desc {
+                font-size: 0.72rem;
+                color: var(--dim);
+                font-weight: 300;
+                margin-top: 2px;
+                transition: color 0.2s;
+            }
+
+            .app-card:hover .app-desc {
+                color: var(--sub);
+            }
+
+            .check {
+                flex-shrink: 0;
+                width: 16px;
+                height: 16px;
+                border-radius: 50%;
+                border: 1px solid var(--b2);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            /* ── Footer ── */
+            footer {
+                width: 100%;
+                border-top: 1px solid var(--b1);
+                background: var(--s1);
+                padding: 1.8rem 6vw;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+
+            footer p {
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 10px;
+                color: var(--dim);
+                letter-spacing: 0.06em;
+            }
+
+            @media (max-width: 900px) {
+                .link-grid {
+                    grid-template-columns: 1fr;
+                }
+                .link-card + .link-card {
+                    border-left: none;
+                    border-top: 1px solid var(--b1);
+                }
+                .app-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+                .app-card:nth-child(4n) {
+                    border-right: 1px solid var(--b1);
+                }
+                .app-card:nth-child(2n) {
+                    border-right: none;
+                }
+                .app-card:nth-last-child(-n + 4) {
+                    border-bottom: 1px solid var(--b1);
+                }
+                .app-card:nth-last-child(-n + 2) {
+                    border-bottom: none;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <p class="eyebrow">Collège Montmorency — H2026</p>
+            <h1>Projet DO2</h1>
+            <p class="sub">Documents et ressources techniques du projet.</p>
+        </header>
+
+        <main>
+            <section>
+                <p class="section-label">Liens du projet</p>
+                <div class="link-grid">
+                    <a
+                        class="link-card"
+                        href="https://github.com/SunSinD/Projet-DO2-NixOS"
+                        target="_blank"
+                    >
+                        <p class="card-title">Dépôt GitHub</p>
+                        <p class="card-desc">
+                            Configuration NixOS et scripts de déploiement
+                            automatisé.
+                        </p>
+                        <p class="card-url">
+                            github.com/SunSinD/Projet-DO2-NixOS
+                        </p>
+                    </a>
+
+                    <a
+                        class="link-card"
+                        href="https://sunsind.github.io/Projet-DO2-NixOS/"
+                        target="_blank"
+                    >
+                        <p class="card-title">Site web du projet</p>
+                        <p class="card-desc">
+                            Page officielle du projet DO2, présentation et
+                            informations.
+                        </p>
+                        <p class="card-url">
+                            sunsind.github.io/Projet-DO2-NixOS
+                        </p>
+                    </a>
+
+                    <a class="link-card" href="https://sunsind.github.io/Projet-DO2-NixOS/guides/Guide-DO2.html" target="_blank">
+                        <p class="card-title">Manuel d'utilisation</p>
+                        <p class="card-desc">
+                            Guide pour les utilisateurs, Wi-Fi, applications,
+                            conseils.
+                        </p>
+                        <p class="card-url">sunsind.github.io/.../guides/Guide-DO2.html</p>
+                    </a>
+                </div>
+            </section>
+
+            <section>
+                <p class="section-label">Applications installées</p>
+                <div class="app-grid">
+                    <div class="app-card">
+                        <div>
+                            <p class="app-name">Google Chrome</p>
+                            <p class="app-desc">Navigateur Internet</p>
+                        </div>
+                        <div class="check">
+                            <svg
+                                width="8"
+                                height="8"
+                                viewBox="0 0 10 10"
+                                fill="none"
+                            >
+                                <polyline
+                                    points="1.5,5 4,7.5 8.5,2.5"
+                                    stroke="#555"
+                                    stroke-width="1.6"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="app-card">
+                        <div>
+                            <p class="app-name">Microsoft Teams</p>
+                            <p class="app-desc">Messages et appels vidéo</p>
+                        </div>
+                        <div class="check">
+                            <svg
+                                width="8"
+                                height="8"
+                                viewBox="0 0 10 10"
+                                fill="none"
+                            >
+                                <polyline
+                                    points="1.5,5 4,7.5 8.5,2.5"
+                                    stroke="#555"
+                                    stroke-width="1.6"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="app-card">
+                        <div>
+                            <p class="app-name">Outlook</p>
+                            <p class="app-desc">Courriel</p>
+                        </div>
+                        <div class="check">
+                            <svg
+                                width="8"
+                                height="8"
+                                viewBox="0 0 10 10"
+                                fill="none"
+                            >
+                                <polyline
+                                    points="1.5,5 4,7.5 8.5,2.5"
+                                    stroke="#555"
+                                    stroke-width="1.6"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="app-card">
+                        <div>
+                            <p class="app-name">LibreOffice Writer</p>
+                            <p class="app-desc">Traitement de texte</p>
+                        </div>
+                        <div class="check">
+                            <svg
+                                width="8"
+                                height="8"
+                                viewBox="0 0 10 10"
+                                fill="none"
+                            >
+                                <polyline
+                                    points="1.5,5 4,7.5 8.5,2.5"
+                                    stroke="#555"
+                                    stroke-width="1.6"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="app-card">
+                        <div>
+                            <p class="app-name">LibreOffice Calc</p>
+                            <p class="app-desc">Tableur</p>
+                        </div>
+                        <div class="check">
+                            <svg
+                                width="8"
+                                height="8"
+                                viewBox="0 0 10 10"
+                                fill="none"
+                            >
+                                <polyline
+                                    points="1.5,5 4,7.5 8.5,2.5"
+                                    stroke="#555"
+                                    stroke-width="1.6"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="app-card">
+                        <div>
+                            <p class="app-name">Zoom</p>
+                            <p class="app-desc">Vidéoconférence</p>
+                        </div>
+                        <div class="check">
+                            <svg
+                                width="8"
+                                height="8"
+                                viewBox="0 0 10 10"
+                                fill="none"
+                            >
+                                <polyline
+                                    points="1.5,5 4,7.5 8.5,2.5"
+                                    stroke="#555"
+                                    stroke-width="1.6"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="app-card">
+                        <div>
+                            <p class="app-name">Dialect</p>
+                            <p class="app-desc">Traducteur de langues</p>
+                        </div>
+                        <div class="check">
+                            <svg
+                                width="8"
+                                height="8"
+                                viewBox="0 0 10 10"
+                                fill="none"
+                            >
+                                <polyline
+                                    points="1.5,5 4,7.5 8.5,2.5"
+                                    stroke="#555"
+                                    stroke-width="1.6"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="app-card">
+                        <div>
+                            <p class="app-name">GIMP / VLC</p>
+                            <p class="app-desc">Images et vidéos</p>
+                        </div>
+                        <div class="check">
+                            <svg
+                                width="8"
+                                height="8"
+                                viewBox="0 0 10 10"
+                                fill="none"
+                            >
+                                <polyline
+                                    points="1.5,5 4,7.5 8.5,2.5"
+                                    stroke="#555"
+                                    stroke-width="1.6"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="app-card">
+                        <div>
+                            <p class="app-name">Google Meet</p>
+                            <p class="app-desc">Vidéoconférence</p>
+                        </div>
+                        <div class="check">
+                            <svg
+                                width="8"
+                                height="8"
+                                viewBox="0 0 10 10"
+                                fill="none"
+                            >
+                                <polyline
+                                    points="1.5,5 4,7.5 8.5,2.5"
+                                    stroke="#555"
+                                    stroke-width="1.6"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="app-card">
+                        <div>
+                            <p class="app-name">Éditeur de texte</p>
+                            <p class="app-desc">Bloc-notes</p>
+                        </div>
+                        <div class="check">
+                            <svg
+                                width="8"
+                                height="8"
+                                viewBox="0 0 10 10"
+                                fill="none"
+                            >
+                                <polyline
+                                    points="1.5,5 4,7.5 8.5,2.5"
+                                    stroke="#555"
+                                    stroke-width="1.6"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div class="app-card">
+                        <div>
+                            <p class="app-name">Capture d'écran</p>
+                            <p class="app-desc">Photo de l'écran</p>
+                        </div>
+                        <div class="check">
+                            <svg
+                                width="8"
+                                height="8"
+                                viewBox="0 0 10 10"
+                                fill="none"
+                            >
+                                <polyline
+                                    points="1.5,5 4,7.5 8.5,2.5"
+                                    stroke="#555"
+                                    stroke-width="1.6"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                />
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div
+                        class="app-card"
+                        style="pointer-events: none; border-right: none"
+                    ></div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>
+                Projet DO2 &nbsp;·&nbsp; Collège Montmorency &nbsp;·&nbsp; 2026
+            </p>
+            <p>NixOS &nbsp;·&nbsp; Francisation</p>
+        </footer>
+    </body>
+</html>
