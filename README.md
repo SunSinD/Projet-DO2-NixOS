@@ -6,7 +6,7 @@
     <img src="https://img.shields.io/github/license/SunSinD/Projet-DO2-NixOS.svg?style=for-the-badge&color=0078D4&logo=github&logoColor=white&labelColor=333" alt="MIT License" />
   </a>
   <img src="https://img.shields.io/badge/NixOS-25.11-5277C3?style=for-the-badge&logo=nixos&logoColor=white&labelColor=333" alt="NixOS 25.11" />
-  <img src="https://img.shields.io/badge/GNOME-Français-4A86CF?style=for-the-badge&logo=gnome&logoColor=white&labelColor=333" alt="GNOME Français" />
+  <img src="https://img.shields.io/badge/Cinnamon-Français-4A86CF?style=for-the-badge&logo=linux&logoColor=white&labelColor=333" alt="Cinnamon Français" />
 </p>
 
 <div align="center">
@@ -20,9 +20,8 @@
 
 <div align="center">
   <p align="center">
-    Configuration et déploiement automatisé de NixOS pour le Projet DO2.<br/>
-    Ce dépôt contient l'image Linux personnalisée, les scripts d'installation et la documentation technique<br/>
-    pour la revalorisation des ordinateurs destinés à la communauté du Collège Montmorency.
+    Configuration NixOS automatisée pour le Projet DO2.<br/>
+    Installation en une commande, interface Cinnamon en français, prête à l'emploi.<br/>
   </p>
   <a href="https://sunSinD.github.io/Projet-DO2-NixOS"><strong>Site Web du Projet</strong></a>
 </div>
@@ -33,14 +32,13 @@
 
 ## À propos
 
-Le projet DO2, Don d'ordinateur, Deuxième vie, redonne vie à des ordinateurs usagés du Collège Montmorency pour les distribuer gratuitement à des immigrants en cours de francisation. Chaque machine est livrée avec une installation NixOS complète, entièrement en français, prête à l'emploi.
+Le projet DO2 (Don d'ordinateur, Deuxième vie) redonne vie à des ordinateurs usagés du Collège Montmorency pour les distribuer à des personnes dans le besoin. Chaque machine est livrée avec NixOS, entièrement en français, prête à l'emploi.
 
 | | |
 |---|---|
-| **Distro** | NixOS 25.11 (stable) |
-| **Bureau** | GNOME, interface en français |
-| **Installation** | Automatisée, 1 commande |
-| **Deadline** | 22 mai 2026 |
+| **Distro** | NixOS 25.11 (Flake) |
+| **Bureau** | Cinnamon, interface en français |
+| **Installation** | Automatisée, 1 commande, 5-15 min |
 
 ---
 
@@ -49,64 +47,67 @@ Le projet DO2, Don d'ordinateur, Deuxième vie, redonne vie à des ordinateurs u
 | Application | Usage |
 |---|---|
 | Google Chrome | Navigateur web |
-| LibreOffice | Bureautique (texte, tableur, présentations) |
-| Dialect | Traducteur |
-| MPV | Lecteur vidéo et audio |
-| Gmail | Courriel (web) |
-| Outlook | Courriel Microsoft (web) |
-| Microsoft Teams | Messagerie (web) |
-| Google Meet | Vidéoconférence (web) |
-| Zoom | Vidéoconférence (natif) |
-| Excalidraw | Dessin collaboratif (web) |
-| GNOME Fichiers | Gestionnaire de fichiers |
+| LibreOffice | Bureautique (Writer, Calc, Draw, Impress, Math, Base) |
+| Microsoft Teams | Messagerie et appels vidéo |
+| Outlook | Courriel Microsoft |
+| Zoom | Vidéoconférence |
+| Dialect | Traducteur de langues |
+| GIMP | Éditeur d'images |
+| VLC | Lecteur vidéo et audio |
+| Excalidraw | Dessin collaboratif |
+| Logithèque (Flatpak) | Installation d'apps via interface graphique |
 
 ---
 
 ## Installation
 
-**1. Démarrer depuis la clé USB NixOS** (ISO minimal, pas graphique)
+**1. Démarrer depuis la clé USB NixOS** (ISO minimal)
 
-Insérez la clé USB dans l'ordinateur. Allumez-le et appuyez sur `F12` (ou `Échap` / `F2` selon le modèle) pour ouvrir le menu de démarrage, puis sélectionnez la clé USB.
+Insérez la clé USB. Allumez l'ordinateur et appuyez sur `F12` (ou `Échap` / `F2`) pour ouvrir le menu de démarrage, puis sélectionnez la clé USB.
 
-> **Important :** Dans le menu NixOS, choisissez la première option - **NixOS LTS**. Ne choisissez pas la version avec des chiffres.
+> **Important :** Choisissez la première option : **NixOS LTS**. Ne choisissez pas la version avec des chiffres.
 
 > **Hint :** Si `F12` ne fonctionne pas, essayez `F10`, `F11` ou `Del`. Sur certains ThinkPads, c'est le bouton *Novo* près du port d'alimentation.
 
 **2. Se connecter au réseau**
 
-**Méthode recommandée - Tethering USB (au Collège) :**
+**Tethering USB (au Collège) :**
 
-Votre téléphone doit être connecté au Wi-Fi `Le_College_Montmorency` et vous devez être connecté au portail du Collège (la page de connexion du Collège doit avoir été complétée dans votre navigateur). Branchez votre téléphone à l'ordinateur avec un câble USB, puis activez le tethering USB.
+Connectez votre téléphone au Wi-Fi `Le_College_Montmorency`, complétez le portail, puis branchez le téléphone par USB et activez le tethering.
 
-- **Android :** Paramètres - Connexions - Point d'accès mobile - Modem USB - Activer
-- **iPhone :** Réglages - Partage de connexion - Autoriser les autres à rejoindre, puis brancher le câble
+- **Android :** Paramètres → Connexions → Point d'accès mobile → Modem USB → Activer
+- **iPhone :** Réglages → Partage de connexion → Autoriser les autres à rejoindre
 
-**Autre lieu (à la maison ou réseau Wi-Fi normal) :**
+**Wi-Fi normal (maison) :**
 ```bash
 nmcli device wifi connect "NOM_DU_WIFI" password "MOT_DE_PASSE"
 ```
-Remplacez `NOM_DU_WIFI` et `MOT_DE_PASSE` par les informations de votre réseau.
 
 **3. Vérifier la connexion :**
 ```bash
 ping -c 3 github.com
 ```
-Attendez de voir des réponses avant de continuer.
 
 **4. Lancer l'installation :**
 ```bash
 sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/SunSinD/Projet-DO2-NixOS/main/install.sh)"
-
-*(Le script affiche une liste `[0]`, `[1]`, … : entrez **seulement le chiffre** (0 ou 1), pas `nvme0n1`. Si une ancienne copie demande le nom du disque, relancez la commande `curl` ci-dessus.)*
 ```
 
-Le script détecte le disque, partitionne, copie la configuration NixOS et installe le système. Durée : **10 à 30 minutes**. Ne fermez pas l'ordinateur pendant ce temps.
+Le script affiche `[0]`, `[1]`, etc. : entrez **seulement le chiffre** (0 ou 1). Durée : **5 à 15 minutes**.
 
-> Identifiants par défaut - Utilisateur : `user` - Mot de passe : `pass`
+> Identifiants par défaut : Utilisateur : `user` / Mot de passe : `pass`
+
+---
+
+## Mise à jour
+
+Sur un ordinateur déjà installé :
+
+```bash
+update-do2
+sudo reboot
+```
 
 ---
 
 *Collège Montmorency · Département de technologie de génie électrique · 243-44A-MO · Hiver 2026*
-
-[license-shield]: https://img.shields.io/github/license/SunSinD/Projet-DO2-NixOS.svg?style=for-the-badge&color=0078D4&logo=github&logoColor=white&labelColor=333
-[license-url]: https://github.com/SunSinD/Projet-DO2-NixOS/blob/main/LICENSE
