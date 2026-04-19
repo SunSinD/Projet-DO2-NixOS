@@ -20,6 +20,7 @@
     pix              # on a GIMP
     gnome-calendar   # pas essentiel
     hexchat          # pas necessaire
+    warpinator       # transfert reseau local inutile
   ];
 
   # ── Desactiver la mise en veille prolongee (hibernate) ──────────────────
@@ -116,11 +117,13 @@
           sources = [ (lib.gvariant.mkTuple [ "xkb" "ca" ]) ];
         };
 
-        # Panneau en bas
+        # Panneau en bas + performances
         "org/cinnamon" = {
           panels-enabled = [ "1:0:bottom" ];
           panels-height  = [ "1:40" ];
           favorite-apps  = [ "cinnamon-settings.desktop" "nemo.desktop" ];
+          desktop-effects    = false;
+          startup-animation  = false;
           enabled-applets = [
             "panel1:left:0:menu@cinnamon.org:0"
             "panel1:left:1:grouped-window-list@cinnamon.org:2"
@@ -148,10 +151,14 @@
           idle-delay = lib.gvariant.mkUint32 900;
         };
 
-        # Theme
+        # Performances : desactiver les animations pour fluidite
         "org/cinnamon/desktop/interface" = {
-          gtk-theme  = "Mint-Y-Dark-Aqua";
-          icon-theme = "Mint-Y-Dark-Aqua";
+          gtk-theme       = "Mint-Y-Dark-Aqua";
+          icon-theme      = "Mint-Y-Dark-Aqua";
+          enable-animations = false;
+        };
+        "org/cinnamon/muffin" = {
+          unredirect-fullscreen-windows = true;
         };
         "org/cinnamon/theme" = {
           name = "Mint-Y-Dark-Aqua";
