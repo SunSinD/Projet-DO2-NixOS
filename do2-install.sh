@@ -102,11 +102,11 @@ sudo nixos-generate-config --root /mnt --no-filesystems
 sudo cp /mnt/etc/nixos/hardware-configuration.nix "$WORK_DIR/hardware-configuration.nix"
 git add hardware-configuration.nix
 
-nix --extra-experimental-features "nix-command flakes" flake update --quiet 2>&1 | grep -v 'warning:' || true
+nix --extra-experimental-features "nix-command flakes" flake update 2>/dev/null
 git add .
 git -c user.email="do2@montmorency.qc.ca" \
     -c user.name="DO2-Installer" \
-    commit -m "Configuration locale pour $(hostname)"
+    commit -q -m "Configuration locale pour $(hostname)"
 
 echo ""
 echo "  [4/6] Configuration du swap..."
@@ -136,5 +136,4 @@ echo "  ║       Installation terminee!         ║"
 echo "  ║       Redemarrage en cours...        ║"
 echo "  ╚══════════════════════════════════════╝"
 echo ""
-sleep 3
 sudo reboot

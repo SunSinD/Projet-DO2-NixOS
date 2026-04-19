@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Setup bureau utilisateur - v7
+# Setup bureau utilisateur - v8
 set -euo pipefail
 
-SETUP_VERSION="7"
+SETUP_VERSION="8"
 MARKER="$HOME/.do2-setup-done"
 if [ -f "$MARKER" ]; then
   [ "$(cat "$MARKER" 2>/dev/null)" = "$SETUP_VERSION" ] && exit 0
@@ -104,7 +104,7 @@ for f in "$APPS_DIR"/*.desktop; do
 
   # Apps inutiles par nom de fichier
   case "$bname" in
-    xterm|yelp|nm-connection-editor|orca|onboard) should_hide=true ;;
+    xterm|yelp|nm-connection-editor|orca|onboard|bulky|libreoffice-draw) should_hide=true ;;
   esac
 
   # Icon browser (toutes variantes)
@@ -155,11 +155,14 @@ done
 
 # ══════════════════════════════════════════════════════════════════════════
 
-# Forcer Cinnamon à recharger le menu
+# Forcer Cinnamon a recharger le menu
 update-desktop-database "$LOCAL_APPS" 2>/dev/null || true
 xdg-desktop-menu forceupdate 2>/dev/null || true
 
 echo "$SETUP_VERSION" > "$MARKER"
+
+# Relancer Cinnamon pour appliquer les changements de menu
+nohup bash -c "sleep 2 && cinnamon --replace" &>/dev/null &
 
 if [ ! -f "$HOME/.do2-welcome-shown" ]; then
   /etc/do2/do2-welcome.sh &

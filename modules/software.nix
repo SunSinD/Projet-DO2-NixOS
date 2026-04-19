@@ -116,6 +116,7 @@ in
   systemd.services.flatpak-setup-flathub = {
     script = ''
       ${pkgs.flatpak}/bin/flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+      ${pkgs.flatpak}/bin/flatpak update --appstream 2>/dev/null || true
     '';
     serviceConfig = {
       Type            = "oneshot";

@@ -74,7 +74,12 @@
   environment.etc."do2/config/cinnamon/spices/menu@cinnamon.org/0.json".source =
     ../config/config/cinnamon/spices + "/menu@cinnamon.org/0.json";
 
-  # Lancer la configuration utilisateur au premier login
+  # Lancer la configuration utilisateur AVANT Cinnamon (pas de flash 11 categories)
+  services.xserver.displayManager.sessionCommands = ''
+    /etc/do2/do2-setup-user.sh || true
+  '';
+
+  # Fallback autostart (au cas ou sessionCommands ne suffit pas)
   environment.etc."xdg/autostart/do2-setup-user.desktop".text = ''
     [Desktop Entry]
     Type=Application
@@ -105,6 +110,7 @@
         "org/cinnamon" = {
           panels-enabled = [ "1:0:bottom" ];
           panels-height  = [ "1:40" ];
+          favorite-apps  = [ "nemo.desktop" "google-chrome.desktop" ];
           enabled-applets = [
             "panel1:left:0:menu@cinnamon.org:0"
             "panel1:left:1:grouped-window-list@cinnamon.org:2"
