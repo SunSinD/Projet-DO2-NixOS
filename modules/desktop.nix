@@ -10,8 +10,9 @@
   services.xserver.displayManager.lightdm.enable   = lib.mkDefault true;
   services.xserver.desktopManager.cinnamon.enable   = lib.mkDefault true;
 
-  # Ecran de connexion LightDM
-  services.displayManager.autoLogin.enable = false;
+  # Auto-login (Cinnamon se charge pendant le boot = bureau instantane)
+  services.displayManager.autoLogin.enable = true;
+  services.displayManager.autoLogin.user   = "user";
 
   # ── Exclure les apps Cinnamon inutiles ──────────────────────────────────
   environment.cinnamon.excludePackages = with pkgs; [
@@ -34,8 +35,18 @@
   # ── Arret/redemarrage rapide ────────────────────────────────────────────
   systemd.settings.Manager.DefaultTimeoutStopSec = "1s";
 
-
-
+  # Cacher le bureau au shutdown/reboot (ecran noir au lieu du taskbar)
+  systemd.services.hide-desktop-on-shutdown = {
+    description = "Hide desktop on shutdown";
+    wantedBy = [ "graphical.target" ];
+    after    = [ "graphical.target" ];
+    serviceConfig = {
+      Type            = "oneshot";
+      RemainAfterExit = true;
+      ExecStart       = "/run/current-system/sw/bin/true";
+      ExecStop        = "${pkgs.kbd}/bin/chvt 1";
+    };
+  };
   # ── Audio (PipeWire) ────────────────────────────────────────────────────
   security.rtkit.enable = true;
   services.pipewire = {
@@ -55,7 +66,8 @@
 
   # ── Trousseau de cles (deverrouille automatiquement, pas de popup) ──────
   services.gnome.gnome-keyring.enable = true;
-  security.pam.services.lightdm.enableGnomeKeyring       = true;
+  security.pam.services.lightdm.enableGnomeKeyring           = true;
+  security.pam.services.lightdm-autologin.enableGnomeKeyring = true;
 
   # ── Fond d'ecran ────────────────────────────────────────────────────────
   environment.etc."backgrounds/do2-wallpaper.png".source = ../assets/do2-wallpaper.png;
@@ -77,6 +89,18 @@
     ../config/config/cinnamon/spices + "/grouped-window-list@cinnamon.org/2.json";
   environment.etc."do2/config/cinnamon/spices/menu@cinnamon.org/0.json".source =
     ../config/config/cinnamon/spices + "/menu@cinnamon.org/0.json";
+
+  # Verrouiller l'ecran au demarrage (mot de passe requis)
+  environment.etc."xdg/autostart/do2-lock-screen.desktop".text = ''
+    [Desktop Entry]
+    Type=Application
+    Name=DO2 Lock Screen
+    Exec=bash -c "sleep 1 && cinnamon-screensaver-command --lock"
+    Terminal=false
+    X-GNOME-Autostart-enabled=true
+    X-GNOME-Autostart-Phase=Initialization
+    NoDisplay=true
+  '';
 
   # Lancer la configuration utilisateur au login (autostart)
   environment.etc."xdg/autostart/do2-setup-user.desktop".text = ''

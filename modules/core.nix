@@ -38,7 +38,6 @@
     "rd.udev.log_level=3"
     "vt.global_cursor_default=0"
     "udev.log_level=3"
-    "plymouth.use-hierarchical-rendering"
   ];
 
   hardware.enableRedistributableFirmware = true;
