@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Setup bureau utilisateur - v10
+# Setup bureau utilisateur - v11
 set -euo pipefail
 
-SETUP_VERSION="10"
+SETUP_VERSION="11"
 MARKER="$HOME/.do2-setup-done"
 if [ -f "$MARKER" ]; then
   [ "$(cat "$MARKER" 2>/dev/null)" = "$SETUP_VERSION" ] && exit 0
@@ -90,8 +90,8 @@ EOF
 # Tout le reste est masqué ou déplacé vers Bureautique.
 # ══════════════════════════════════════════════════════════════════════════
 
-# Supprimer tous les anciens overrides pour repartir proprement
-rm -f "$LOCAL_APPS"/*.desktop 2>/dev/null || true
+# Nettoyer les anciens overrides (sauf ceux pre-crees par l'installateur)
+# On les recree tous dans les passes suivantes de toute facon
 
 # ── PASS 1 : Masquer les apps inutiles (par nom) ─────────────────────────
 for f in "$APPS_DIR"/*.desktop; do
@@ -164,6 +164,12 @@ done
 # Forcer Cinnamon a recharger le menu
 update-desktop-database "$LOCAL_APPS" 2>/dev/null || true
 xdg-desktop-menu forceupdate 2>/dev/null || true
+
+# Rafraichir le menu Cinnamon sans redemarrer le bureau
+dbus-send --session --type=method_call --dest=org.Cinnamon \
+  /org/Cinnamon org.Cinnamon.Eval \
+  string:'const appSys = imports.gi.Cinnamon.AppSystem.get_default(); appSys.notify("installed-changed");' \
+  2>/dev/null || true
 
 echo "$SETUP_VERSION" > "$MARKER"
 

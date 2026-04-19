@@ -94,11 +94,11 @@ sudo nix --extra-experimental-features "nix-command flakes" run \
   github:nix-community/disko/latest -- \
   --mode destroy,format,mount \
   --yes-wipe-all-disks \
-  --flake ".#$FLAKE_ATTR" 2>&1 | grep -v '^warning:' || true
+  --flake ".#$FLAKE_ATTR" 2>&1 | { grep -v '^warning:' || true; }
 
 echo ""
 echo "  [3/6] Détection du matériel..."
-sudo nixos-generate-config --root /mnt --no-filesystems
+sudo nixos-generate-config --root /mnt --no-filesystems 2>/dev/null
 sudo cp /mnt/etc/nixos/hardware-configuration.nix "$WORK_DIR/hardware-configuration.nix"
 git add hardware-configuration.nix
 
@@ -123,7 +123,7 @@ sudo nixos-install \
   --flake "$WORK_DIR#$FLAKE_ATTR" \
   --no-root-passwd \
   --impure \
-  --option "extra-experimental-features" "nix-command flakes" 2>&1 | grep -v '^warning:' || true
+  --option "extra-experimental-features" "nix-command flakes" 2>&1 | { grep -v '^warning:' || true; }
 
 echo ""
 echo "  [6/6] Sauvegarde de la configuration..."
