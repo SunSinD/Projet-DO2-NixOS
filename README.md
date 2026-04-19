@@ -1,51 +1,117 @@
 <a id="readme-top"></a>
 
+<p align="left">
+  <a href="https://github.com/SunSinD/Projet-DO2-NixOS/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/SunSinD/Projet-DO2-NixOS.svg?style=for-the-badge&color=0078D4&logo=github&logoColor=white&labelColor=333" alt="MIT License" />
+  </a>
+  <img src="https://img.shields.io/badge/NixOS-25.11-5277C3?style=for-the-badge&logo=nixos&logoColor=white&labelColor=333" alt="NixOS 25.11" />
+  <img src="https://img.shields.io/badge/Cinnamon-Français-4A86CF?style=for-the-badge&logo=linux&logoColor=white&labelColor=333" alt="Cinnamon Français" />
+</p>
+
 <div align="center">
   <a href="#readme-top">
-    <img src="https://i.imgur.com/B2AEZvK.png" alt="Projet DO2 Logo" width="500" />
+    <img src="https://i.imgur.com/B2AEZvK.png" alt="Projet DO2 Logo" width="600" />
   </a>
-
-  <h3>Configuration NixOS automatisée pour le Projet DO2</h3>
-  <p>
-    <img src="https://img.shields.io/badge/NixOS-25.11-5277C3?style=flat-square&logo=nixos&logoColor=white" />
-    <img src="https://img.shields.io/badge/Cinnamon-Français-4A86CF?style=flat-square&logo=linux&logoColor=white" />
-    <a href="https://github.com/SunSinD/Projet-DO2-NixOS/blob/main/LICENSE"><img src="https://img.shields.io/github/license/SunSinD/Projet-DO2-NixOS?style=flat-square" /></a>
-  </p>
-  <a href="https://sunSinD.github.io/Projet-DO2-NixOS"><strong>Site Web</strong></a>
 </div>
+
+<h1 align="center">Projet-DO2-NixOS</h1>
+<h3 align="center">2<sup>e</sup> Vie Pour Les Ordinateurs</h3>
+
+<div align="center">
+  <p align="center">
+    Configuration NixOS automatisée pour le Projet DO2 du Collège Montmorency.<br/>
+    Installation en une commande, prête à l'emploi.
+  </p>
+  <a href="https://sunSinD.github.io/Projet-DO2-NixOS"><strong>Site Web du Projet</strong></a>
+</div>
+
+<br/>
+
+---
+
+## À propos
+
+Le projet DO2 redonne vie à des ordinateurs usagés du Collège Montmorency pour les distribuer à des personnes dans le besoin.
+
+<br/>
+
+| | |
+|---|---|
+| **Distro** | NixOS 25.11 (Flake) |
+| **Bureau** | Cinnamon, interface en français |
+| **Installation** | Automatisée, 1 commande, ~10 min |
+
+<br/>
+
+---
+
+## Applications incluses
+
+<br/>
+
+| Application | Usage |
+|---|---|
+| Google Chrome | Navigateur web |
+| LibreOffice | Bureautique (Writer, Calc, Draw, Impress, Math, Base) |
+| Microsoft Teams | Messagerie et appels vidéo |
+| Outlook | Courriel Microsoft |
+| Zoom | Vidéoconférence |
+| Dialect | Traducteur |
+| GIMP | Éditeur d'images |
+| VLC | Lecteur multimédia |
+| Excalidraw | Dessin collaboratif |
+| Logithèque | Installation d'apps (Flatpak) |
+
+<br/>
 
 ---
 
 ## Installation
 
+<br/>
+
 **1.** Démarrer depuis la clé USB NixOS (ISO minimal). Appuyez sur `F12` au démarrage.
+
+> **Hint :** Si `F12` ne fonctionne pas, essayez `F10`, `F11` ou `Del`.
+
+<br/>
 
 **2.** Connectez-vous au réseau (tethering USB ou Wi-Fi).
 
-**3.** Lancez l'installation :
+<br/>
+
+**3.** Vérifiez la connexion :
+```bash
+nmcli device status
+```
+
+<br/>
+
+**4.** Lancez l'installation :
 ```bash
 sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/SunSinD/Projet-DO2-NixOS/main/install.sh)"
 ```
-
 Le script vous guide pour le reste. Durée : **5 à 15 minutes**.
 
-> Identifiants : `user` / `pass`
+<br/>
+
+> Identifiants par défaut — Utilisateur : `user` · Mot de passe : `pass`
+
+<br/>
 
 ---
 
 ## Mise à jour
+
+<br/>
 
 ```bash
 update-do2
 sudo reboot
 ```
 
----
-
-## Applications
-
-Chrome · LibreOffice · Teams · Outlook · Zoom · Dialect · GIMP · VLC · Excalidraw · Logithèque (Flatpak)
+<br/>
 
 ---
 
-*Collège Montmorency · 243-44A-MO · Hiver 2026*
+*Collège Montmorency · Département de technologie de génie électrique · 243-44A-MO · Hiver 2026*
