@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Setup bureau utilisateur - v8
+# Setup bureau utilisateur - v9
 set -euo pipefail
 
-SETUP_VERSION="8"
+SETUP_VERSION="9"
 MARKER="$HOME/.do2-setup-done"
 if [ -f "$MARKER" ]; then
   [ "$(cat "$MARKER" 2>/dev/null)" = "$SETUP_VERSION" ] && exit 0
@@ -109,11 +109,12 @@ for f in "$APPS_DIR"/*.desktop; do
 
   # LibreOffice Draw (toutes variantes de noms)
   case "$bname" in
-    *libreoffice*draw*|*LibreOffice*Draw*) should_hide=true ;;
+    *libreoffice*draw*|*LibreOffice*Draw*|*libreoffice*Draw*) should_hide=true ;;
   esac
 
-  # Icon browser (toutes variantes)
+  # LibreOffice Draw + Icon browser (par nom affiché)
   case "$name" in
+    *"LibreOffice Draw"*|*"libreoffice draw"*) should_hide=true ;;
     *"con"*"rowser"*|*"con"*"Browser"*) should_hide=true ;;
   esac
 

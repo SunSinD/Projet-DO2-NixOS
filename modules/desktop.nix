@@ -31,6 +31,11 @@
     AllowHybridSleep=no
   '';
 
+  # ── Arret/redemarrage rapide ────────────────────────────────────────────
+  systemd.extraConfig = ''
+    DefaultTimeoutStopSec=2s
+  '';
+
   # ── Audio (PipeWire) ────────────────────────────────────────────────────
   security.rtkit.enable = true;
   services.pipewire = {
@@ -110,7 +115,7 @@
         "org/cinnamon" = {
           panels-enabled = [ "1:0:bottom" ];
           panels-height  = [ "1:40" ];
-          favorite-apps  = [ "nemo.desktop" "cinnamon-settings.desktop" ];
+          favorite-apps  = [ "cinnamon-settings.desktop" "nemo.desktop" ];
           enabled-applets = [
             "panel1:left:0:menu@cinnamon.org:0"
             "panel1:left:1:grouped-window-list@cinnamon.org:2"
@@ -145,6 +150,12 @@
         };
         "org/cinnamon/theme" = {
           name = "Mint-Y-Dark-Aqua";
+        };
+
+        # Ecran de verrouillage
+        "org/cinnamon/desktop/screensaver" = {
+          lock-enabled = true;
+          lock-delay   = lib.gvariant.mkUint32 0;
         };
       };
     }];
