@@ -32,9 +32,7 @@
   '';
 
   # ── Arret/redemarrage rapide ────────────────────────────────────────────
-  systemd.extraConfig = ''
-    DefaultTimeoutStopSec=2s
-  '';
+  systemd.settings.Manager.DefaultTimeoutStopSec = "2s";
 
   # ── Audio (PipeWire) ────────────────────────────────────────────────────
   security.rtkit.enable = true;
