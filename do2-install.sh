@@ -17,10 +17,10 @@ cleanup() {
 trap cleanup EXIT
 
 echo ""
-echo "  ╔══════════════════════════════════════╗"
-echo "  ║   DO2 - Dons d'ordinateurs, 2e vie  ║"
-echo "  ║   Installation automatique NixOS     ║"
-echo "  ╚══════════════════════════════════════╝"
+echo "  ========================================"
+echo "    DO2 - Dons d'ordinateurs, 2e vie"
+echo "    Installation automatique NixOS"
+echo "  ========================================"
 echo ""
 
 sudo umount -lR /mnt 2>/dev/null || true
@@ -134,10 +134,10 @@ sudo mkdir -p /mnt/etc/nixos
 sudo cp -r "$WORK_DIR" /mnt/etc/nixos/config
 
 echo ""
-echo "  ╔══════════════════════════════════════╗"
-echo "  ║       Installation terminee!         ║"
-echo "  ║       Redemarrage en cours...        ║"
-echo "  ╚══════════════════════════════════════╝"
+echo "  ========================================"
+echo "      Installation terminee!"
+echo "      Redemarrage en cours..."
+echo "  ========================================"
 echo ""
 sleep 3
 sudo reboot
