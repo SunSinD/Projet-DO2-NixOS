@@ -42,6 +42,7 @@ in
     # Médias
     vlc
     gimp
+    obs-studio
 
     # Traducteur (Google Translate, DeepL, LibreTranslate)
     dialect
