@@ -26,9 +26,7 @@ echo ""
 sudo umount -lR /mnt 2>/dev/null || true
 sudo swapoff -a      2>/dev/null || true
 
-echo "  [1/6] Téléchargement de la configuration..."
-rm -rf "$WORK_DIR"
-git clone "$REPO_URL" "$WORK_DIR"
+echo "  [1/6] Preparation de la configuration..."
 cd "$WORK_DIR"
 
 # ── Sélection du disque ──────────────────────────────────────────────────

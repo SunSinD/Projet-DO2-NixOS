@@ -1,15 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Bootstrap léger : télécharge toujours le vrai installateur depuis main.
+# Bootstrap : clone le repo et lance le vrai installateur.
 # Utilisation depuis l'ISO NixOS Minimal :
 #   sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/SunSinD/Projet-DO2-NixOS/main/install.sh)"
 
-BASE="https://raw.githubusercontent.com/SunSinD/Projet-DO2-NixOS/main"
-TMP_INSTALL="$(mktemp)"
-cleanup_tmp() { rm -f "$TMP_INSTALL" 2>/dev/null || true; }
-trap cleanup_tmp EXIT
+REPO="https://github.com/SunSinD/Projet-DO2-NixOS.git"
+WORK="/tmp/do2config"
 
 echo "DO2 - telechargement du dernier installateur..."
-curl -fsSL "${BASE}/do2-install.sh" -o "$TMP_INSTALL"
-exec bash "$TMP_INSTALL"
+rm -rf "$WORK"
+git clone "$REPO" "$WORK"
+exec bash "$WORK/do2-install.sh"
