@@ -10,9 +10,8 @@
   services.xserver.displayManager.lightdm.enable   = lib.mkDefault true;
   services.xserver.desktopManager.cinnamon.enable   = lib.mkDefault true;
 
-  # Connexion automatique (session se charge pendant le boot)
-  services.displayManager.autoLogin.enable = true;
-  services.displayManager.autoLogin.user   = "user";
+  # Ecran de connexion LightDM (mot de passe visible immediatement)
+  services.displayManager.autoLogin.enable = false;
 
   # ── Exclure les apps Cinnamon inutiles ──────────────────────────────────
   environment.cinnamon.excludePackages = with pkgs; [
@@ -77,18 +76,6 @@
     ../config/config/cinnamon/spices + "/grouped-window-list@cinnamon.org/2.json";
   environment.etc."do2/config/cinnamon/spices/menu@cinnamon.org/0.json".source =
     ../config/config/cinnamon/spices + "/menu@cinnamon.org/0.json";
-
-  # Verrouiller l'ecran immediatement apres auto-login
-  environment.etc."xdg/autostart/do2-lock-screen.desktop".text = ''
-    [Desktop Entry]
-    Type=Application
-    Name=DO2 Lock Screen
-    Exec=cinnamon-screensaver-command --lock
-    Terminal=false
-    X-GNOME-Autostart-enabled=true
-    X-GNOME-Autostart-Phase=Initialization
-    NoDisplay=true
-  '';
 
   # Lancer la configuration utilisateur au login (autostart)
   environment.etc."xdg/autostart/do2-setup-user.desktop".text = ''
