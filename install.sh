@@ -3,7 +3,6 @@ set -euo pipefail
 
 # Bootstrap : clone le repo et lance le vrai installateur.
 # Utilisation depuis l'ISO NixOS Minimal :
-#   sudo bash -c "$(curl -fsSL https://raw.githubusercontent.com/SunSinD/Projet-DO2-NixOS/main/install.sh)"
 
 REPO="https://github.com/SunSinD/Projet-DO2-NixOS.git"
 WORK="/tmp/do2config"
