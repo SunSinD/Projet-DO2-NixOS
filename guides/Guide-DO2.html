@@ -8,193 +8,181 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Noto Sans', 'Liberation Sans', sans-serif;
-      background: linear-gradient(135deg, #2c3e50 0%, #1a5276 50%, #148f77 100%);
-      color: #2c3e50;
+      background: #1a1a1a;
+      color: #e0e0e0;
       min-height: 100vh;
       padding: 30px;
     }
     .container {
       max-width: 800px;
       margin: 0 auto;
-      background: #fff;
+      background: #242424;
       border-radius: 16px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
       padding: 40px;
     }
     .header {
       text-align: center;
       margin-bottom: 30px;
       padding-bottom: 20px;
-      border-bottom: 3px solid #a0c835;
+      border-bottom: 2px solid #3a3a3a;
     }
-    .header h1 { font-size: 28px; color: #2c3e50; margin-bottom: 8px; }
-    .header p { color: #7f8c8d; font-size: 14px; }
+    .header h1 { font-size: 28px; color: #ffffff; margin-bottom: 8px; }
+    .header p { color: #888; font-size: 14px; }
     h2 {
-      color: #1a5276;
+      color: #ffffff;
       font-size: 20px;
-      margin: 25px 0 12px;
+      margin: 30px 0 14px;
       padding-left: 12px;
-      border-left: 4px solid #a0c835;
+      border-left: 4px solid #888;
     }
-    p, li { font-size: 16px; line-height: 1.7; margin-bottom: 8px; }
+    p, li { font-size: 16px; line-height: 1.7; margin-bottom: 8px; color: #ccc; }
     ul, ol { padding-left: 24px; margin-bottom: 16px; }
+    li strong { color: #fff; }
     .app-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      gap: 10px;
       margin: 16px 0;
     }
     .app-card {
-      background: #f0f4f8;
+      background: #2e2e2e;
+      border: 1px solid #3a3a3a;
       border-radius: 10px;
-      padding: 14px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
+      padding: 14px 16px;
     }
-    .app-card .emoji { font-size: 28px; }
-    .app-card .info strong { display: block; font-size: 15px; }
-    .app-card .info span { font-size: 13px; color: #555; }
+    .app-card strong { display: block; font-size: 15px; color: #fff; }
+    .app-card span { font-size: 13px; color: #999; }
     .tip {
-      background: #e8f8f5;
-      border-left: 4px solid #1abc9c;
+      background: #2a2a2a;
+      border-left: 4px solid #888;
       border-radius: 8px;
       padding: 14px 18px;
       margin: 16px 0;
       font-size: 15px;
+      color: #ccc;
     }
+    .tip strong { color: #fff; }
     .warning {
-      background: #fef9e7;
-      border-left: 4px solid #f39c12;
+      background: #2a2a2a;
+      border-left: 4px solid #fff;
       border-radius: 8px;
       padding: 14px 18px;
       margin: 16px 0;
       font-size: 15px;
+      color: #ccc;
     }
+    .warning strong { color: #fff; }
     .footer {
       text-align: center;
       margin-top: 30px;
       padding-top: 20px;
-      border-top: 2px solid #ecf0f1;
-      color: #95a5a6;
+      border-top: 1px solid #3a3a3a;
+      color: #666;
       font-size: 13px;
     }
+    .footer a {
+      display: inline-block;
+      background: #333;
+      color: #fff;
+      text-decoration: none;
+      padding: 10px 24px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 14px;
+      border: 1px solid #555;
+    }
+    .footer a:hover { background: #444; }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <h1>Bienvenue sur votre ordinateur DO2!</h1>
-      <p>Dons d'ordinateurs, 2<sup>e</sup> vie - Collège Montmorency</p>
+      <h1>Bienvenue sur votre Ordinateur DO2!</h1>
+      <p>Dons d'Ordinateurs, 2<sup>e</sup> Vie — Collège Montmorency</p>
     </div>
 
-    <p>Cet ordinateur a été préparé spécialement pour vous. Il est <strong>prêt à utiliser</strong>, tout est déjà installé!</p>
+    <p>Cet ordinateur a été préparé spécialement pour vous. Il est <strong style="color:#fff;">prêt à utiliser</strong>, tout est déjà installé!</p>
 
-    <h2>Se connecter à l'ordinateur</h2>
+    <h2>Se Connecter à l'Ordinateur</h2>
     <p>L'ordinateur se connecte automatiquement. Si un mot de passe est demandé :</p>
     <div class="tip">
-      <strong>Mot de passe :</strong> <strong>pass</strong>
+      <strong>Mot de passe :</strong> pass
     </div>
 
-    <h2>Vos applications</h2>
+    <h2>Vos Applications</h2>
     <p>Voici les applications installées sur votre ordinateur :</p>
 
     <div class="app-grid">
       <div class="app-card">
-        <div class="info">
-          <strong>Google Chrome</strong>
-          <span>Navigateur Internet</span>
-        </div>
+        <strong>Google Chrome</strong>
+        <span>Navigateur Internet</span>
       </div>
       <div class="app-card">
-        <div class="info">
-          <strong>Microsoft Teams</strong>
-          <span>Messages et appels vidéo</span>
-        </div>
+        <strong>Microsoft Teams</strong>
+        <span>Messages et appels vidéo</span>
       </div>
       <div class="app-card">
-        <div class="info">
-          <strong>Outlook</strong>
-          <span>Courriel</span>
-        </div>
+        <strong>Outlook</strong>
+        <span>Courriel</span>
       </div>
       <div class="app-card">
-        <div class="info">
-          <strong>LibreOffice Writer</strong>
-          <span>Traitement de texte (comme Word)</span>
-        </div>
+        <strong>LibreOffice</strong>
+        <span>Suite bureautique complète</span>
       </div>
       <div class="app-card">
-        <div class="info">
-          <strong>LibreOffice Calc</strong>
-          <span>Tableur (comme Excel)</span>
-        </div>
+        <strong>Zoom</strong>
+        <span>Vidéoconférence</span>
       </div>
       <div class="app-card">
-        <div class="info">
-          <strong>Zoom</strong>
-          <span>Vidéoconférence</span>
-        </div>
+        <strong>Google Meet</strong>
+        <span>Vidéoconférence</span>
       </div>
       <div class="app-card">
-        <div class="info">
-          <strong>Dialect</strong>
-          <span>Traducteur de langues</span>
-        </div>
+        <strong>Dialect</strong>
+        <span>Traducteur de langues</span>
       </div>
       <div class="app-card">
-        <div class="info">
-          <strong>GIMP / VLC</strong>
-          <span>Images et vidéos</span>
-        </div>
+        <strong>GIMP / VLC</strong>
+        <span>Images et vidéos</span>
       </div>
       <div class="app-card">
-        <div class="info">
-          <strong>Google Meet</strong>
-          <span>Vidéoconférence</span>
-        </div>
+        <strong>Éditeur de Texte</strong>
+        <span>Bloc-notes</span>
       </div>
       <div class="app-card">
-        <div class="info">
-          <strong>Éditeur de texte</strong>
-          <span>Bloc-notes</span>
-        </div>
-      </div>
-      <div class="app-card">
-        <div class="info">
-          <strong>Capture d'écran</strong>
-          <span>Prendre une photo de l'écran</span>
-        </div>
+        <strong>Capture d'Écran</strong>
+        <span>Prendre une photo de l'écran</span>
       </div>
     </div>
 
-    <h2>Se connecter au Wi-Fi</h2>
+    <h2>Se Connecter au Wi-Fi</h2>
     <ol>
       <li>Regardez en <strong>bas à droite</strong> de votre écran.</li>
       <li>Cliquez sur l'<strong>icône de réseau</strong> (les petites barres).</li>
       <li>Choisissez votre <strong>réseau Wi-Fi</strong> dans la liste.</li>
-      <li>Entrez le <strong>mot de passe</strong> du Wi-Fi et cliquez "Connecter".</li>
+      <li>Entrez le <strong>mot de passe</strong> du Wi-Fi et cliquez <strong>"Connecter"</strong>.</li>
     </ol>
 
-    <h2>Changer votre nom et mot de passe</h2>
+    <h2>Changer votre Nom et Mot de Passe</h2>
     <p>Le nom d'utilisateur par défaut est <strong>"Utilisateur"</strong> et le mot de passe par défaut est <strong>"pass"</strong>.</p>
     <ol>
       <li>Cliquez sur le bouton <strong>"Menu"</strong> en bas à gauche.</li>
       <li>Tapez <strong>"Utilisateurs"</strong> dans la barre de recherche.</li>
-      <li>Cliquez sur <strong>"Utilisateurs et groupes"</strong>.</li>
+      <li>Cliquez sur <strong>"Utilisateurs et Groupes"</strong>.</li>
       <li>Cliquez sur <strong>"Utilisateur"</strong> dans la liste.</li>
       <li>Pour changer le nom : cliquez sur <strong>"Utilisateur"</strong> et tapez le nouveau nom.</li>
-      <li>Pour changer le mot de passe : cliquez sur <strong>"Mot de passe"</strong>, entrez <strong>"pass"</strong> comme ancien mot de passe, puis tapez votre nouveau mot de passe et confirmez.</li>
+      <li>Pour changer le mot de passe : cliquez sur <strong>"Mot de Passe"</strong>, entrez <strong>"pass"</strong> comme ancien mot de passe, puis tapez votre nouveau mot de passe et confirmez.</li>
     </ol>
 
     <div class="tip">
-      <strong>Astuce :</strong> Le mot de passe actuel est <strong>"pass"</strong>. Nous vous recommandons de le changer.
+      <strong>Astuce :</strong> Nous vous recommandons de changer le mot de passe.
     </div>
 
-    <h2>Installer de nouvelles applications</h2>
+    <h2>Installer de Nouvelles Applications</h2>
     <ol>
       <li>Cliquez sur le bouton <strong>"Menu"</strong> en bas à gauche.</li>
-      <li>Cherchez <strong>"Logithèque"</strong> (ou "Software").</li>
+      <li>Cherchez <strong>"Logithèque"</strong>.</li>
       <li>Parcourez ou cherchez l'application souhaitée.</li>
       <li>Cliquez sur <strong>"Installer"</strong>.</li>
     </ol>
@@ -203,7 +191,7 @@
       <strong>Astuce :</strong> Toutes les applications de la Logithèque sont <strong>gratuites</strong> et sécuritaires.
     </div>
 
-    <h2>Utiliser le traducteur</h2>
+    <h2>Utiliser le Traducteur</h2>
     <ol>
       <li>Ouvrez <strong>Dialect</strong> depuis le menu.</li>
       <li>Choisissez la <strong>langue source</strong> (votre langue) à gauche.</li>
@@ -212,33 +200,32 @@
       <li>La traduction apparaît automatiquement!</li>
     </ol>
 
-    <h2>Utiliser Microsoft Office en ligne</h2>
-    <p>Vous avez <strong>LibreOffice</strong> sur votre bureau (Writer = Word, Calc = Excel). Si vous avez besoin de Microsoft Office :</p>
+    <h2>Guide LibreOffice</h2>
+    <p>LibreOffice est la suite bureautique installée sur votre ordinateur :</p>
+    <ul>
+      <li><strong>Writer</strong> — Traitement de texte. Pour écrire des lettres, rapports, CV.</li>
+      <li><strong>Calc</strong> — Tableur. Pour faire des calculs, tableaux, graphiques.</li>
+      <li><strong>Impress</strong> — Présentations. Pour créer des diaporamas.</li>
+      <li><strong>Draw</strong> — Dessin et schémas.</li>
+      <li><strong>Math</strong> — Éditeur de formules mathématiques.</li>
+      <li><strong>Base</strong> — Base de données.</li>
+    </ul>
+    <p>Pour ouvrir LibreOffice, cliquez sur le bouton <strong>"Menu"</strong> en bas à gauche et cherchez son nom.</p>
+    <div class="tip">
+      <strong>Astuce :</strong> Les fichiers .docx, .xlsx et .pptx s'ouvrent directement dans LibreOffice.
+    </div>
+
+    <h2>Utiliser Microsoft Office en Ligne</h2>
     <ol>
       <li>Ouvrez <strong>Google Chrome</strong>.</li>
       <li>Allez à <strong>office.com</strong>.</li>
       <li>Connectez-vous avec votre compte Microsoft.</li>
     </ol>
 
-    <h2>Guide LibreOffice</h2>
-    <p>LibreOffice est la suite bureautique installée sur votre ordinateur. Voici les applications :</p>
-    <ul>
-      <li><strong>Writer</strong> — Traitement de texte (comme Microsoft Word). Pour écrire des lettres, rapports, CV.</li>
-      <li><strong>Calc</strong> — Tableur (comme Microsoft Excel). Pour faire des calculs, tableaux, graphiques.</li>
-      <li><strong>Impress</strong> — Présentations (comme Microsoft PowerPoint). Pour créer des diaporamas.</li>
-      <li><strong>Draw</strong> — Dessin et schémas. Pour créer des affiches, des plans.</li>
-      <li><strong>Math</strong> — Éditeur de formules mathématiques.</li>
-      <li><strong>Base</strong> — Base de données (comme Microsoft Access).</li>
-    </ul>
-    <p>Pour ouvrir une application LibreOffice, cliquez sur le bouton <strong>"Menu"</strong> en bas à gauche et cherchez son nom.</p>
-    <div class="tip">
-      <strong>Astuce :</strong> Les fichiers Word (.docx), Excel (.xlsx) et PowerPoint (.pptx) s'ouvrent directement dans LibreOffice.
-    </div>
-
-    <h2>Redémarrer l'ordinateur</h2>
+    <h2>Redémarrer l'Ordinateur</h2>
     <ol>
       <li>Cliquez sur le bouton <strong>"Menu"</strong> en bas à gauche.</li>
-      <li>Cliquez sur l'icône <strong>d'arrêt</strong> (en bas du menu).</li>
+      <li>Cliquez sur l'icône <strong>d'arrêt</strong> (en haut du menu).</li>
       <li>Choisissez <strong>"Redémarrer"</strong> ou <strong>"Éteindre"</strong>.</li>
     </ol>
 
@@ -248,13 +235,11 @@
 
     <div class="footer">
       <p style="margin-bottom: 12px;">
-        <a href="https://sunsind.github.io/Projet-DO2-NixOS" target="_blank"
-           style="display:inline-block; background:#1a5276; color:#fff; text-decoration:none;
-                  padding:10px 24px; border-radius:8px; font-weight:bold; font-size:14px;">
+        <a href="https://sunsind.github.io/Projet-DO2-NixOS" target="_blank">
           Site Web du Projet DO2
         </a>
       </p>
-      <p><strong>DO2 - Dons d'ordinateurs, 2<sup>e</sup> vie</strong></p>
+      <p><strong style="color:#aaa;">DO2 — Dons d'Ordinateurs, 2<sup>e</sup> Vie</strong></p>
       <p>Collège Montmorency</p>
     </div>
   </div>
