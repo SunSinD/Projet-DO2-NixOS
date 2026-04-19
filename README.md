@@ -56,9 +56,13 @@ Le projet DO2 redonne vie à des ordinateurs usagés du Collège Montmorency pou
 | Microsoft Teams | Messagerie et appels vidéo |
 | Outlook | Courriel Microsoft |
 | Zoom | Vidéoconférence |
+| Google Meet | Vidéoconférence |
 | Dialect | Traducteur |
 | GIMP | Éditeur d'images |
 | VLC | Lecteur multimédia |
+| OBS Studio | Enregistrement vidéo |
+| Éditeur de texte | Bloc-notes |
+| Capture d'écran | Capture d'écran |
 | Excalidraw | Dessin collaboratif |
 | Logithèque | Installation d'apps (Flatpak) |
 
