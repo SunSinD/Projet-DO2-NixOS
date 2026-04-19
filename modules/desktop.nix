@@ -8,6 +8,7 @@
   services.xserver.xkb.variant = "";
 
   services.xserver.displayManager.lightdm.enable   = lib.mkDefault true;
+  services.xserver.displayManager.lightdm.background = "#000000";
   services.xserver.desktopManager.cinnamon.enable   = lib.mkDefault true;
 
   # Auto-login (Cinnamon se charge pendant le boot = bureau instantane)
