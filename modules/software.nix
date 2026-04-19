@@ -1,5 +1,5 @@
 # Applications pre-installees, applications web, Flatpak, logitheque.
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 let
   # Chrome avec les bons drapeaux (pas de popup de trousseau ni de premier lancement)
@@ -58,6 +58,15 @@ in
     libnotify
     gawk
     sudo
+
+    # Shutdown/reboot instantane (remplace cinnamon-session-quit)
+    (lib.hiPrio (pkgs.writeShellScriptBin "cinnamon-session-quit" ''
+      case "$*" in
+        *--power-off*) exec systemctl poweroff ;;
+        *--reboot*)    exec systemctl reboot ;;
+        *) exec /run/current-system/sw/lib/cinnamon-session/cinnamon-session-quit "$@" ;;
+      esac
+    ''))
 
     # Portails XDG (intégration Flatpak / fichiers)
     xdg-desktop-portal
