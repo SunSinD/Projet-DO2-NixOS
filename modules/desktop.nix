@@ -95,7 +95,7 @@
     [Desktop Entry]
     Type=Application
     Name=DO2 Lock Screen
-    Exec=bash -c "sleep 1 && cinnamon-screensaver-command --lock"
+    Exec=cinnamon-screensaver-command --lock
     Terminal=false
     X-GNOME-Autostart-enabled=true
     X-GNOME-Autostart-Phase=Initialization
@@ -158,9 +158,12 @@
           show-desktop-icons = true;
         };
 
-        # Pas d'ecran de veille agressif
+        # Session : pas de delai pour shutdown/reboot/logout
         "org/cinnamon/desktop/session" = {
-          idle-delay = lib.gvariant.mkUint32 900;
+          idle-delay  = lib.gvariant.mkUint32 900;
+        };
+        "org/gnome/SessionManager" = {
+          logout-prompt = false;
         };
 
         # Performances : desactiver les animations pour fluidite
