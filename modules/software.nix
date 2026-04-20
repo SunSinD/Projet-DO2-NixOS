@@ -119,6 +119,7 @@ in
 
   # ── Flatpak (pour que les utilisateurs puissent installer des apps) ────
   services.flatpak.enable = true;
+  services.packagekit.enable = true;
   xdg.portal.enable       = true;
 
   # Ajouter le dépôt Flathub automatiquement
