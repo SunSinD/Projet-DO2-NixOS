@@ -165,9 +165,12 @@
       rm -f "$HOME/.do2-setup-done"
 
       # Forcer la mise à jour du cache des polices (contournement pour Qt6/GoldenDict-ng)
-      echo "[5/5] Rafraîchissement du cache des polices..."
+      echo "[5/6] Rafraîchissement du cache des polices..."
       fc-cache -f -v >/dev/null || true
       sudo fc-cache -f -v >/dev/null || true
+
+      echo "[6/6] Installation de GoldenDict (Flatpak)..."
+      sudo flatpak install -y flathub io.github.xiaoyifang.goldendict_ng || true
 
       echo "=== Mise à jour terminée! ==="
       echo "Redémarrez pour voir les changements : sudo reboot"

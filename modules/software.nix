@@ -53,7 +53,8 @@ in
 
     # Traducteur (Google Translate, DeepL, LibreTranslate)
     dialect
-    goldendict-ng         # Dictionnaire multilingue hors ligne (Qt6)
+    # Note : GoldenDict-ng est maintenant installé via Flatpak (voir bas du fichier)
+    # pour éviter le bogue des polices Qt6 (carrés) sur NixOS.
 
     # Utilitaires
     yad                   # Dialogues graphiques (bienvenue, scripts)
@@ -133,11 +134,13 @@ in
   # ── TeamViewer (daemon nécessaire pour fonctionner) ─────────────────────
   services.teamviewer.enable = true;
 
-  # Ajouter le dépôt Flathub automatiquement
+  # Ajouter le dépôt Flathub et installer GoldenDict automatiquement
   systemd.services.flatpak-setup-flathub = {
     script = ''
       ${pkgs.flatpak}/bin/flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
       ${pkgs.flatpak}/bin/flatpak update --appstream 2>/dev/null || true
+      # Installer GoldenDict-ng via Flatpak pour éviter le bogue des polices Qt6 sur NixOS
+      ${pkgs.flatpak}/bin/flatpak install -y flathub io.github.xiaoyifang.goldendict_ng || true
     '';
     serviceConfig = {
       Type            = "oneshot";
