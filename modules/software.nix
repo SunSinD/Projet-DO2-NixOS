@@ -20,7 +20,7 @@ in
   environment.variables = {
     SAL_USE_VCLPLUGIN = "gtk3";
     LANGUAGE          = "fr_CA:fr";
-    ANKI_LANG = "fr_CA";
+    ANKI_LANG         = "fr_CA";
   };
 
   # ── Icônes pour les applications web ────────────────────────────────────
@@ -52,9 +52,6 @@ in
     gimp
     obs-studio
     audacity
-
-    # Dictionnaire hors ligne (natif — disponible dès le premier démarrage)
-    goldendict-ng
 
     # Traducteur (Google Translate, DeepL, LibreTranslate)
     dialect
@@ -138,10 +135,12 @@ in
   # ── TeamViewer (daemon nécessaire pour fonctionner) ─────────────────────
   services.teamviewer.enable = true;
 
-  # Ajouter Flathub au démarrage réseau (pour que les utilisateurs puissent installer des apps)
+  # Installer GoldenDict via Flatpak au premier démarrage réseau
   systemd.services.flatpak-setup-flathub = {
     script = ''
       ${pkgs.flatpak}/bin/flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo || true
+      ${pkgs.flatpak}/bin/flatpak install -y flathub io.github.xiaoyifang.goldendict_ng || true
+      ${pkgs.flatpak}/bin/flatpak override --system --env=QT_QPA_PLATFORMTHEME= io.github.xiaoyifang.goldendict_ng || true
     '';
     serviceConfig = {
       Type            = "oneshot";
