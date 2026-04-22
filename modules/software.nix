@@ -33,28 +33,35 @@ in
   environment.systemPackages = with pkgs; [
     # Navigateur
     chrome
+    firefox               # Navigateur léger alternatif
 
     # Bureautique
     libreoffice-still
+    anki                  # Cartes mémoire (flashcards)
+    xournalpp             # Annotation PDF / prise de notes
 
     # Communication
     zoom-us
+    teamviewer            # Contrôle à distance / support technique
 
     # Médias
     vlc
     gimp
     obs-studio
+    audacity              # Édition audio
 
     # Traducteur (Google Translate, DeepL, LibreTranslate)
     dialect
+    goldendict-ng         # Dictionnaire multilingue hors ligne
 
     # Utilitaires
     yad                   # Dialogues graphiques (bienvenue, scripts)
     gnome-calculator
-    gnome-screenshot
+    flameshot             # Capture d'écran avancée
     xed-editor            # Éditeur de texte (Bloc-notes)
     system-config-printer
     gnome-software        # Logithèque pour installer des apps via GUI
+    qbittorrent           # Client torrent
     libnotify
     gawk
     sudo

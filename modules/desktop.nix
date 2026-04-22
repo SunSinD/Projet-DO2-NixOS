@@ -101,7 +101,7 @@
     [Desktop Entry]
     Type=Application
     Name=DO2 Lock Screen
-    Exec=bash -c "while ! cinnamon-screensaver-command --lock 2>/dev/null; do sleep 0.1; done"
+    Exec=bash -c "sleep 0.5 && cinnamon-screensaver-command --lock"
     Terminal=false
     X-GNOME-Autostart-enabled=true
     NoDisplay=true
