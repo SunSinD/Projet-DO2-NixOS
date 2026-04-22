@@ -54,22 +54,8 @@ in
     # Traducteur (Google Translate, DeepL, LibreTranslate)
     dialect
     
-    # ── GoldenDict-ng (Enveloppé pour corriger les polices Qt6) ────────────
-    # Désactive le bac à sable WebEngine et force le chemin des polices pour
-    # éviter le fameux bogue des "carrés" sous X11/Cinnamon.
-    (pkgs.symlinkJoin {
-      name = "goldendict-ng-wrapped";
-      paths = [ pkgs.goldendict-ng ];
-      buildInputs = [ pkgs.makeWrapper ];
-      postBuild = ''
-        wrapProgram $out/bin/goldendict \
-          --set QTWEBENGINE_DISABLE_SANDBOX "1" \
-          --set FONTCONFIG_FILE "/etc/fonts/fonts.conf" \
-          --set FONTCONFIG_PATH "/etc/fonts" \
-          --set QT_QPA_PLATFORM "xcb" \
-          --set QT_STYLE_OVERRIDE "adwaita-dark"
-      '';
-    })
+    # Note : GoldenDict-ng est installé via Flatpak (voir bas du fichier)
+    # pour garantir un affichage parfait (sans les carrés) sous Cinnamon.
 
     # Utilitaires
     yad                   # Dialogues graphiques (bienvenue, scripts)
@@ -142,7 +128,7 @@ in
     (makeDesktopItem {
       name        = "io.github.xiaoyifang.goldendict_ng";
       desktopName = "Dictionnaire (GoldenDict)";
-      exec        = "goldendict %U";
+      exec        = "/run/current-system/sw/bin/flatpak run io.github.xiaoyifang.goldendict_ng %U";
       icon        = "io.github.xiaoyifang.goldendict_ng";
       categories  = [ "Office" "Dictionary" ];
       comment     = "Dictionnaire multilingue hors ligne";
@@ -161,15 +147,29 @@ in
   # ── TeamViewer (daemon nécessaire pour fonctionner) ─────────────────────
   services.teamviewer.enable = true;
 
-  # Ajouter le dépôt Flathub automatiquement
+  # Ajouter le dépôt Flathub et installer GoldenDict automatiquement en arrière-plan
   systemd.services.flatpak-setup-flathub = {
     script = ''
-      ${pkgs.flatpak}/bin/flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+      # Boucle infinie jusqu'à ce qu'Internet soit disponible et que la commande réussisse
+      until ${pkgs.flatpak}/bin/flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo; do
+        sleep 10
+      done
+      
       ${pkgs.flatpak}/bin/flatpak update --appstream 2>/dev/null || true
+      
+      # Boucle infinie jusqu'à ce que GoldenDict soit installé avec succès
+      until ${pkgs.flatpak}/bin/flatpak install -y --system flathub io.github.xiaoyifang.goldendict_ng; do
+        sleep 10
+      done
+      
+      # Forcer le mode sombre pour GoldenDict-ng (Flatpak Qt6)
+      ${pkgs.flatpak}/bin/flatpak override --system --env=QT_STYLE_OVERRIDE=Adwaita-Dark io.github.xiaoyifang.goldendict_ng || true
+      
+      # Retirer la catégorie "Education"
+      sed -i 's/Education;//g' /var/lib/flatpak/exports/share/applications/io.github.xiaoyifang.goldendict_ng.desktop 2>/dev/null || true
     '';
     serviceConfig = {
-      Type            = "oneshot";
-      RemainAfterExit = true;
+      Type = "simple";
     };
     wantedBy = [ "multi-user.target" ];
   };
