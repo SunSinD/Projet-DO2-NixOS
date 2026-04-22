@@ -93,9 +93,9 @@
   };
 
   nixpkgs.config.allowUnfree = true;
-  # Correctif pour broadcom-sta et qtwebkit (requis par goldendict stable)
+  # Correctif pour broadcom-sta (certains vieux portables)
   nixpkgs.config.allowInsecurePredicate =
-    pkg: builtins.elem (lib.getName pkg) [ "broadcom-sta" "qtwebkit" ];
+    pkg: builtins.elem (lib.getName pkg) [ "broadcom-sta" ];
 
   # ── Git (pour mises à jour de la config) ────────────────────────────────
   programs.git = {

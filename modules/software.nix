@@ -53,7 +53,7 @@ in
 
     # Traducteur (Google Translate, DeepL, LibreTranslate)
     dialect
-    goldendict            # Dictionnaire multilingue hors ligne (version stable Qt5)
+    goldendict-ng         # Dictionnaire multilingue hors ligne (Qt6)
 
     # Utilitaires
     yad                   # Dialogues graphiques (bienvenue, scripts)
