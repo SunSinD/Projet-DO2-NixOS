@@ -53,7 +53,23 @@ in
 
     # Traducteur (Google Translate, DeepL, LibreTranslate)
     dialect
-    stardict              # Dictionnaire multilingue hors ligne (remplace GoldenDict pour éviter le bogue Qt6)
+    
+    # ── GoldenDict-ng (Enveloppé pour corriger les polices Qt6) ────────────
+    # Désactive le bac à sable WebEngine et force le chemin des polices pour
+    # éviter le fameux bogue des "carrés" sous X11/Cinnamon.
+    (pkgs.symlinkJoin {
+      name = "goldendict-ng-wrapped";
+      paths = [ pkgs.goldendict-ng ];
+      buildInputs = [ pkgs.makeWrapper ];
+      postBuild = ''
+        wrapProgram $out/bin/goldendict \
+          --set QTWEBENGINE_DISABLE_SANDBOX "1" \
+          --set FONTCONFIG_FILE "/etc/fonts/fonts.conf" \
+          --set FONTCONFIG_PATH "/etc/fonts" \
+          --set QT_QPA_PLATFORM "xcb" \
+          --set QT_STYLE_OVERRIDE "adwaita-dark"
+      '';
+    })
 
     # Utilitaires
     yad                   # Dialogues graphiques (bienvenue, scripts)
@@ -122,12 +138,12 @@ in
       type         = "Application";
     })
 
-    # Renommer StarDict en "Dictionnaire" pour que ce soit clair pour les utilisateurs
+    # Renommer GoldenDict-ng en "Dictionnaire" et cacher la catégorie Éducation
     (makeDesktopItem {
-      name        = "stardict";
-      desktopName = "Dictionnaire (StarDict)";
-      exec        = "${stardict}/bin/stardict";
-      icon        = "stardict";
+      name        = "io.github.xiaoyifang.goldendict_ng";
+      desktopName = "Dictionnaire (GoldenDict)";
+      exec        = "goldendict %U";
+      icon        = "io.github.xiaoyifang.goldendict_ng";
       categories  = [ "Office" "Dictionary" ];
       comment     = "Dictionnaire multilingue hors ligne";
     })
