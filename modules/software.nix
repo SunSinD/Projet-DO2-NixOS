@@ -150,8 +150,21 @@ in
   # Ajouter le dépôt Flathub et installer GoldenDict automatiquement en arrière-plan
   systemd.services.flatpak-setup-flathub = {
     script = ''
-      # 1. Attendre qu'Internet soit VRAIMENT connecté (Ping Google DNS)
-      while ! ${pkgs.iputils}/bin/ping -c 1 -W 2 8.8.8.8 >/dev/null 2>&1; do
+      # 0. Créer un raccourci temporaire visuel pour rassurer l'utilisateur
+      mkdir -p /home/user/.local/share/applications
+      cat > /home/user/.local/share/applications/goldendict-installing.desktop <<EOF
+[Desktop Entry]
+Name=Dictionnaire (Téléchargement en cours...)
+Exec=${pkgs.yad}/bin/yad --info --title="Installation" --text="GoldenDict est en train d'être téléchargé en arrière-plan.\\n\\nUne fois terminé, la vraie application apparaîtra ici." --button=OK:0
+Icon=system-run
+Type=Application
+Categories=Office;Dictionary;
+EOF
+      chown -R user:users /home/user/.local
+      touch /home/user/.local/share/applications
+
+      # 1. Attendre qu'Internet soit VRAIMENT connecté (Vérification HTTP directe vers Flathub pour éviter les blocages Ping/ICMP)
+      while ! ${pkgs.curl}/bin/curl -s -m 5 https://dl.flathub.org >/dev/null; do
         sleep 5
       done
       
@@ -168,7 +181,11 @@ in
         sleep 5
       done
       
-      # 5. Appliquer les corrections (Mode sombre + Renommer le raccourci)
+      # 5. Supprimer le raccourci temporaire
+      rm -f /home/user/.local/share/applications/goldendict-installing.desktop
+      touch /home/user/.local/share/applications
+
+      # 6. Appliquer les corrections (Mode sombre + Renommer le raccourci)
       ${pkgs.flatpak}/bin/flatpak override --system --env=QT_STYLE_OVERRIDE=Adwaita-Dark io.github.xiaoyifang.goldendict_ng || true
       
       DESKTOP_FILE="/var/lib/flatpak/exports/share/applications/io.github.xiaoyifang.goldendict_ng.desktop"
@@ -177,7 +194,7 @@ in
         sed -i 's/Education;//g' "$DESKTOP_FILE"
       fi
       
-      # 6. Forcer Cinnamon à rafraîchir le menu instantanément
+      # 7. Forcer Cinnamon à rafraîchir le menu instantanément
       touch /var/lib/flatpak/exports/share/applications || true
       ${pkgs.desktop-file-utils}/bin/update-desktop-database /var/lib/flatpak/exports/share/applications || true
     '';
