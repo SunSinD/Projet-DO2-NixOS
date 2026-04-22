@@ -53,20 +53,6 @@ in
 
     # Traducteur (Google Translate, DeepL, LibreTranslate)
     dialect
-    # Dictionnaire multilingue hors ligne (Version Native Qt6 - Polices réparées)
-    (symlinkJoin {
-      name = "goldendict-custom";
-      paths = [ goldendict-ng ];
-      postBuild = ''
-        if [ -f $out/share/applications/io.github.xiaoyifang.goldendict_ng.desktop ]; then
-          rm $out/share/applications/io.github.xiaoyifang.goldendict_ng.desktop
-          cp ${goldendict-ng}/share/applications/io.github.xiaoyifang.goldendict_ng.desktop $out/share/applications/
-          sed -i 's/Name\[fr\]=.*/Name[fr]=Dictionnaire (GoldenDict)/g' $out/share/applications/io.github.xiaoyifang.goldendict_ng.desktop
-          sed -i 's/Name=.*/Name=Dictionnaire (GoldenDict)/g' $out/share/applications/io.github.xiaoyifang.goldendict_ng.desktop
-          sed -i 's/Education;//g' $out/share/applications/io.github.xiaoyifang.goldendict_ng.desktop
-        fi
-      '';
-    })
 
     # Utilitaires
     yad                   # Dialogues graphiques (bienvenue, scripts)
@@ -158,16 +144,34 @@ in
   # ── TeamViewer (daemon nécessaire pour fonctionner) ─────────────────────
   services.teamviewer.enable = true;
 
-  # Ajouter le dépôt Flathub automatiquement
+  # Service d'installation automatique de GoldenDict via Flatpak (seule méthode stable)
   systemd.services.flatpak-setup-flathub = {
     script = ''
+      # Ajouter flathub
       ${pkgs.flatpak}/bin/flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo || true
+      
+      # Installer GoldenDict-ng (ignore l'erreur si hors ligne)
+      ${pkgs.flatpak}/bin/flatpak install -y flathub io.github.xiaoyifang.goldendict_ng || true
+      
+      # Nettoyer les vieux raccourcis fantômes
+      rm -f /home/user/.local/share/applications/*goldendict*.desktop || true
+      rm -f /home/user/.local/share/applications/*xiaoyifang*.desktop || true
+
+      # Renommer le fichier desktop système pour unifier l'apparence
+      DESKTOP_FILE="/var/lib/flatpak/exports/share/applications/io.github.xiaoyifang.goldendict_ng.desktop"
+      if [ -f "$DESKTOP_FILE" ]; then
+        sed -i '/^Name/d' "$DESKTOP_FILE"
+        echo "Name=Dictionnaire (GoldenDict)" >> "$DESKTOP_FILE"
+        sed -i 's/Education;//g' "$DESKTOP_FILE"
+      fi
     '';
     serviceConfig = {
       Type            = "oneshot";
       RemainAfterExit = true;
     };
     wantedBy = [ "multi-user.target" ];
+    after = [ "network-online.target" ];
+    wants = [ "network-online.target" ];
   };
 
   # ── Associations de fichiers par défaut ─────────────────────────────────
