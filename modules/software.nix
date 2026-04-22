@@ -18,8 +18,8 @@ in
 {
   # ── Variables d'environnement ───────────────────────────────────────────
   environment.variables = {
-    SAL_USE_VCLPLUGIN     = "gtk3";
-    LANGUAGE              = "fr_CA:fr";
+    SAL_USE_VCLPLUGIN = "gtk3";
+    LANGUAGE          = "fr_CA:fr";
   };
 
   # ── Icônes pour les applications web ────────────────────────────────────
@@ -34,39 +34,42 @@ in
   environment.systemPackages = with pkgs; [
     # Navigateur
     chrome
-    firefox               # Navigateur léger alternatif
+    firefox
 
     # Bureautique
     libreoffice-still
-    anki                  # Cartes mémoire (flashcards)
-    xournalpp             # Annotation PDF / prise de notes
+    anki
+    xournalpp
 
     # Communication
     zoom-us
-    teamviewer            # Contrôle à distance / support technique
+    teamviewer
 
     # Médias
     vlc
     gimp
     obs-studio
-    audacity              # Édition audio
+    audacity
+
+    # Dictionnaire hors ligne (natif — disponible dès le premier démarrage)
+    goldendict-ng
 
     # Traducteur (Google Translate, DeepL, LibreTranslate)
     dialect
 
     # Utilitaires
-    yad                   # Dialogues graphiques (bienvenue, scripts)
+    yad
     gnome-calculator
-    flameshot             # Capture d'écran avancée
-    xed-editor            # Éditeur de texte (Bloc-notes)
+    flameshot
+    xed-editor
     system-config-printer
-    gnome-software        # Logiciels pour installer des apps via GUI
-    qbittorrent           # Client torrent
+    gnome-software
+    qbittorrent
     libnotify
     gawk
     sudo
 
-    # Shutdown/reboot instantane (remplace cinnamon-session-quit)
+    # Shutdown/reboot instantané (remplace cinnamon-session-quit)
     (lib.hiPrio (pkgs.writeShellScriptBin "cinnamon-session-quit" ''
       case "$*" in
         *--power-off*) ${pkgs.kbd}/bin/chvt 1; exec systemctl poweroff ;;
@@ -74,8 +77,6 @@ in
         *) exec /run/current-system/sw/lib/cinnamon-session/cinnamon-session-quit "$@" ;;
       esac
     ''))
-
-    # Portails XDG gérés via xdg.portal plus bas
 
     # ── Applications web (raccourcis Chrome) ────────────────────────────
     (makeDesktopItem {
@@ -120,20 +121,11 @@ in
       noDisplay    = true;
       type         = "Application";
     })
-
-    # Gestionnaire de lien zoommtg://
-    (makeDesktopItem {
-      name         = "zoommtg-handler";
-      desktopName  = "Zoom URI Handler";
-      exec         = "${zoom-us}/bin/zoom-us %u";
-      mimeTypes    = [ "x-scheme-handler/zoommtg" "x-scheme-handler/zoomus" ];
-      noDisplay    = true;
-      type         = "Application";
-    })
   ];
 
   # ── Flatpak (pour que les utilisateurs puissent installer des apps) ────
   services.flatpak.enable = true;
+
   # ── Portails XDG (requis pour Flatpak et dialogues de fichiers) ─────────
   xdg.portal = {
     enable       = true;
@@ -144,37 +136,18 @@ in
   # ── TeamViewer (daemon nécessaire pour fonctionner) ─────────────────────
   services.teamviewer.enable = true;
 
-  # Service d'installation automatique de GoldenDict via Flatpak (seule méthode stable)
+  # Ajouter Flathub au démarrage réseau (pour que les utilisateurs puissent installer des apps)
   systemd.services.flatpak-setup-flathub = {
     script = ''
-      # Ajouter flathub
       ${pkgs.flatpak}/bin/flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo || true
-      
-      # Installer GoldenDict-ng (ignore l'erreur si hors ligne)
-      ${pkgs.flatpak}/bin/flatpak install -y flathub io.github.xiaoyifang.goldendict_ng || true
-      
-      # Nettoyer les vieux raccourcis fantômes
-      rm -f /home/user/.local/share/applications/*goldendict*.desktop || true
-      rm -f /home/user/.local/share/applications/*xiaoyifang*.desktop || true
-
-      # Renommer le fichier desktop système pour unifier l'apparence
-      DESKTOP_FILE="/var/lib/flatpak/exports/share/applications/io.github.xiaoyifang.goldendict_ng.desktop"
-      if [ -f "$DESKTOP_FILE" ]; then
-        sed -i '/^Name/d' "$DESKTOP_FILE"
-        echo "Name=Dictionnaire (GoldenDict)" >> "$DESKTOP_FILE"
-        sed -i 's/Education;//g' "$DESKTOP_FILE"
-      fi
-
-      # Forcer le mode sombre pour GoldenDict via Flatpak
-      ${pkgs.flatpak}/bin/flatpak override --system --env=QT_STYLE_OVERRIDE=Adwaita-Dark io.github.xiaoyifang.goldendict_ng || true
     '';
     serviceConfig = {
       Type            = "oneshot";
       RemainAfterExit = true;
     };
     wantedBy = [ "multi-user.target" ];
-    after = [ "network-online.target" ];
-    wants = [ "network-online.target" ];
+    after    = [ "network-online.target" ];
+    wants    = [ "network-online.target" ];
   };
 
   # ── Associations de fichiers par défaut ─────────────────────────────────
