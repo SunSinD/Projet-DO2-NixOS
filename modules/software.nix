@@ -176,6 +176,10 @@ in
         sed -i 's/Name=GoldenDict-ng/Name=Dictionnaire (GoldenDict)/g' "$DESKTOP_FILE"
         sed -i 's/Education;//g' "$DESKTOP_FILE"
       fi
+      
+      # 6. Forcer Cinnamon à rafraîchir le menu instantanément
+      touch /var/lib/flatpak/exports/share/applications || true
+      ${pkgs.desktop-file-utils}/bin/update-desktop-database /var/lib/flatpak/exports/share/applications || true
     '';
     serviceConfig = {
       Type = "simple";
