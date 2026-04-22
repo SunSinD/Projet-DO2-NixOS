@@ -210,11 +210,4 @@
       monospace = [ "Noto Sans Mono" "DejaVu Sans Mono" ];
     };
   };
-
-  # ── Intégration Qt (polices et thème pour GoldenDict, qBittorrent, Anki)
-  qt = {
-    enable        = true;
-    platformTheme = "gtk2";
-    style         = "gtk2";
-  };
 }
