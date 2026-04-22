@@ -33,6 +33,7 @@ in
   # ── Paquets système ─────────────────────────────────────────────────────
   environment.systemPackages = with pkgs; [
     # Navigateur
+    pkgs.adwaita-qt
     chrome
     firefox
 
