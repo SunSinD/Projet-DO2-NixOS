@@ -63,7 +63,6 @@ in
     system-config-printer
     gnome-software        # Logiciels pour installer des apps via GUI
     qbittorrent           # Client torrent
-    libsForQt5.qtstyleplugins  # Qt5 → thème GTK (polices système)
     libnotify
     gawk
     sudo

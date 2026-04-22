@@ -201,12 +201,20 @@
       noto-fonts-cjk-serif
       noto-fonts-color-emoji
       liberation_ttf
+      dejavu_fonts
     ];
     fontDir.enable = true;
     fontconfig.defaultFonts = {
-      sansSerif = [ "Noto Sans" ];
-      serif     = [ "Noto Serif" ];
-      monospace = [ "Noto Sans Mono" ];
+      sansSerif = [ "Noto Sans" "DejaVu Sans" ];
+      serif     = [ "Noto Serif" "DejaVu Serif" ];
+      monospace = [ "Noto Sans Mono" "DejaVu Sans Mono" ];
     };
+  };
+
+  # ── Intégration Qt (polices et thème pour GoldenDict, qBittorrent, Anki)
+  qt = {
+    enable        = true;
+    platformTheme = "gtk2";
+    style         = "gtk2";
   };
 }
