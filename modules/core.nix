@@ -92,7 +92,13 @@
     options   = "--delete-older-than 30d";
   };
 
-  nixpkgs.config.allowUnfree = true;
+  nixpkgs.config = {
+    allowUnfree = true;
+    permittedInsecurePackages = [
+      "qtwebkit-5.212.0-alpha4"
+    ];
+  };
+
   # Correctif pour broadcom-sta (certains vieux portables)
   nixpkgs.config.allowInsecurePredicate =
     pkg: builtins.elem (lib.getName pkg) [ "broadcom-sta" ];
