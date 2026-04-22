@@ -94,9 +94,6 @@
 
   nixpkgs.config = {
     allowUnfree = true;
-    permittedInsecurePackages = [
-      "qtwebkit-5.212.0-alpha4"
-    ];
   };
 
   # Correctif pour broadcom-sta (certains vieux portables)
@@ -153,9 +150,11 @@
       echo "[2/4] Téléchargement des mises à jour..."
       sudo git -C "$CONFIG" fetch origin
 
-      # Forcer la mise à jour
+      # Mettre à jour depuis GitHub
       echo "[3/4] Application des mises à jour..."
+      sudo git -C "$CONFIG" fetch origin main
       sudo git -C "$CONFIG" reset --hard origin/main
+      sudo git -C "$CONFIG" clean -fd
 
       # Restaurer les fichiers propres à cette machine
       sudo cp /tmp/hw-backup.nix "$CONFIG/hardware-configuration.nix"

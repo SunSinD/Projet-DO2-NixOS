@@ -219,6 +219,7 @@
   # ── Intégration Qt (polices et thème pour GoldenDict, qBittorrent, Anki)
   qt = {
     enable = true;
-    platformTheme = "qt5ct";
+    platformTheme = "kde";
+    style = "breeze";
   };
 }
