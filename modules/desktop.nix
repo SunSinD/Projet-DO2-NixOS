@@ -203,7 +203,7 @@
       liberation_ttf
       dejavu_fonts
       cantarell-fonts
-      ubuntu_font_family
+      ubuntu-classic
       roboto
       freefont_ttf
       corefonts
