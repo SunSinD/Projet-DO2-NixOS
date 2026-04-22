@@ -222,3 +222,4 @@
     platformTheme = "gtk2";
     style = "adwaita-dark";
   };
+}
