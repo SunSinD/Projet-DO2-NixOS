@@ -225,3 +225,4 @@
       package = pkgs.adwaita-qt;
     };
   };
+}
