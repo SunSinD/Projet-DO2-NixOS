@@ -219,10 +219,9 @@
   # ── Intégration Qt (thème sombre pour GoldenDict, qBittorrent, Anki) ────
   qt = {
     enable = true;
-    platformTheme.name = "gtk2";
+    platformTheme = "gtk2";
     style = {
       name    = "adwaita-dark";
       package = pkgs.adwaita-qt;
     };
   };
-}
