@@ -136,13 +136,20 @@ in
   # ── TeamViewer (daemon nécessaire pour fonctionner) ─────────────────────
   services.teamviewer.enable = true;
 
-  # Ajouter le dépôt Flathub et installer GoldenDict automatiquement
+  # Ajouter le dépôt Flathub et installer GoldenDict automatiquement en arrière-plan
   systemd.services.flatpak-setup-flathub = {
     script = ''
-      ${pkgs.flatpak}/bin/flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+      # Boucle infinie jusqu'à ce qu'Internet soit disponible et que la commande réussisse
+      until ${pkgs.flatpak}/bin/flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo; do
+        sleep 10
+      done
+      
       ${pkgs.flatpak}/bin/flatpak update --appstream 2>/dev/null || true
-      # Installer GoldenDict-ng via Flatpak pour éviter le bogue des polices Qt6 sur NixOS
-      ${pkgs.flatpak}/bin/flatpak install -y --system flathub io.github.xiaoyifang.goldendict_ng || true
+      
+      # Boucle infinie jusqu'à ce que GoldenDict soit installé avec succès
+      until ${pkgs.flatpak}/bin/flatpak install -y --system flathub io.github.xiaoyifang.goldendict_ng; do
+        sleep 10
+      done
       
       # Forcer le mode sombre pour GoldenDict-ng (Flatpak Qt6)
       ${pkgs.flatpak}/bin/flatpak override --system --env=QT_STYLE_OVERRIDE=Adwaita-Dark io.github.xiaoyifang.goldendict_ng || true
@@ -151,8 +158,7 @@ in
       sed -i 's/Education;//g' /var/lib/flatpak/exports/share/applications/io.github.xiaoyifang.goldendict_ng.desktop 2>/dev/null || true
     '';
     serviceConfig = {
-      Type            = "oneshot";
-      RemainAfterExit = true;
+      Type = "simple";
     };
     after    = [ "network-online.target" ];
     wants    = [ "network-online.target" ];
