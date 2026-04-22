@@ -57,11 +57,7 @@ in
     (symlinkJoin {
       name = "goldendict-ng-custom";
       paths = [ goldendict-ng ];
-      buildInputs = [ makeWrapper ];
       postBuild = ''
-        wrapProgram $out/bin/goldendict \
-          --set QT_QPA_PLATFORMTHEME xcb
-
         if [ -f $out/share/applications/io.github.xiaoyifang.goldendict_ng.desktop ]; then
           rm $out/share/applications/io.github.xiaoyifang.goldendict_ng.desktop
           cp ${goldendict-ng}/share/applications/io.github.xiaoyifang.goldendict_ng.desktop $out/share/applications/
