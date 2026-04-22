@@ -20,6 +20,7 @@ in
   environment.variables = {
     SAL_USE_VCLPLUGIN = "gtk3";
     LANGUAGE          = "fr_CA:fr";
+    ANKI_LANG = "fr_CA";
   };
 
   # ── Icônes pour les applications web ────────────────────────────────────
