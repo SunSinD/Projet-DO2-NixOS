@@ -53,17 +53,17 @@ in
 
     # Traducteur (Google Translate, DeepL, LibreTranslate)
     dialect
-    # Dictionnaire multilingue hors ligne (Version Native)
+    # Dictionnaire multilingue hors ligne (Version Native Officielle)
     (symlinkJoin {
-      name = "goldendict-ng-custom";
-      paths = [ goldendict-ng ];
+      name = "goldendict-custom";
+      paths = [ goldendict ];
       postBuild = ''
-        if [ -f $out/share/applications/io.github.xiaoyifang.goldendict_ng.desktop ]; then
-          rm $out/share/applications/io.github.xiaoyifang.goldendict_ng.desktop
-          cp ${goldendict-ng}/share/applications/io.github.xiaoyifang.goldendict_ng.desktop $out/share/applications/
-          sed -i 's/Name\[fr\]=GoldenDict-ng/Name[fr]=Dictionnaire (GoldenDict)/g' $out/share/applications/io.github.xiaoyifang.goldendict_ng.desktop
-          sed -i 's/Name=GoldenDict-ng/Name=Dictionnaire (GoldenDict)/g' $out/share/applications/io.github.xiaoyifang.goldendict_ng.desktop
-          sed -i 's/Education;//g' $out/share/applications/io.github.xiaoyifang.goldendict_ng.desktop
+        if [ -f $out/share/applications/goldendict.desktop ]; then
+          rm $out/share/applications/goldendict.desktop
+          cp ${goldendict}/share/applications/goldendict.desktop $out/share/applications/
+          sed -i 's/Name\[fr\]=.*/Name[fr]=Dictionnaire (GoldenDict)/g' $out/share/applications/goldendict.desktop
+          sed -i 's/Name=.*/Name=Dictionnaire (GoldenDict)/g' $out/share/applications/goldendict.desktop
+          sed -i 's/Education;//g' $out/share/applications/goldendict.desktop
         fi
       '';
     })
