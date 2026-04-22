@@ -53,7 +53,20 @@ in
 
     # Traducteur (Google Translate, DeepL, LibreTranslate)
     dialect
-    goldendict-ng         # Dictionnaire multilingue hors ligne
+    # Dictionnaire multilingue hors ligne (Version Native)
+    (symlinkJoin {
+      name = "goldendict-ng-custom";
+      paths = [ goldendict-ng ];
+      postBuild = ''
+        if [ -f $out/share/applications/io.github.xiaoyifang.goldendict_ng.desktop ]; then
+          rm $out/share/applications/io.github.xiaoyifang.goldendict_ng.desktop
+          cp ${goldendict-ng}/share/applications/io.github.xiaoyifang.goldendict_ng.desktop $out/share/applications/
+          sed -i 's/Name\[fr\]=GoldenDict-ng/Name[fr]=Dictionnaire (GoldenDict)/g' $out/share/applications/io.github.xiaoyifang.goldendict_ng.desktop
+          sed -i 's/Name=GoldenDict-ng/Name=Dictionnaire (GoldenDict)/g' $out/share/applications/io.github.xiaoyifang.goldendict_ng.desktop
+          sed -i 's/Education;//g' $out/share/applications/io.github.xiaoyifang.goldendict_ng.desktop
+        fi
+      '';
+    })
 
     # Utilitaires
     yad                   # Dialogues graphiques (bienvenue, scripts)
