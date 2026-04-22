@@ -220,9 +220,5 @@
   qt = {
     enable = true;
     platformTheme = "gtk2";
-    style = {
-      name    = "adwaita-dark";
-      package = pkgs.adwaita-qt;
-    };
+    style = "adwaita-dark";
   };
-}
