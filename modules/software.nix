@@ -124,14 +124,14 @@ in
       type         = "Application";
     })
 
-    # Renommer GoldenDict-ng en "Dictionnaire" et cacher la catégorie Éducation
+    # Gestionnaire de lien zoommtg://
     (makeDesktopItem {
-      name        = "io.github.xiaoyifang.goldendict_ng";
-      desktopName = "Dictionnaire (GoldenDict)";
-      exec        = "/run/current-system/sw/bin/flatpak run io.github.xiaoyifang.goldendict_ng %U";
-      icon        = "io.github.xiaoyifang.goldendict_ng";
-      categories  = [ "Office" "Dictionary" ];
-      comment     = "Dictionnaire multilingue hors ligne";
+      name         = "zoommtg-handler";
+      desktopName  = "Zoom URI Handler";
+      exec         = "${zoom-us}/bin/zoom-us %u";
+      mimeTypes    = [ "x-scheme-handler/zoommtg" "x-scheme-handler/zoomus" ];
+      noDisplay    = true;
+      type         = "Application";
     })
   ];
 
@@ -150,23 +150,32 @@ in
   # Ajouter le dépôt Flathub et installer GoldenDict automatiquement en arrière-plan
   systemd.services.flatpak-setup-flathub = {
     script = ''
-      # Boucle infinie jusqu'à ce qu'Internet soit disponible et que la commande réussisse
-      until ${pkgs.flatpak}/bin/flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo; do
-        sleep 10
+      # 1. Attendre qu'Internet soit VRAIMENT connecté (Ping Google DNS)
+      while ! ${pkgs.iputils}/bin/ping -c 1 -W 2 8.8.8.8 >/dev/null 2>&1; do
+        sleep 5
       done
       
-      ${pkgs.flatpak}/bin/flatpak update --appstream 2>/dev/null || true
+      # 2. Configurer le dépôt Flathub
+      ${pkgs.flatpak}/bin/flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
       
-      # Boucle infinie jusqu'à ce que GoldenDict soit installé avec succès
+      # 3. Mettre à jour les métadonnées (CRUCIAL : Si ça échoue, l'installation échouera)
+      until ${pkgs.flatpak}/bin/flatpak update --appstream 2>/dev/null; do
+        sleep 5
+      done
+      
+      # 4. Installer GoldenDict-ng
       until ${pkgs.flatpak}/bin/flatpak install -y --system flathub io.github.xiaoyifang.goldendict_ng; do
-        sleep 10
+        sleep 5
       done
       
-      # Forcer le mode sombre pour GoldenDict-ng (Flatpak Qt6)
+      # 5. Appliquer les corrections (Mode sombre + Renommer le raccourci)
       ${pkgs.flatpak}/bin/flatpak override --system --env=QT_STYLE_OVERRIDE=Adwaita-Dark io.github.xiaoyifang.goldendict_ng || true
       
-      # Retirer la catégorie "Education"
-      sed -i 's/Education;//g' /var/lib/flatpak/exports/share/applications/io.github.xiaoyifang.goldendict_ng.desktop 2>/dev/null || true
+      DESKTOP_FILE="/var/lib/flatpak/exports/share/applications/io.github.xiaoyifang.goldendict_ng.desktop"
+      if [ -f "$DESKTOP_FILE" ]; then
+        sed -i 's/Name=GoldenDict-ng/Name=Dictionnaire (GoldenDict)/g' "$DESKTOP_FILE"
+        sed -i 's/Education;//g' "$DESKTOP_FILE"
+      fi
     '';
     serviceConfig = {
       Type = "simple";
