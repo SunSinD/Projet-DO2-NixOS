@@ -216,8 +216,13 @@
     };
   };
 
-  # ── Intégration Qt (polices et thème pour GoldenDict, qBittorrent, Anki)
+  # ── Intégration Qt (thème sombre pour GoldenDict, qBittorrent, Anki) ────
   qt = {
     enable = true;
+    platformTheme.name = "gtk2";
+    style = {
+      name    = "adwaita-dark";
+      package = pkgs.adwaita-qt;
+    };
   };
 }
