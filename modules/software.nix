@@ -18,7 +18,9 @@ in
 {
   # ── Variables d'environnement ───────────────────────────────────────────
   environment.variables = {
-    SAL_USE_VCLPLUGIN = "gtk3";
+    SAL_USE_VCLPLUGIN     = "gtk3";
+    LANGUAGE              = "fr_CA:fr";
+    QT_QPA_PLATFORMTHEME  = "gtk2";
   };
 
   # ── Icônes pour les applications web ────────────────────────────────────
@@ -60,8 +62,9 @@ in
     flameshot             # Capture d'écran avancée
     xed-editor            # Éditeur de texte (Bloc-notes)
     system-config-printer
-    gnome-software        # Logithèque pour installer des apps via GUI
+    gnome-software        # Logiciels pour installer des apps via GUI
     qbittorrent           # Client torrent
+    libsForQt5.qt5.qtbase # Support Qt5 (polices GoldenDict)
     libnotify
     gawk
     sudo
@@ -128,6 +131,9 @@ in
   services.flatpak.enable = true;
   services.packagekit.enable = true;
   xdg.portal.enable       = true;
+
+  # ── TeamViewer (daemon nécessaire pour fonctionner) ─────────────────────
+  services.teamviewer.enable = true;
 
   # Ajouter le dépôt Flathub automatiquement
   systemd.services.flatpak-setup-flathub = {
