@@ -53,8 +53,7 @@ in
 
     # Traducteur (Google Translate, DeepL, LibreTranslate)
     dialect
-    # Note : GoldenDict-ng est maintenant installé via Flatpak (voir bas du fichier)
-    # pour éviter le bogue des polices Qt6 (carrés) sur NixOS.
+    stardict              # Dictionnaire multilingue hors ligne (remplace GoldenDict pour éviter le bogue Qt6)
 
     # Utilitaires
     yad                   # Dialogues graphiques (bienvenue, scripts)
@@ -122,6 +121,16 @@ in
       noDisplay    = true;
       type         = "Application";
     })
+
+    # Renommer StarDict en "Dictionnaire" pour que ce soit clair pour les utilisateurs
+    (makeDesktopItem {
+      name        = "stardict";
+      desktopName = "Dictionnaire (StarDict)";
+      exec        = "${stardict}/bin/stardict";
+      icon        = "stardict";
+      categories  = [ "Office" "Dictionary" ];
+      comment     = "Dictionnaire multilingue hors ligne";
+    })
   ];
 
   # ── Flatpak (pour que les utilisateurs puissent installer des apps) ────
@@ -136,29 +145,15 @@ in
   # ── TeamViewer (daemon nécessaire pour fonctionner) ─────────────────────
   services.teamviewer.enable = true;
 
-  # Ajouter le dépôt Flathub et installer GoldenDict automatiquement en arrière-plan
+  # Ajouter le dépôt Flathub automatiquement
   systemd.services.flatpak-setup-flathub = {
     script = ''
-      # Boucle infinie jusqu'à ce qu'Internet soit disponible et que la commande réussisse
-      until ${pkgs.flatpak}/bin/flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo; do
-        sleep 10
-      done
-      
+      ${pkgs.flatpak}/bin/flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
       ${pkgs.flatpak}/bin/flatpak update --appstream 2>/dev/null || true
-      
-      # Boucle infinie jusqu'à ce que GoldenDict soit installé avec succès
-      until ${pkgs.flatpak}/bin/flatpak install -y --system flathub io.github.xiaoyifang.goldendict_ng; do
-        sleep 10
-      done
-      
-      # Forcer le mode sombre pour GoldenDict-ng (Flatpak Qt6)
-      ${pkgs.flatpak}/bin/flatpak override --system --env=QT_STYLE_OVERRIDE=Adwaita-Dark io.github.xiaoyifang.goldendict_ng || true
-      
-      # Retirer la catégorie "Education" pour éviter la création d'un dossier inutile dans le menu Cinnamon
-      sed -i 's/Education;//g' /var/lib/flatpak/exports/share/applications/io.github.xiaoyifang.goldendict_ng.desktop 2>/dev/null || true
     '';
     serviceConfig = {
-      Type = "simple";
+      Type            = "oneshot";
+      RemainAfterExit = true;
     };
     wantedBy = [ "multi-user.target" ];
   };

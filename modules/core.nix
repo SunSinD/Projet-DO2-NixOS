@@ -169,11 +169,6 @@
       fc-cache -f -v >/dev/null || true
       sudo fc-cache -f -v >/dev/null || true
 
-      echo "[6/6] Configuration de GoldenDict (Flatpak)..."
-      sudo flatpak install -y --system flathub io.github.xiaoyifang.goldendict_ng || true
-      sudo flatpak override --system --env=QT_STYLE_OVERRIDE=Adwaita-Dark io.github.xiaoyifang.goldendict_ng || true
-      sudo sed -i 's/Education;//g' /var/lib/flatpak/exports/share/applications/io.github.xiaoyifang.goldendict_ng.desktop 2>/dev/null || true
-
       echo "=== Mise à jour terminée! ==="
       echo "Redémarrez pour voir les changements : sudo reboot"
     '')
