@@ -77,9 +77,7 @@ in
       esac
     ''))
 
-    # Portails XDG (intégration Flatpak / fichiers)
-    xdg-desktop-portal
-    xdg-desktop-portal-gtk
+    # Portails XDG gérés via xdg.portal plus bas
 
     # ── Applications web (raccourcis Chrome) ────────────────────────────
     (makeDesktopItem {
@@ -128,8 +126,12 @@ in
 
   # ── Flatpak (pour que les utilisateurs puissent installer des apps) ────
   services.flatpak.enable = true;
-  services.packagekit.enable = true;
-  xdg.portal.enable       = true;
+  # ── Portails XDG (requis pour Flatpak et dialogues de fichiers) ─────────
+  xdg.portal = {
+    enable       = true;
+    extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
+    config.common.default = "*";
+  };
 
   # ── TeamViewer (daemon nécessaire pour fonctionner) ─────────────────────
   services.teamviewer.enable = true;
@@ -140,7 +142,13 @@ in
       ${pkgs.flatpak}/bin/flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
       ${pkgs.flatpak}/bin/flatpak update --appstream 2>/dev/null || true
       # Installer GoldenDict-ng via Flatpak pour éviter le bogue des polices Qt6 sur NixOS
-      ${pkgs.flatpak}/bin/flatpak install -y flathub io.github.xiaoyifang.goldendict_ng || true
+      ${pkgs.flatpak}/bin/flatpak install -y --system flathub io.github.xiaoyifang.goldendict_ng || true
+      
+      # Forcer le mode sombre pour GoldenDict-ng (Flatpak Qt6)
+      ${pkgs.flatpak}/bin/flatpak override --system --env=QT_STYLE_OVERRIDE=Adwaita-Dark io.github.xiaoyifang.goldendict_ng || true
+      
+      # Retirer la catégorie "Education" pour éviter la création d'un dossier inutile dans le menu Cinnamon
+      sed -i 's/Education;//g' /var/lib/flatpak/exports/share/applications/io.github.xiaoyifang.goldendict_ng.desktop 2>/dev/null || true
     '';
     serviceConfig = {
       Type            = "oneshot";
