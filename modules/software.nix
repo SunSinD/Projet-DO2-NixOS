@@ -164,6 +164,9 @@ in
         echo "Name=Dictionnaire (GoldenDict)" >> "$DESKTOP_FILE"
         sed -i 's/Education;//g' "$DESKTOP_FILE"
       fi
+
+      # Forcer le mode sombre pour GoldenDict via Flatpak
+      ${pkgs.flatpak}/bin/flatpak override --system --env=QT_STYLE_OVERRIDE=Adwaita-Dark io.github.xiaoyifang.goldendict_ng || true
     '';
     serviceConfig = {
       Type            = "oneshot";
