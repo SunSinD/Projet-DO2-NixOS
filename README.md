@@ -52,19 +52,26 @@ Le projet DO2 redonne vie à des ordinateurs usagés du Collège Montmorency pou
 | Application | Usage |
 |---|---|
 | Google Chrome | Navigateur web |
+| Firefox | Navigateur web |
 | LibreOffice | Bureautique (Writer, Calc, Draw, Impress, Math, Base) |
+| Anki | Cartes mémoire (flashcards) |
+| Xournal++ | Annotation PDF / prise de notes |
 | Microsoft Teams | Messagerie et appels vidéo |
 | Outlook | Courriel Microsoft |
 | Zoom | Vidéoconférence |
 | Google Meet | Vidéoconférence |
+| TeamViewer | Contrôle à distance / support technique |
 | Dialect | Traducteur |
+| GoldenDict | Dictionnaire multilingue hors ligne |
 | GIMP | Éditeur d'images |
 | VLC | Lecteur multimédia |
 | OBS Studio | Enregistrement vidéo |
+| Audacity | Édition audio |
+| Flameshot | Capture d'écran |
 | Éditeur de texte | Bloc-notes |
-| Capture d'écran | Capture d'écran |
+| qBittorrent | Client torrent |
 | Excalidraw | Dessin collaboratif |
-| Logithèque | Installation d'apps (Flatpak) |
+| Logiciels | Installation d'apps (Flatpak) |
 
 <br/>
 
