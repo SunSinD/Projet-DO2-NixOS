@@ -47,7 +47,6 @@
   # ── Réseau ──────────────────────────────────────────────────────────────
   networking.hostName              = "do2laptop";
   networking.networkmanager.enable = true;
-  networking.networkmanager.wait-online.enable = true;
 
   # ── Localisation (tout en francais canadien) ────────────────────────────
   time.timeZone      = "America/Montreal";
