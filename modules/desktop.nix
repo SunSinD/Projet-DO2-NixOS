@@ -202,6 +202,11 @@
       noto-fonts-color-emoji
       liberation_ttf
       dejavu_fonts
+      cantarell-fonts
+      ubuntu_font_family
+      roboto
+      freefont_ttf
+      corefonts
     ];
     fontDir.enable = true;
     fontconfig.defaultFonts = {
@@ -209,5 +214,12 @@
       serif     = [ "Noto Serif" "DejaVu Serif" ];
       monospace = [ "Noto Sans Mono" "DejaVu Sans Mono" ];
     };
+  };
+
+  # ── Intégration Qt (polices et thème pour GoldenDict, qBittorrent, Anki)
+  qt = {
+    enable        = true;
+    platformTheme = "gnome";
+    style         = "adwaita";
   };
 }

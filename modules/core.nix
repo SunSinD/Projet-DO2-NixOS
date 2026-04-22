@@ -164,6 +164,11 @@
       # Relancer le setup utilisateur au prochain login
       rm -f "$HOME/.do2-setup-done"
 
+      # Forcer la mise à jour du cache des polices (contournement pour Qt6/GoldenDict-ng)
+      echo "[5/5] Rafraîchissement du cache des polices..."
+      fc-cache -f -v >/dev/null || true
+      sudo fc-cache -f -v >/dev/null || true
+
       echo "=== Mise à jour terminée! ==="
       echo "Redémarrez pour voir les changements : sudo reboot"
     '')
