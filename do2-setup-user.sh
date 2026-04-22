@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Setup bureau utilisateur - v12
+# Setup bureau utilisateur - v11
 set -euo pipefail
 
-SETUP_VERSION="12"
+SETUP_VERSION="11"
 MARKER="$HOME/.do2-setup-done"
 if [ -f "$MARKER" ]; then
   [ "$(cat "$MARKER" 2>/dev/null)" = "$SETUP_VERSION" ] && exit 0
@@ -84,31 +84,14 @@ application/pdf=google-chrome.desktop
 inode/directory=nemo.desktop
 EOF
 
-# ── GoldenDict-ng — mode nuit pour les articles ───────────────────────────
-GDCONFIG="$HOME/.config/GoldenDict/config"
-mkdir -p "$(dirname "$GDCONFIG")"
-if [ ! -f "$GDCONFIG" ]; then
-  cat > "$GDCONFIG" << 'EOF'
-<?xml version="1.0" encoding="utf-8"?>
-<config>
- <preferences>
-  <nightMode>true</nightMode>
- </preferences>
-</config>
-EOF
-else
-  if grep -q "<nightMode>false</nightMode>" "$GDCONFIG"; then
-    sed -i 's|<nightMode>false</nightMode>|<nightMode>true</nightMode>|' "$GDCONFIG"
-  elif ! grep -q "<nightMode>" "$GDCONFIG"; then
-    sed -i 's|</preferences>|  <nightMode>true</nightMode>\n</preferences>|' "$GDCONFIG"
-  fi
-fi
-
 # ══════════════════════════════════════════════════════════════════════════
 # NETTOYAGE DU MENU
 # Catégories autorisées : Bureautique (Office), Graphisme (Graphics), Internet (Network)
 # Tout le reste est masqué ou déplacé vers Bureautique.
 # ══════════════════════════════════════════════════════════════════════════
+
+# Nettoyer les anciens overrides (sauf ceux pre-crees par l'installateur)
+# On les recree tous dans les passes suivantes de toute facon
 
 # ── PASS 1 : Masquer les apps inutiles (par nom) ─────────────────────────
 for f in "$APPS_DIR"/*.desktop; do
@@ -150,22 +133,29 @@ for f in "$APPS_DIR"/*.desktop; do
 done
 
 # ── PASS 2 : Déplacer les apps des catégories non autorisées ─────────────
+# Autorisées : Office (Bureautique), Graphics (Graphisme), Network (Internet)
+# Tout le reste → Office (Bureautique)
 for f in "$APPS_DIR"/*.desktop; do
   [ -f "$f" ] || continue
   bname=$(basename "$f" .desktop)
 
+  # Sauter si déjà traité (masqué dans pass 1)
   [ -f "$LOCAL_APPS/$bname.desktop" ] && continue
 
   cats=$(grep '^Categories=' "$f" 2>/dev/null | head -1 | cut -d= -f2- || true)
   [ -z "$cats" ] && continue
 
+  # Si l'app a une catégorie non autorisée, forcer vers Office
+  # (même si elle a aussi Office, pour retirer Science/Utility/etc.)
   has_bad=false
   echo "$cats" | grep -qE '(Utility|System|AudioVideo|Audio|Video|Science|Education|Development|Settings|Accessibility)' && has_bad=true
 
+  # Si que des catégories autorisées, ne rien faire
   if ! $has_bad; then
     continue
   fi
 
+  # Forcer vers Office (Bureautique)
   move_to_office "$f"
 done
 
