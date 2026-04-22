@@ -218,8 +218,8 @@
 
   # ── Intégration Qt (polices et thème pour GoldenDict, qBittorrent, Anki)
   qt = {
-    enable        = true;
-    platformTheme = "gnome";
-    style         = "adwaita";
+    enable = true;
+    # On évite platformTheme="gnome" et style="adwaita" car cela brise les
+    # polices (carrés) pour les applications Qt6 comme GoldenDict-ng sous Cinnamon.
   };
 }

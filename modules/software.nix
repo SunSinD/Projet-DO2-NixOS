@@ -53,9 +53,7 @@ in
 
     # Traducteur (Google Translate, DeepL, LibreTranslate)
     dialect
-    
-    # Note : GoldenDict-ng est installé via Flatpak (voir bas du fichier)
-    # pour garantir un affichage parfait (sans les carrés) sous Cinnamon.
+    goldendict-ng         # Dictionnaire multilingue hors ligne
 
     # Utilitaires
     yad                   # Dialogues graphiques (bienvenue, scripts)
@@ -147,59 +145,14 @@ in
   # ── TeamViewer (daemon nécessaire pour fonctionner) ─────────────────────
   services.teamviewer.enable = true;
 
-  # Ajouter le dépôt Flathub et installer GoldenDict automatiquement en arrière-plan
+  # Ajouter le dépôt Flathub automatiquement
   systemd.services.flatpak-setup-flathub = {
     script = ''
-      # 0. Créer un raccourci temporaire visuel pour rassurer l'utilisateur
-      mkdir -p /home/user/.local/share/applications
-      cat > /home/user/.local/share/applications/goldendict-installing.desktop <<EOF
-[Desktop Entry]
-Name=Dictionnaire (Téléchargement en cours...)
-Exec=${pkgs.yad}/bin/yad --info --title="Installation" --text="GoldenDict est en train d'être téléchargé en arrière-plan.\\n\\nUne fois terminé, la vraie application apparaîtra ici." --button=OK:0
-Icon=system-run
-Type=Application
-Categories=Office;Dictionary;
-EOF
-      chown -R user:users /home/user/.local
-      touch /home/user/.local/share/applications
-
-      # 1. Attendre qu'Internet soit VRAIMENT connecté (Vérification HTTP directe vers Flathub pour éviter les blocages Ping/ICMP)
-      while ! ${pkgs.curl}/bin/curl -s -m 5 https://dl.flathub.org >/dev/null; do
-        sleep 5
-      done
-      
-      # 2. Configurer le dépôt Flathub
-      ${pkgs.flatpak}/bin/flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-      
-      # 3. Mettre à jour les métadonnées (CRUCIAL : Si ça échoue, l'installation échouera)
-      until ${pkgs.flatpak}/bin/flatpak update --appstream 2>/dev/null; do
-        sleep 5
-      done
-      
-      # 4. Installer GoldenDict-ng
-      until ${pkgs.flatpak}/bin/flatpak install -y --system flathub io.github.xiaoyifang.goldendict_ng; do
-        sleep 5
-      done
-      
-      # 5. Supprimer le raccourci temporaire
-      rm -f /home/user/.local/share/applications/goldendict-installing.desktop
-      touch /home/user/.local/share/applications
-
-      # 6. Appliquer les corrections (Mode sombre + Renommer le raccourci)
-      ${pkgs.flatpak}/bin/flatpak override --system --env=QT_STYLE_OVERRIDE=Adwaita-Dark io.github.xiaoyifang.goldendict_ng || true
-      
-      DESKTOP_FILE="/var/lib/flatpak/exports/share/applications/io.github.xiaoyifang.goldendict_ng.desktop"
-      if [ -f "$DESKTOP_FILE" ]; then
-        sed -i 's/Name=GoldenDict-ng/Name=Dictionnaire (GoldenDict)/g' "$DESKTOP_FILE"
-        sed -i 's/Education;//g' "$DESKTOP_FILE"
-      fi
-      
-      # 7. Forcer Cinnamon à rafraîchir le menu instantanément
-      touch /var/lib/flatpak/exports/share/applications || true
-      ${pkgs.desktop-file-utils}/bin/update-desktop-database /var/lib/flatpak/exports/share/applications || true
+      ${pkgs.flatpak}/bin/flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo || true
     '';
     serviceConfig = {
-      Type = "simple";
+      Type            = "oneshot";
+      RemainAfterExit = true;
     };
     wantedBy = [ "multi-user.target" ];
   };

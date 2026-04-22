@@ -47,6 +47,7 @@
   # ── Réseau ──────────────────────────────────────────────────────────────
   networking.hostName              = "do2laptop";
   networking.networkmanager.enable = true;
+  networking.networkmanager.wait-online.enable = true;
 
   # ── Localisation (tout en francais canadien) ────────────────────────────
   time.timeZone      = "America/Montreal";
@@ -173,4 +174,49 @@
       echo "Redémarrez pour voir les changements : sudo reboot"
     '')
   ];
+
+  # ── Mise à jour automatique au démarrage réseau ─────────────────────────
+  systemd.services.do2-auto-update = {
+    description = "DO2 — mise à jour automatique au démarrage réseau";
+    wants = [ "network-online.target" ];
+    after = [ "network-online.target" ];
+    wantedBy = [ "multi-user.target" ];
+    path = [ pkgs.git pkgs.nixos-rebuild pkgs.coreutils pkgs.gnugrep ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = pkgs.writeShellScript "do2-auto-update" ''
+        set -euo pipefail
+        
+        # Vérification finale de l'accès à GitHub
+        if ! ping -c 1 -W 5 github.com >/dev/null 2>&1; then
+          exit 0
+        fi
+
+        CONFIG="/etc/nixos/config"
+        if [ ! -d "$CONFIG" ]; then
+          exit 0
+        fi
+
+        # Sauvegarder hw config localement comme dans update-do2
+        cp "$CONFIG/hardware-configuration.nix" /tmp/hw-backup-auto.nix || true
+        DEVICE=$(grep 'device = "/dev/' "$CONFIG/flake.nix" 2>/dev/null | grep -o '/dev/[a-z0-9]*' | cut -d'/' -f3 || echo "")
+        
+        cd "$CONFIG"
+        git fetch origin main || exit 0
+        git reset --hard origin/main || exit 0
+        
+        # Restaurer la configuration locale
+        if [ -f /tmp/hw-backup-auto.nix ]; then
+          cp /tmp/hw-backup-auto.nix "$CONFIG/hardware-configuration.nix"
+        fi
+        if [ -n "$DEVICE" ] && [ "$DEVICE" != "sda" ]; then
+          sed -i 's|device = "/dev/sda"; # DO2_DISK|device = "/dev/'"$DEVICE"'"; # DO2_DISK|' "$CONFIG/flake.nix"
+        fi
+
+        # Rebuild silencieux
+        nixos-rebuild switch --flake "$CONFIG#do2" || true
+      '';
+    };
+  };
 }
