@@ -20,7 +20,6 @@ in
   environment.variables = {
     SAL_USE_VCLPLUGIN     = "gtk3";
     LANGUAGE              = "fr_CA:fr";
-    QT_QPA_PLATFORMTHEME  = "gtk2";
   };
 
   # ── Icônes pour les applications web ────────────────────────────────────
@@ -64,7 +63,7 @@ in
     system-config-printer
     gnome-software        # Logiciels pour installer des apps via GUI
     qbittorrent           # Client torrent
-    libsForQt5.qt5.qtbase # Support Qt5 (polices GoldenDict)
+    libsForQt5.qtstyleplugins  # Qt5 → thème GTK (polices système)
     libnotify
     gawk
     sudo

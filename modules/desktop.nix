@@ -203,5 +203,10 @@
       liberation_ttf
     ];
     fontDir.enable = true;
+    fontconfig.defaultFonts = {
+      sansSerif = [ "Noto Sans" ];
+      serif     = [ "Noto Serif" ];
+      monospace = [ "Noto Sans Mono" ];
+    };
   };
 }
