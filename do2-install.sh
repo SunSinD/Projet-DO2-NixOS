@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# DO2 - installateur complet (telecharge par install.sh).
+# DO2 - installateur complet (telecharge par le bootstrap `do2` ou `install.sh`).
 INSTALL_SCRIPT_REV="2026-04-18.2"
 
 FLAKE_ATTR="do2"
