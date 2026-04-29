@@ -163,8 +163,9 @@
 
         # Bureau avec icones
         "org/nemo/desktop" = {
-          desktop-layout   = "true::false";
-          show-desktop-icons = true;
+          desktop-layout        = "true::false";
+          show-desktop-icons    = true;
+          computer-icon-visible = false;
         };
 
         # Session : pas de delai pour shutdown/reboot/logout
