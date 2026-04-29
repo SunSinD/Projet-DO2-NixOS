@@ -2,7 +2,7 @@
 # Setup bureau utilisateur - v11
 set -euo pipefail
 
-SETUP_VERSION="13"
+SETUP_VERSION="12"
 MARKER="$HOME/.do2-setup-done"
 if [ -f "$MARKER" ]; then
   [ "$(cat "$MARKER" 2>/dev/null)" = "$SETUP_VERSION" ] && exit 0
@@ -150,9 +150,6 @@ dbus-send --session --type=method_call --dest=org.Cinnamon \
   /org/Cinnamon org.Cinnamon.Eval \
   string:'const appSys = imports.gi.Cinnamon.AppSystem.get_default(); appSys.notify("installed-changed");' \
   2>/dev/null || true
-
-# Réduire l'exposition du système de fichiers pour les débutants
-gsettings set org.nemo.window-state start-with-sidebar false 2>/dev/null || true
 
 echo "$SETUP_VERSION" > "$MARKER"
 
