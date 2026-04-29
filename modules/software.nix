@@ -14,6 +14,7 @@ let
     + "--disable-backgrounding-occluded-windows "
     + "--disable-renderer-backgrounding "
     + "--app=${url}";
+
 in
 {
   # ── Variables d'environnement ───────────────────────────────────────────
