@@ -14,6 +14,11 @@ let
     + "--disable-backgrounding-occluded-windows "
     + "--disable-renderer-backgrounding "
     + "--app=${url}";
+
+  # Gnome Software avec prise en charge Flatpak activée
+  gnomeSoftware = pkgs.gnome-software.override {
+    enableFlatpak = true;
+  };
 in
 {
   # ── Variables d'environnement ───────────────────────────────────────────
@@ -65,7 +70,8 @@ in
     flameshot
     xed-editor
     system-config-printer
-    gnome-software
+    gnomeSoftware
+    flatpak
     qbittorrent
     libnotify
     gawk

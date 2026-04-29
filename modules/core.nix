@@ -75,7 +75,6 @@
   # ── Mémoire virtuelle ──────────────────────────────────────────────────
   swapDevices = [{
     device = "/var/lib/swapfile";
-    size   = 4096;
   }];
   zramSwap.enable        = true;
   zramSwap.memoryPercent = 50;
@@ -111,6 +110,7 @@
 
   # ── Impression ──────────────────────────────────────────────────────────
   services.printing.enable = true;
+  services.packagekit.enable = true;
   services.avahi = {
     enable       = true;
     nssmdns4     = true;
@@ -143,7 +143,10 @@
 
       # Sauvegarder les fichiers propres à cette machine
       echo "[1/4] Sauvegarde de la config matérielle..."
-      sudo cp "$CONFIG/hardware-configuration.nix" /tmp/hw-backup.nix
+      BACKUP_DIR="/var/lib/do2-backups"
+      sudo mkdir -p "$BACKUP_DIR"
+      sudo cp "$CONFIG/hardware-configuration.nix" "$BACKUP_DIR/hardware-configuration.nix"
+      sudo cp "$CONFIG/flake.nix" "$BACKUP_DIR/flake.nix"
       DEVICE=$(sudo sed -n 's|.*device = "/dev/\([^"]*\)"; # DO2_DISK.*|\1|p' "$CONFIG/flake.nix")
 
       # Télécharger les dernières modifications
@@ -157,7 +160,7 @@
       sudo git -C "$CONFIG" clean -fd
 
       # Restaurer les fichiers propres à cette machine
-      sudo cp /tmp/hw-backup.nix "$CONFIG/hardware-configuration.nix"
+      sudo cp "$BACKUP_DIR/hardware-configuration.nix" "$CONFIG/hardware-configuration.nix"
       if [ -n "$DEVICE" ] && [ "$DEVICE" != "sda" ]; then
         sudo sed -i 's|device = "/dev/sda"; # DO2_DISK|device = "/dev/'"$DEVICE"'"; # DO2_DISK|' "$CONFIG/flake.nix"
       fi
@@ -202,8 +205,11 @@
           exit 0
         fi
 
-        # Sauvegarder hw config localement comme dans update-do2
-        cp "$CONFIG/hardware-configuration.nix" /tmp/hw-backup-auto.nix || true
+        # Sauvegarder config locale avant reset
+        BACKUP_DIR="/var/lib/do2-backups"
+        mkdir -p "$BACKUP_DIR" || true
+        cp "$CONFIG/hardware-configuration.nix" "$BACKUP_DIR/hardware-configuration.auto.nix" || true
+        cp "$CONFIG/flake.nix" "$BACKUP_DIR/flake.auto.nix" || true
         DEVICE=$(grep 'device = "/dev/' "$CONFIG/flake.nix" 2>/dev/null | grep -o '/dev/[a-z0-9]*' | cut -d'/' -f3 || echo "")
         
         cd "$CONFIG"
@@ -211,8 +217,8 @@
         git reset --hard origin/main || exit 0
         
         # Restaurer la configuration locale
-        if [ -f /tmp/hw-backup-auto.nix ]; then
-          cp /tmp/hw-backup-auto.nix "$CONFIG/hardware-configuration.nix"
+        if [ -f "$BACKUP_DIR/hardware-configuration.auto.nix" ]; then
+          cp "$BACKUP_DIR/hardware-configuration.auto.nix" "$CONFIG/hardware-configuration.nix"
         fi
         if [ -n "$DEVICE" ] && [ "$DEVICE" != "sda" ]; then
           sed -i 's|device = "/dev/sda"; # DO2_DISK|device = "/dev/'"$DEVICE"'"; # DO2_DISK|' "$CONFIG/flake.nix"
