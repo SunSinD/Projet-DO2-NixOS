@@ -66,6 +66,7 @@ in
     xed-editor
     system-config-printer
     gnome-software
+    flatpak
     qbittorrent
     libnotify
     gawk
