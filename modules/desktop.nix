@@ -83,6 +83,10 @@
     source = ../do2-setup-user.sh;
     mode   = "0755";
   };
+  environment.etc."do2/do2-menu-rules.sh" = {
+    source = ../do2-menu-rules.sh;
+    mode   = "0755";
+  };
   environment.etc."do2/do2-welcome.sh" = {
     source = ../do2-welcome.sh;
     mode   = "0755";
@@ -159,10 +163,10 @@
 
         # Bureau avec icones
         "org/nemo/desktop" = {
-          desktop-layout   = "true::false";
-          show-desktop-icons = true;
+          desktop-layout        = "true::false";
+          show-desktop-icons    = true;
+          computer-icon-visible = false;
         };
-
         # Session : pas de delai pour shutdown/reboot/logout
         "org/cinnamon/desktop/session" = {
           idle-delay  = lib.gvariant.mkUint32 900;

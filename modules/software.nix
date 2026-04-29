@@ -14,6 +14,7 @@ let
     + "--disable-backgrounding-occluded-windows "
     + "--disable-renderer-backgrounding "
     + "--app=${url}";
+
 in
 {
   # ── Variables d'environnement ───────────────────────────────────────────
@@ -66,6 +67,7 @@ in
     xed-editor
     system-config-printer
     gnome-software
+    flatpak
     qbittorrent
     libnotify
     gawk

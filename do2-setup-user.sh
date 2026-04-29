@@ -2,7 +2,7 @@
 # Setup bureau utilisateur - v11
 set -euo pipefail
 
-SETUP_VERSION="11"
+SETUP_VERSION="12"
 MARKER="$HOME/.do2-setup-done"
 if [ -f "$MARKER" ]; then
   [ "$(cat "$MARKER" 2>/dev/null)" = "$SETUP_VERSION" ] && exit 0
@@ -12,6 +12,16 @@ APPS_DIR="/run/current-system/sw/share/applications"
 LOCAL_APPS="$HOME/.local/share/applications"
 mkdir -p "$HOME/Desktop" "$HOME/Documents" "$HOME/Downloads" "$HOME/Pictures"
 mkdir -p "$LOCAL_APPS" "$HOME/.config"
+
+# Charger les règles partagées de nettoyage du menu
+RULES_FILE="/etc/do2/do2-menu-rules.sh"
+if [ -f "$RULES_FILE" ]; then
+  # shellcheck source=/dev/null
+  source "$RULES_FILE"
+else
+  # shellcheck source=/dev/null
+  source "$(dirname "$0")/do2-menu-rules.sh"
+fi
 
 # ── Fonctions ─────────────────────────────────────────────────────────────
 hide_app() {
@@ -100,34 +110,7 @@ for f in "$APPS_DIR"/*.desktop; do
   name=$(grep '^Name=' "$f" 2>/dev/null | head -1 | cut -d= -f2- || true)
   cats=$(grep '^Categories=' "$f" 2>/dev/null | head -1 | cut -d= -f2- || true)
 
-  should_hide=false
-
-  # Apps inutiles par nom de fichier
-  case "$bname" in
-    xterm|yelp|nm-connection-editor|orca|onboard|bulky|file-roller|gnome-disk-utility|gnome-disks|baobab) should_hide=true ;;
-  esac
-
-  # LibreOffice Draw (toutes variantes de noms)
-  case "$bname" in
-    *libreoffice*draw*|*LibreOffice*Draw*|*libreoffice*Draw*) should_hide=true ;;
-  esac
-
-  # LibreOffice Draw + Icon browser (par nom affiché)
-  case "$name" in
-    *"LibreOffice Draw"*|*"libreoffice draw"*) should_hide=true ;;
-    *"con"*"rowser"*|*"con"*"Browser"*) should_hide=true ;;
-  esac
-
-  # Settings : masquer tout sauf Paramètres système et Logiciels
-  if echo "$cats" | grep -q 'Settings'; then
-    case "$bname" in
-      cinnamon-settings|gnome-control-center) ;;
-      org.gnome.Software*|gnome-software*) ;;
-      *) should_hide=true ;;
-    esac
-  fi
-
-  if $should_hide; then
+  if should_hide_app "$bname" "$name" "$cats"; then
     hide_app "$bname"
   fi
 done
@@ -147,11 +130,8 @@ for f in "$APPS_DIR"/*.desktop; do
 
   # Si l'app a une catégorie non autorisée, forcer vers Office
   # (même si elle a aussi Office, pour retirer Science/Utility/etc.)
-  has_bad=false
-  echo "$cats" | grep -qE '(Utility|System|AudioVideo|Audio|Video|Science|Education|Development|Settings|Accessibility)' && has_bad=true
-
   # Si que des catégories autorisées, ne rien faire
-  if ! $has_bad; then
+  if ! has_disallowed_categories "$cats"; then
     continue
   fi
 
