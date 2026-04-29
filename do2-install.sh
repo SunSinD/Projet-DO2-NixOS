@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# DO2 - installateur complet (telecharge par install.sh).
+# DO2 - installateur complet (telecharge par le bootstrap `do2` ou `install.sh`).
 INSTALL_SCRIPT_REV="2026-04-18.2"
 
 FLAKE_ATTR="do2"
@@ -110,8 +110,17 @@ git -c user.email="do2@montmorency.qc.ca" \
 
 echo ""
 echo "  [4/6] Configuration du swap..."
+ram_gb=$(awk '/MemTotal/ { printf "%d", ($2/1024/1024)+0.5 }' /proc/meminfo)
+if [[ "$ram_gb" -lt 2 ]]; then
+  swap_gb=2
+elif [[ "$ram_gb" -gt 8 ]]; then
+  swap_gb=8
+else
+  swap_gb="$ram_gb"
+fi
+echo "  Taille du swap choisie : ${swap_gb}G (RAM détectée: ${ram_gb}G)"
 sudo mkdir -p /mnt/var/lib
-sudo fallocate -l 4G /mnt/var/lib/swapfile
+sudo fallocate -l "${swap_gb}G" /mnt/var/lib/swapfile
 sudo chmod 600       /mnt/var/lib/swapfile
 sudo mkswap          /mnt/var/lib/swapfile
 sudo swapon          /mnt/var/lib/swapfile
