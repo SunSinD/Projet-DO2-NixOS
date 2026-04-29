@@ -167,9 +167,6 @@
           show-desktop-icons    = true;
           computer-icon-visible = false;
         };
-        "org/nemo/window-state" = {
-          start-with-sidebar = false;
-        };
         # Session : pas de delai pour shutdown/reboot/logout
         "org/cinnamon/desktop/session" = {
           idle-delay  = lib.gvariant.mkUint32 900;
