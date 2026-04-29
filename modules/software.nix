@@ -17,6 +17,12 @@ let
 
 in
 {
+  # Métadonnées des paquets (catalogue « Logiciels » pour les apps .deb / rpm via PackageKit).
+  appstream.enable = true;
+
+  # Intégration micrologiciels dans Logiciels (onglet matériel) ; sans impact si indisponible.
+  services.fwupd.enable = lib.mkDefault true;
+
   # ── Variables d'environnement ───────────────────────────────────────────
   environment.variables = {
     SAL_USE_VCLPLUGIN = "gtk3";

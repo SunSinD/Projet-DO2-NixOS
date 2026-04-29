@@ -1,0 +1,33 @@
+diff --git a/src/nemo-places-sidebar.c b/src/nemo-places-sidebar.c
+--- a/src/nemo-places-sidebar.c
++++ b/src/nemo-places-sidebar.c
+@@ -878,29 +878,6 @@ update_places (NemoPlacesSidebar *sidebar)
+         }
+     }
+ 
+-    /* file system root */
+-    mount_uri = (char *)"file:///"; /* No need to strdup */
+-    icon = NEMO_ICON_SYMBOLIC_FILESYSTEM;
+-
+-    df_file = g_file_new_for_uri (mount_uri);
+-    full = get_disk_full (df_file, &tooltip_info);
+-    g_clear_object (&df_file);
+-
+-    tooltip = g_strdup_printf (_("Open the contents of the File System\n%s"), tooltip_info);
+-    g_free (tooltip_info);
+-    cat_iter = add_place (sidebar, PLACES_BUILT_IN,
+-                           SECTION_COMPUTER,
+-                           _("File System"), icon,
+-                           mount_uri, NULL, NULL, NULL, 0,
+-                           tooltip,
+-                           full, full > -1,
+-                           cat_iter);
+-    g_free (tooltip);
+-
+-    if (sidebar->bottom_bookend_uri == NULL) {
+-        sidebar->bottom_bookend_uri = g_strdup (mount_uri);
+-    }
+-
+     if (eel_vfs_supports_uri_scheme("trash")) {
+         mount_uri = (char *)"trash:///"; /* No need to strdup */
+         icon = nemo_trash_monitor_get_symbolic_icon_name ();

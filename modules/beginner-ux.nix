@@ -1,14 +1,8 @@
-{ lib, ... }:
+# Options « débutant » sans patch de paquets.
+# Nemo : l’entrée « Système de fichiers » dans la barre latérale est retirée en
+# recomposant pkgs.nemo (voir flake.nix, ./patches/nemo-hide-filesystem-sidebar.patch).
+# Il n’existe pas de clef GSettings pour masquer seulement cette entrée.
+# Logiciels / Flatpak : modules/software.nix ; packagekit : modules/core.nix.
+{ ... }:
 
-{
-  # Logiciels / Flatpak : gnome-software est dans modules/software.nix ;
-  # packagekit dans core.nix. Dans nixpkgs 25.11, gnome-software est toujours
-  # compilé avec le support Flatpak (l’argument enableFlatpak n’existe plus).
-
-  # Réduit l'exposition du système de fichiers dans Nemo (vue débutant).
-  programs.dconf.profiles.user.databases = lib.mkAfter [{
-    settings."org/nemo/window-state" = {
-      start-with-sidebar = false;
-    };
-  }];
-}
+{ }

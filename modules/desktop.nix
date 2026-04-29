@@ -167,6 +167,11 @@
           show-desktop-icons    = true;
           computer-icon-visible = false;
         };
+
+        # Gestionnaire de fichiers : barre latérale visible (raccourci « Système de fichiers » retiré via patch Nix sur nemo).
+        "org/nemo/window-state" = {
+          start-with-sidebar = true;
+        };
         # Session : pas de delai pour shutdown/reboot/logout
         "org/cinnamon/desktop/session" = {
           idle-delay  = lib.gvariant.mkUint32 900;

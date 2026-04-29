@@ -16,6 +16,21 @@
         device = "/dev/sda"; # DO2_DISK
       };
       modules = [
+        # Overlay must apply before modules read pkgs (e.g. cinnamon → nemo-with-extensions → nemo).
+        (
+          { ... }:
+          {
+            nixpkgs.overlays = [
+              (final: prev: {
+                nemo = prev.nemo.overrideAttrs (old: {
+                  patches = (old.patches or [ ]) ++ [
+                    ./patches/nemo-hide-filesystem-sidebar.patch
+                  ];
+                });
+              })
+            ];
+          }
+        )
         inputs.disko.nixosModules.disko
         ./disko-config.nix
         ./configuration.nix
