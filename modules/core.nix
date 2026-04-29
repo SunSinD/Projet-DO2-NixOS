@@ -110,6 +110,7 @@
 
   # ── Impression ──────────────────────────────────────────────────────────
   services.printing.enable = true;
+  services.packagekit.enable = true;
   services.avahi = {
     enable       = true;
     nssmdns4     = true;
