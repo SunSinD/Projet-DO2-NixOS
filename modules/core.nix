@@ -188,7 +188,7 @@
     wants = [ "network-online.target" ];
     after = [ "network-online.target" ];
     wantedBy = [ "multi-user.target" ];
-    path = [ pkgs.git pkgs.nixos-rebuild pkgs.coreutils pkgs.gnugrep ];
+    path = [ pkgs.git pkgs.nixos-rebuild pkgs.coreutils pkgs.gnugrep pkgs.iputils ];
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
@@ -215,6 +215,7 @@
         cd "$CONFIG"
         git fetch origin main || exit 0
         git reset --hard origin/main || exit 0
+        git clean -fd || true
         
         # Restaurer la configuration locale
         if [ -f "$BACKUP_DIR/hardware-configuration.auto.nix" ]; then
