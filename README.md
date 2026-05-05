@@ -32,15 +32,26 @@
 
 ## À propos
 
-Le projet DO2 redonne vie à des ordinateurs usagés du Collège Montmorency pour les distribuer à des personnes dans le besoin.
+Le projet DO2 redonne vie à des ordinateurs usagés du Collège Montmorency pour les donner à des personnes qui en ont besoin.
 
 <br/>
 
-| | |
-|---|---|
-| **Distro** | NixOS 25.11 (Flake) |
-| **Bureau** | Cinnamon, interface en français |
-| **Installation** | Automatisée, 1 commande, ~10 min |
+<table>
+  <tbody>
+    <tr>
+      <td><strong>Distribution</strong></td>
+      <td>NixOS 25.11 (Flake)</td>
+    </tr>
+    <tr>
+      <td><strong>Bureau</strong></td>
+      <td>Cinnamon, interface en français</td>
+    </tr>
+    <tr>
+      <td><strong>Installation</strong></td>
+      <td>Automatisée, une commande, environ 10 min</td>
+    </tr>
+  </tbody>
+</table>
 
 <br/>
 
