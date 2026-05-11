@@ -118,7 +118,7 @@ Le script vous guide pour le reste. Durée : **5 à 15 minutes**.
 
 <br/>
 
-> Identifiants par défaut — Utilisateur : `user` · Mot de passe : `pass`
+> Identifiants par défaut -- Utilisateur : `user` · Mot de passe : `pass`
 
 <br/>
 
