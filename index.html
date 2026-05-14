@@ -731,7 +731,7 @@
       justify-content: center; 
       gap: 16px; 
       width: 100%;
-      margin-bottom: 32px;
+      margin-bottom: 10px;
     }
 
     .footer-pill {
@@ -1683,15 +1683,11 @@ sudo nmcli con up "Montmorency-WiFi"</code></pre>
       // Match the Aceternity scaling logic
       const scale = isMobile ? 0.8 + (0.2 * ease) : 0.9 + (0.1 * ease);
       const rotateX = 20 - (20 * ease);
-      const opacity = progress < 0.15 ? progress * 6.66 : 1; // Quick fade in
       const translateY = -40 * (1 - ease);
 
       footer3d.style.transform = `perspective(1000px) translateY(${translateY}px) rotateX(${rotateX}deg) scale(${scale})`;
-      footer3d.style.opacity = opacity;
     } else {
-      // Footer not in animation zone — ensure it's fully visible (prevents black-on-refresh)
       footer3d.style.transform = 'none';
-      footer3d.style.opacity = '1';
     }
   }
 
