@@ -80,15 +80,15 @@
 
   # ── Configuration du premier demarrage ──────────────────────────────────
   environment.etc."do2/do2-setup-user.sh" = {
-    source = ../do2-setup-user.sh;
+    source = ../scripts/do2-setup-user.sh;
     mode   = "0755";
   };
   environment.etc."do2/do2-menu-rules.sh" = {
-    source = ../do2-menu-rules.sh;
+    source = ../scripts/do2-menu-rules.sh;
     mode   = "0755";
   };
   environment.etc."do2/do2-welcome.sh" = {
-    source = ../do2-welcome.sh;
+    source = ../scripts/do2-welcome.sh;
     mode   = "0755";
   };
   environment.etc."do2/guides/Guide-DO2.html".source = ../guides/Guide-DO2.html;
@@ -96,9 +96,9 @@
   # Configurations Cinnamon (applets du panneau)
   # Note : @ est interdit dans les chemins Nix, donc on concatene une chaine.
   environment.etc."do2/config/cinnamon/spices/grouped-window-list@cinnamon.org/2.json".source =
-    ../config/config/cinnamon/spices + "/grouped-window-list@cinnamon.org/2.json";
+    ../config/cinnamon/spices + "/grouped-window-list@cinnamon.org/2.json";
   environment.etc."do2/config/cinnamon/spices/menu@cinnamon.org/0.json".source =
-    ../config/config/cinnamon/spices + "/menu@cinnamon.org/0.json";
+    ../config/cinnamon/spices + "/menu@cinnamon.org/0.json";
 
   # Verrouiller l'ecran au demarrage (mot de passe requis)
   environment.etc."xdg/autostart/do2-lock-screen.desktop".text = ''

@@ -146,19 +146,11 @@ in
   # ── TeamViewer (daemon nécessaire pour fonctionner) ─────────────────────
   services.teamviewer.enable = true;
 
-  # Ajouter Flathub au démarrage réseau (pour que les utilisateurs puissent installer des apps)
-  systemd.services.flatpak-setup-flathub = {
-    script = ''
-      ${pkgs.flatpak}/bin/flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo || true
-    '';
-    serviceConfig = {
-      Type            = "oneshot";
-      RemainAfterExit = true;
-    };
-    wantedBy = [ "multi-user.target" ];
-    after    = [ "network-online.target" ];
-    wants    = [ "network-online.target" ];
-  };
+  # Flathub (declaratif via nix-flatpak — les utilisateurs installent ce qu'ils veulent)
+  services.flatpak.remotes = [{
+    name     = "flathub";
+    location = "https://dl.flathub.org/repo/flathub.flatpakrepo";
+  }];
 
   # ── Associations de fichiers par défaut ─────────────────────────────────
   xdg.mime.defaultApplications = {
