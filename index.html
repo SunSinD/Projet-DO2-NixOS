@@ -615,7 +615,7 @@
     .faq-item.open .faq-icon svg { transform: rotate(180deg); }
     .faq-content { max-height: 0; overflow: hidden; transition: max-height 0.38s cubic-bezier(0.4,0,0.2,1); }
     .faq-item.open .faq-content { max-height: 300px; }
-    .faq-body { padding: 0 24px 22px; }
+    .faq-body { padding: 14px 24px 22px; }
     .faq-body p { color: var(--muted2); font-size: 0.95rem; line-height: 1.8; margin: 0; }
 
     .footer-curtain-wrapper {
@@ -1687,6 +1687,13 @@ sudo nmcli con up "Montmorency-WiFi"</code></pre>
   window.addEventListener('scroll', onScrollFooter, { passive: true });
   window.addEventListener('resize', onScrollFooter, { passive: true });
   onScrollFooter(); // initialize
+
+  // Re-run after scroll position is restored (browsers do this asynchronously on refresh)
+  window.addEventListener('load', function() {
+    requestAnimationFrame(function() {
+      requestAnimationFrame(onScrollFooter);
+    });
+  });
 
   // Background Particles Canvas
   const bgCanvas = document.getElementById('canvas-bg');
