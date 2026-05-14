@@ -783,7 +783,7 @@
 
     /* Full-width YouTube pill — always on its own row, same total width as the two pills above */
     .footer-pill-youtube {
-      flex-basis: 100%;
+      width: 100%;
       max-width: calc(240px * 2 + 16px);
     }
 
@@ -1688,12 +1688,9 @@ sudo nmcli con up "Montmorency-WiFi"</code></pre>
   window.addEventListener('resize', onScrollFooter, { passive: true });
   onScrollFooter(); // initialize
 
-  // Re-run after scroll position is restored (browsers do this asynchronously on refresh)
-  window.addEventListener('load', function() {
-    requestAnimationFrame(function() {
-      requestAnimationFrame(onScrollFooter);
-    });
-  });
+  // Browsers restore scroll position asynchronously on refresh — poll aggressively for 1s
+  var footerInitInterval = setInterval(onScrollFooter, 50);
+  setTimeout(function() { clearInterval(footerInitInterval); }, 1000);
 
   // Background Particles Canvas
   const bgCanvas = document.getElementById('canvas-bg');
