@@ -1,0 +1,2 @@
+# Hide HTML from GitHub language statistics (it's documentation/portal, not source)
+*.html linguist-detectable=false
