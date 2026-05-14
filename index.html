@@ -781,10 +781,10 @@
       box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     }
 
-    /* Full-width YouTube pill — spans both buttons above */
+    /* Full-width YouTube pill — always on its own row, same total width as the two pills above */
     .footer-pill-youtube {
-      width: calc(240px * 2 + 16px); /* matches two pills + gap */
-      max-width: 100%;
+      flex-basis: 100%;
+      max-width: calc(240px * 2 + 16px);
     }
 
     .footer-pill svg { width: 18px; height: 18px; fill: currentColor; flex-shrink: 0; }
