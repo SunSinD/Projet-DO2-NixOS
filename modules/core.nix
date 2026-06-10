@@ -147,6 +147,7 @@
       sudo mkdir -p "$BACKUP_DIR"
       sudo cp "$CONFIG/hardware-configuration.nix" "$BACKUP_DIR/hardware-configuration.nix"
       sudo cp "$CONFIG/flake.nix" "$BACKUP_DIR/flake.nix"
+      sudo cp "$CONFIG/local.nix" "$BACKUP_DIR/local.nix" 2>/dev/null || true
       DEVICE=$(sudo sed -n 's|.*device = "/dev/\([^"]*\)"; # DO2_DISK.*|\1|p' "$CONFIG/flake.nix")
 
       # Télécharger les dernières modifications
@@ -161,6 +162,9 @@
 
       # Restaurer les fichiers propres à cette machine
       sudo cp "$BACKUP_DIR/hardware-configuration.nix" "$CONFIG/hardware-configuration.nix"
+      if [ -f "$BACKUP_DIR/local.nix" ]; then
+        sudo cp "$BACKUP_DIR/local.nix" "$CONFIG/local.nix"
+      fi
       if [ -n "$DEVICE" ] && [ "$DEVICE" != "sda" ]; then
         sudo sed -i 's|device = "/dev/sda"; # DO2_DISK|device = "/dev/'"$DEVICE"'"; # DO2_DISK|' "$CONFIG/flake.nix"
       fi
@@ -179,6 +183,9 @@
 
       echo "=== Mise à jour terminée! ==="
       echo "Redémarrez pour voir les changements : sudo reboot"
+    '')
+    (pkgs.writeShellScriptBin "do2-japanese-keyboard" ''
+      exec /etc/do2/do2-japanese-keyboard.sh "$@"
     '')
   ];
 
@@ -210,6 +217,7 @@
         mkdir -p "$BACKUP_DIR" || true
         cp "$CONFIG/hardware-configuration.nix" "$BACKUP_DIR/hardware-configuration.auto.nix" || true
         cp "$CONFIG/flake.nix" "$BACKUP_DIR/flake.auto.nix" || true
+        cp "$CONFIG/local.nix" "$BACKUP_DIR/local.auto.nix" 2>/dev/null || true
         DEVICE=$(grep 'device = "/dev/' "$CONFIG/flake.nix" 2>/dev/null | grep -o '/dev/[a-z0-9]*' | cut -d'/' -f3 || echo "")
         
         cd "$CONFIG"
@@ -220,6 +228,9 @@
         # Restaurer la configuration locale
         if [ -f "$BACKUP_DIR/hardware-configuration.auto.nix" ]; then
           cp "$BACKUP_DIR/hardware-configuration.auto.nix" "$CONFIG/hardware-configuration.nix"
+        fi
+        if [ -f "$BACKUP_DIR/local.auto.nix" ]; then
+          cp "$BACKUP_DIR/local.auto.nix" "$CONFIG/local.nix"
         fi
         if [ -n "$DEVICE" ] && [ "$DEVICE" != "sda" ]; then
           sed -i 's|device = "/dev/sda"; # DO2_DISK|device = "/dev/'"$DEVICE"'"; # DO2_DISK|' "$CONFIG/flake.nix"

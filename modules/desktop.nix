@@ -66,50 +66,6 @@
   services.libinput.enable      = true;
   services.xserver.wacom.enable = true;
 
-  # ── Saisie japonaise optionnelle (IME Mozc via fcitx5) ─────────────────
-  # Francais : clavier Cinnamon (xkb ca), fcitx5 desactive par defaut.
-  # Japonais : Ctrl+Maj+Espace active/desactive Mozc (fonctionne aussi dans VMware).
-  # L'icone clavier dans la barre des taches sert a activer le japonais a la main.
-  i18n.inputMethod = {
-    enable = true;
-    type = "fcitx5";
-    fcitx5 = {
-      waylandFrontend  = false;
-      ignoreUserConfig = true;
-      addons = with pkgs; [
-        fcitx5-mozc
-        fcitx5-gtk
-        kdePackages.fcitx5-qt
-      ];
-      settings = {
-        globalOptions = {
-          Behavior = {
-            ActiveByDefault = false;
-            ShareInputState = "No";
-          };
-          Hotkey = {
-            EnumerateWithTriggerKeys = false;
-            TriggerKeys = "Control+Shift+space";
-          };
-        };
-        inputMethod = {
-          GroupOrder."0" = "Default";
-          "Groups/0" = {
-            Name = "Default";
-            "Default Layout" = "ca";
-            DefaultIM = "mozc";
-          };
-          "Groups/0/Items/0".Name = "mozc";
-        };
-        addons = {
-          classicui.globalSection = {
-            ShowLayoutNameInIcon = false;
-          };
-        };
-      };
-    };
-  };
-
   # ── Energie ─────────────────────────────────────────────────────────────
   services.upower.enable                = true;
   services.power-profiles-daemon.enable = true;
@@ -133,6 +89,10 @@
   };
   environment.etc."do2/do2-welcome.sh" = {
     source = ../scripts/do2-welcome.sh;
+    mode   = "0755";
+  };
+  environment.etc."do2/do2-japanese-keyboard.sh" = {
+    source = ../scripts/do2-japanese-keyboard.sh;
     mode   = "0755";
   };
   environment.etc."do2/guides/Guide-DO2.html".source = ../guides/Guide-DO2.html;
