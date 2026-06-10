@@ -88,16 +88,6 @@ in
       esac
     ''))
 
-    # Clavier japonais (opt-in, un portable a la fois)
-    (makeDesktopItem {
-      name        = "do2-japanese-keyboard";
-      desktopName = "Clavier japonais";
-      exec        = "do2-japanese-keyboard";
-      icon        = "input-keyboard";
-      categories  = [ "Settings" ];
-      comment     = "Activer ou desactiver la saisie japonaise sur cet ordinateur";
-    })
-
     # ── Applications web (raccourcis Chrome) ────────────────────────────
     (makeDesktopItem {
       name        = "microsoft-teams-web";
