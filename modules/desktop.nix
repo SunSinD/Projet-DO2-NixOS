@@ -67,9 +67,9 @@
   services.xserver.wacom.enable = true;
 
   # ── Saisie japonaise optionnelle (IME Mozc via fcitx5) ─────────────────
-  # Installe pour les utilisateurs qui en ont besoin, mais le francais canadien
-  # reste le mode par defaut sur tous les portables DO2.
-  # Raccourci japonais : Ctrl+Espace (apres activation manuelle).
+  # Francais : clavier Cinnamon (xkb ca), fcitx5 desactive par defaut.
+  # Japonais : Ctrl+Maj+Espace active/desactive Mozc (fonctionne aussi dans VMware).
+  # L'icone clavier dans la barre des taches sert a activer le japonais a la main.
   i18n.inputMethod = {
     enable = true;
     type = "fcitx5";
@@ -88,8 +88,8 @@
             ShareInputState = "No";
           };
           Hotkey = {
-            EnumerateWithTriggerKeys = true;
-            TriggerKeys = "Control+space";
+            EnumerateWithTriggerKeys = false;
+            TriggerKeys = "Control+Shift+space";
           };
         };
         inputMethod = {
@@ -97,10 +97,14 @@
           "Groups/0" = {
             Name = "Default";
             "Default Layout" = "ca";
-            DefaultIM = "keyboard-ca";
+            DefaultIM = "mozc";
           };
-          "Groups/0/Items/0".Name = "keyboard-ca";
-          "Groups/0/Items/1".Name = "mozc";
+          "Groups/0/Items/0".Name = "mozc";
+        };
+        addons = {
+          classicui.globalSection = {
+            ShowLayoutNameInIcon = false;
+          };
         };
       };
     };
