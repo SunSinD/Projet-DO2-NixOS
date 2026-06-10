@@ -14,6 +14,17 @@ fcitx_installed() {
   command -v fcitx5 >/dev/null 2>&1
 }
 
+fcitx5_running() {
+  pgrep -x fcitx5 >/dev/null 2>&1 && return 0
+  fcitx5-remote -p >/dev/null 2>&1
+}
+
+stop_fcitx() {
+  fcitx5-remote -e >/dev/null 2>&1 || true
+  pkill -x fcitx5 >/dev/null 2>&1 || true
+  sleep 1
+}
+
 rebuild() {
   echo ""
   echo "=== Reconstruction du systeme ==="
@@ -65,13 +76,14 @@ start_fcitx() {
     echo "fcitx5 manquant. Lancez : do2-japanese-keyboard repair"
     exit 1
   fi
-  if pgrep -x fcitx5 >/dev/null 2>&1; then
+  if fcitx5_running; then
     echo "fcitx5 deja en cours d'execution."
     return 0
   fi
-  fcitx5 -d
+  stop_fcitx
+  fcitx5 -dr
   sleep 1
-  if pgrep -x fcitx5 >/dev/null 2>&1; then
+  if fcitx5_running; then
     echo "fcitx5 demarre. Essayez Ctrl + Shift + Espace ou Alt + Shift + J."
   else
     echo "Echec du demarrage de fcitx5."
@@ -136,7 +148,7 @@ show_status() {
     echo "Statut : active"
     if fcitx_installed; then
       echo "fcitx5 : installe"
-      if pgrep -x fcitx5 >/dev/null 2>&1; then
+      if fcitx5_running; then
         echo "fcitx5 : en cours d'execution"
       else
         echo "fcitx5 : arrete — lancez : do2-japanese-keyboard start"
