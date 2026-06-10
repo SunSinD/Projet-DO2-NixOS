@@ -10,18 +10,42 @@ enabled() {
   [ -f "$LOCAL" ] && grep -q "japanese-ime.nix" "$LOCAL" 2>/dev/null
 }
 
+has_gui() {
+  [ -n "${DISPLAY:-}" ] && command -v yad >/dev/null 2>&1
+}
+
 rebuild() {
-  echo "Reconstruction du systeme (quelques minutes)..."
+  echo ""
+  echo "=== Reconstruction du systeme (10 a 20 minutes) ==="
+  echo "Ne fermez pas le terminal."
+  echo ""
   sudo nixos-rebuild switch --flake "$CONFIG#do2"
+  echo ""
+  echo "=== Termine. Redemarrez : sudo reboot ==="
+}
+
+usage_after_enable() {
+  cat <<'EOF'
+
+Clavier japonais installe sur CET ordinateur seulement.
+Francais par defaut.
+
+  Ctrl + Maj + Espace  = basculer francais / japonais
+  (Maj = touche Shift, barre d'espace)
+
+Ou cliquez l'icone en bas a droite : Clavier (FR) ou Mozc (JP).
+
+EOF
 }
 
 enable_japanese() {
   if enabled; then
-    yad --info --title="Clavier japonais" --text="Le clavier japonais est deja active sur cet ordinateur.\n\nFrancais par defaut. Ctrl + Maj + Espace bascule entre francais et japonais.\nOu cliquez l'icone en bas a droite et choisissez le clavier." --button="OK" 2>/dev/null \
-      || echo "Deja active. Ctrl + Maj + Espace = basculer FR/JP."
+    echo "Le clavier japonais est deja installe sur cet ordinateur."
+    usage_after_enable
     return 0
   fi
 
+  echo "Activation du clavier japonais sur cet ordinateur..."
   sudo tee "$LOCAL" > /dev/null <<'EOF'
 # Active localement sur ce portable (preserve par update-do2).
 { ... }: {
@@ -30,50 +54,86 @@ enable_japanese() {
 EOF
   sudo touch "$MARKER"
   rebuild
-
-  yad --info --title="Clavier japonais" --text="Clavier japonais installe sur cet ordinateur.\n\nLe francais reste par defaut.\nCtrl + Maj + Espace = basculer entre francais et japonais\n(Maj = touche Shift)\n\nRedemarrez si besoin." --button="OK" 2>/dev/null \
-    || echo "Installe. Francais par defaut. Ctrl + Maj + Espace = basculer."
+  echo "Clavier japonais active."
+  usage_after_enable
 }
 
 disable_japanese() {
   if ! enabled; then
-    yad --info --title="Clavier japonais" --text="Le clavier japonais n'est pas active sur cet ordinateur." --button="OK" 2>/dev/null \
-      || echo "Le clavier japonais n'est pas active."
+    echo "Le clavier japonais n'est pas installe sur cet ordinateur."
     return 0
   fi
 
-  ans=$(yad --question --title="Clavier japonais" --text="Desactiver le clavier japonais sur cet ordinateur ?" --button="Oui:0" --button="Non:1" 2>/dev/null || echo "0")
-  [ "$ans" = "1" ] && return 0
-
+  echo "Desactivation du clavier japonais..."
   sudo rm -f "$LOCAL" "$MARKER"
   rebuild
-
-  yad --info --title="Clavier japonais" --text="Clavier japonais desactive." --button="OK" 2>/dev/null \
-    || echo "Clavier japonais desactive."
+  echo "Clavier japonais desactive."
 }
 
-show_menu() {
+show_menu_gui() {
   if enabled; then
-    status="active"
     choice=$(yad --title="Clavier japonais" --width=420 \
-      --text="Statut : installe sur cet ordinateur.\n\nFrancais par defaut. Ctrl + Maj + Espace bascule FR/JP.\nIcone en bas a droite : choisir Clavier (FR) ou Mozc (JP).\nEx. konnichiha → こんにちは" \
+      --text="Statut : installe sur cet ordinateur.\n\nFrancais par defaut. Ctrl + Maj + Espace bascule FR/JP.\nIcone en bas a droite : Clavier (FR) ou Mozc (JP)." \
       --button="Desactiver:1" --button="Fermer:0" 2>/dev/null || echo "0")
     [ "$choice" = "1" ] && disable_japanese
   else
     choice=$(yad --title="Clavier japonais" --width=420 \
-      --text="Le clavier japonais n'est pas installe sur cet ordinateur.\n\nL'activation prend quelques minutes et ne concerne que ce portable." \
+      --text="Le clavier japonais n'est pas installe.\n\nL'activation prend 10 a 20 minutes et ne concerne que ce portable." \
       --button="Activer:1" --button="Fermer:0" 2>/dev/null || echo "0")
     [ "$choice" = "1" ] && enable_japanese
   fi
 }
 
+show_menu_terminal() {
+  echo "=== Clavier japonais (DO2) ==="
+  if enabled; then
+    echo "Statut : installe sur cet ordinateur."
+    usage_after_enable
+    echo "  1) Desactiver (rebuild)"
+    echo "  2) Annuler"
+    read -r -p "Choix [2] : " choice
+    case "${choice:-2}" in
+      1) disable_japanese ;;
+      *) echo "Annule." ;;
+    esac
+  else
+    echo "Le clavier japonais n'est pas installe sur cet ordinateur."
+    echo "L'activation prend 10 a 20 minutes."
+    echo ""
+    echo "  1) Activer"
+    echo "  2) Annuler"
+    read -r -p "Choix [2] : " choice
+    case "${choice:-2}" in
+      1) enable_japanese ;;
+      *) echo "Annule. Pour activer plus tard : do2-japanese-keyboard enable" ;;
+    esac
+  fi
+}
+
+show_menu() {
+  if has_gui; then
+    show_menu_gui
+  else
+    show_menu_terminal
+  fi
+}
+
 if [ "$(id -u)" -eq 0 ]; then
-  echo "Lancez cette commande sans sudo : do2-japanese-keyboard"
+  echo "Lancez sans sudo : do2-japanese-keyboard"
   exit 1
 fi
 
 case "${1:-menu}" in
   enable)  enable_japanese ;;
   disable) disable_japanese ;;
-  menu|*)  show_menu ;;
+  status)
+    if enabled; then
+      echo "Statut : installe"
+    else
+      echo "Statut : non installe"
+    fi
+    ;;
+  menu|*)
+    show_menu
+    ;;
 esac
