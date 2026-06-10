@@ -78,7 +78,7 @@
       addons = with pkgs; [
         fcitx5-mozc
         fcitx5-gtk
-        fcitx5-qt
+        kdePackages.fcitx5-qt
       ];
       settings = {
         globalOptions = {
