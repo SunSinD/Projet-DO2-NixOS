@@ -2,11 +2,10 @@
 set -euo pipefail
 
 # DO2 - installateur complet (telecharge par le bootstrap `do2` ou `install.sh`).
-INSTALL_SCRIPT_REV="2026-06-09.1"
+INSTALL_SCRIPT_REV="2026-04-18.2"
 
 FLAKE_ATTR="do2"
 WORK_DIR="/tmp/do2config"
-MIN_DISK_GB=32
 
 export NIX_CONFIG="experimental-features = nix-command flakes"
 
@@ -15,59 +14,6 @@ cleanup() {
   sudo umount -lR /mnt               2>/dev/null || true
 }
 trap cleanup EXIT
-
-part_path() {
-  local dev="$1" num="$2"
-  if [[ "$dev" == /dev/*nvme* ]] || [[ "$dev" == /dev/*mmcblk* ]]; then
-    echo "${dev}p${num}"
-  else
-    echo "${dev}${num}"
-  fi
-}
-
-free_nix_live_store() {
-  echo "  Liberation de l'espace sur l'ISO live..."
-  sudo nix-collect-garbage -d 2>/dev/null || true
-  sudo nix-store --optimise 2>/dev/null || true
-}
-
-partition_and_mount() {
-  local dev="$1"
-  local esp root
-
-  sudo wipefs -af "$dev"
-  sudo sgdisk --zap-all "$dev"
-  sudo sgdisk \
-    --new=1:0:+1M --typecode=1:EF02 \
-    --new=2:0:+1G --typecode=2:EF00 \
-    --new=3:0:0   --typecode=3:8300 \
-    "$dev"
-  sudo partprobe "$dev"
-  sudo udevadm settle --timeout=30 2>/dev/null || sleep 2
-
-  esp="$(part_path "$dev" 2)"
-  root="$(part_path "$dev" 3)"
-
-  sudo mkfs.vfat -F 32 -n ESP "$esp"
-  sudo mkfs.ext4 -L nixos -m 0 "$root"
-
-  sudo mkdir -p /mnt/boot
-  sudo mount "$root" /mnt
-  sudo mount "$esp" /mnt/boot
-}
-
-extend_nix_store() {
-  echo "  Utilisation du disque cible pour l'espace Nix..."
-  sudo mkdir -p /mnt/nix/overlay/{upper,work}
-  if sudo mount -t overlay overlay \
-    -o "lowerdir=/nix/store,upperdir=/mnt/nix/overlay/upper,workdir=/mnt/nix/overlay/work" \
-    /nix/store; then
-    echo "  Espace Nix elargi."
-  else
-    echo "  AVERTISSEMENT : impossible d'elargir l'espace Nix."
-    echo "  Si l'installation echoue, agrandissez le disque virtuel (48 Go recommande)."
-  fi
-}
 
 echo ""
 echo "  ╔══════════════════════════════════════╗"
@@ -78,7 +24,6 @@ echo ""
 
 sudo umount -lR /mnt 2>/dev/null || true
 sudo swapoff -a      2>/dev/null || true
-free_nix_live_store
 
 echo "  [1/6] Preparation de la configuration..."
 cd "$WORK_DIR"
@@ -97,7 +42,7 @@ mapfile -t DISK_NAMES < <(
 )
 
 if [[ ${#DISK_NAMES[@]} -eq 0 ]]; then
-  echo "  ERREUR : aucun disque detecte."
+  echo "  ERREUR : aucun disque détecté."
   exit 1
 fi
 
@@ -125,26 +70,17 @@ fi
 DEV="/dev/${DISK_NAMES[$CHOICE]}"
 
 if lsblk -no TRAN "$DEV" 2>/dev/null | grep -q "usb"; then
-  echo "  ERREUR : $DEV est une cle USB. Choisissez le disque interne."
-  exit 1
-fi
-
-disk_bytes=$(lsblk -bdno SIZE "$DEV" 2>/dev/null || echo 0)
-min_bytes=$((MIN_DISK_GB * 1024 * 1024 * 1024))
-if [[ "$disk_bytes" -lt "$min_bytes" ]]; then
-  echo ""
-  echo "  ERREUR : le disque doit faire au moins ${MIN_DISK_GB} Go."
-  echo "  Dans VMware, agrandissez le disque virtuel (48 Go recommande)."
+  echo "  ERREUR : $DEV est une clé USB. Choisissez le disque interne."
   exit 1
 fi
 
 echo ""
-echo "  Disque selectionne : $DEV"
+echo "  Disque sélectionné : $DEV"
 echo ""
-read -rp "  TOUTES LES DONNEES SUR $DEV SERONT EFFACEES. Confirmer ? (oui/non) : " CONFIRM
+read -rp "  TOUTES LES DONNÉES SUR $DEV SERONT EFFACÉES. Confirmer ? (oui/non) : " CONFIRM
 
 if [[ "$CONFIRM" != "oui" ]]; then
-  echo "  Installation annulee."
+  echo "  Installation annulée."
   exit 1
 fi
 
@@ -154,11 +90,14 @@ sed -i "s|device = \"/dev/[^\"]*\"; # DO2_DISK|device = \"$DEV\"; # DO2_DISK|" f
 git add flake.nix
 echo "{ }" > hardware-configuration.nix
 git add hardware-configuration.nix
-partition_and_mount "$DEV"
-extend_nix_store
+sudo nix --extra-experimental-features "nix-command flakes" run \
+  github:nix-community/disko/latest -- \
+  --mode destroy,format,mount \
+  --yes-wipe-all-disks \
+  --flake ".#$FLAKE_ATTR" 2>&1 | { grep -v '^warning:' || true; }
 
 echo ""
-echo "  [3/6] Detection du materiel..."
+echo "  [3/6] Détection du matériel..."
 sudo nixos-generate-config --root /mnt --no-filesystems 2>/dev/null
 sudo cp /mnt/etc/nixos/hardware-configuration.nix "$WORK_DIR/hardware-configuration.nix"
 git add hardware-configuration.nix
@@ -179,7 +118,7 @@ elif [[ "$ram_gb" -gt 8 ]]; then
 else
   swap_gb="$ram_gb"
 fi
-echo "  Taille du swap choisie : ${swap_gb}G (RAM detectee: ${ram_gb}G)"
+echo "  Taille du swap choisie : ${swap_gb}G (RAM détectée: ${ram_gb}G)"
 sudo mkdir -p /mnt/var/lib
 sudo fallocate -l "${swap_gb}G" /mnt/var/lib/swapfile
 sudo chmod 600       /mnt/var/lib/swapfile
