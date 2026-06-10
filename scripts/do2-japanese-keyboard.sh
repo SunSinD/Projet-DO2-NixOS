@@ -81,8 +81,7 @@ do2-japanese-keyboard — clavier japonais (cet ordinateur seulement)
   start     Demarre fcitx5 maintenant (si arrete)
   repair    Reconstruit si deja active (apres update-do2)
 
-Raccourcis : Ctrl + Shift + Espace  ou  Alt + Shift + J
-Ou cliquez l'icone clavier en bas a droite → Mozc (JP) / Clavier (FR).
+Cliquez l'icone clavier en bas a droite → Mozc (JP) / Clavier (FR).
 EOF
 }
 
@@ -103,7 +102,7 @@ start_fcitx() {
   prepare_mozc
   DISPLAY="${DISPLAY:-:0}" fcitx5 -d
   if wait_for_fcitx; then
-    echo "fcitx5 demarre. Essayez Ctrl + Shift + Espace ou Alt + Shift + J."
+    echo "fcitx5 demarre. Cliquez l'icone clavier en bas a droite → Mozc (JP) / Clavier (FR)."
   else
     echo "Echec du demarrage. Essayez : fcitx5-diagnose | tail -30"
     exit 1
@@ -118,8 +117,8 @@ Clavier japonais installe sur cet ordinateur.
 Redemarrez : sudo reboot
 
 Apres le redemarrage, dans Chrome ou LibreOffice :
-  Ctrl + Shift + Espace = basculer francais / japonais
-  Icone clavier en bas a droite : Mozc (JP) ou Clavier (FR)
+  Cliquez l'icone clavier en bas a droite → Mozc (JP) ou Clavier (FR)
+  Tapez konnichiha → cela devrait donner こんにちは
 
 EOF
 }

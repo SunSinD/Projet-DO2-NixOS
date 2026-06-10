@@ -20,10 +20,6 @@
             ActiveByDefault = false;
             ShareInputState = "No";
           };
-          Hotkey = {
-            EnumerateWithTriggerKeys = true;
-            TriggerKeys = "Control+Shift+space Alt+Shift+j";
-          };
         };
         inputMethod = {
           GroupOrder."0" = "Default";
@@ -65,4 +61,8 @@
     Hidden=true
     NoDisplay=true
   '';
+  fonts.packages = with pkgs; [
+    noto-fonts-cjk-sans
+    noto-fonts-cjk-serif
+  ];
 }
