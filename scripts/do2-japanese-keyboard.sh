@@ -16,8 +16,17 @@ fcitx_installed() {
 
 fcitx5_running() {
   pgrep -x fcitx5 >/dev/null 2>&1 && return 0
+  if dbus-send --session --print-reply --dest=org.freedesktop.DBus /org/freedesktop/DBus \
+    org.freedesktop.DBus.NameHasOwner string:org.fcitx.Fcitx5 2>/dev/null \
+    | grep -q "boolean true"; then
+    return 0
+  fi
   DISPLAY="${DISPLAY:-:0}" fcitx5-remote -p >/dev/null 2>&1 && return 0
   return 1
+}
+
+prepare_mozc() {
+  mkdir -p "$HOME/.config/mozc" "$HOME/.config/fcitx5"
 }
 
 wait_for_fcitx() {
@@ -91,11 +100,12 @@ start_fcitx() {
     return 0
   fi
   stop_fcitx
-  DISPLAY="${DISPLAY:-:0}" fcitx5 -dr
+  prepare_mozc
+  DISPLAY="${DISPLAY:-:0}" fcitx5 -d
   if wait_for_fcitx; then
     echo "fcitx5 demarre. Essayez Ctrl + Shift + Espace ou Alt + Shift + J."
   else
-    echo "fcitx5 ne repond pas encore. Attendez 5 s puis : do2-japanese-keyboard status"
+    echo "Echec du demarrage. Essayez : fcitx5-diagnose | tail -30"
     exit 1
   fi
 }
@@ -132,6 +142,7 @@ enable_japanese() {
 
   rebuild
   verify_install
+  prepare_mozc
   echo "Clavier japonais installe."
   usage_after_enable
 }
