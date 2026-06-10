@@ -14,17 +14,6 @@ fcitx_installed() {
   command -v fcitx5 >/dev/null 2>&1
 }
 
-fcitx5_running() {
-  pgrep -x fcitx5 >/dev/null 2>&1 && return 0
-  if dbus-send --session --print-reply --dest=org.freedesktop.DBus /org/freedesktop/DBus \
-    org.freedesktop.DBus.NameHasOwner string:org.fcitx.Fcitx5 2>/dev/null \
-    | grep -q "boolean true"; then
-    return 0
-  fi
-  DISPLAY="${DISPLAY:-:0}" fcitx5-remote -p >/dev/null 2>&1 && return 0
-  return 1
-}
-
 prepare_mozc() {
   mkdir -p "$HOME/.config/mozc" "$HOME/.config/fcitx5"
 }
@@ -125,16 +114,10 @@ show_status() {
   migrate_legacy
 
   if enabled; then
-    echo "Statut : active"
     if fcitx_installed; then
-      echo "fcitx5 : installe"
-      if fcitx5_running; then
-        echo "fcitx5 : en cours d'execution"
-      else
-        echo "fcitx5 : arrete — redemarrez l'ordinateur"
-      fi
+      echo "Statut : installe"
     else
-      echo "fcitx5 : MANQUANT — lancez : update-do2 puis do2-japanese-keyboard repair"
+      echo "Statut : incomplet — lancez update-do2 puis do2-japanese-keyboard repair"
     fi
   else
     echo "Statut : non installe"
