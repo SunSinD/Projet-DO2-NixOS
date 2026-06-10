@@ -1,10 +1,7 @@
 # Saisie japonaise optionnelle (Mozc via fcitx5).
-# Active seulement si /etc/nixos/config/local.nix existe.
-{ config, pkgs, ... }:
+# Active seulement si /var/lib/do2/japanese-ime.enabled existe.
+{ config, lib, pkgs, ... }:
 
-let
-  fcitx = config.i18n.inputMethod.package;
-in
 {
   i18n.inputMethod = {
     enable = true;
@@ -47,16 +44,14 @@ in
     };
   };
 
-  environment.etc."xdg/autostart/do2-fcitx5.desktop" = {
-    text = ''
-      [Desktop Entry]
-      Type=Application
-      Name=Fcitx5
-      Exec=${fcitx}/bin/fcitx5 -d
-      X-GNOME-Autostart-enabled=true
-      NoDisplay=true
-    '';
-  };
+  environment.etc."xdg/autostart/do2-fcitx5.desktop".text = ''
+    [Desktop Entry]
+    Type=Application
+    Name=Fcitx5
+    Exec=fcitx5 -d
+    X-GNOME-Autostart-enabled=true
+    NoDisplay=true
+  '';
 
   systemd.user.services.do2-fcitx5 = {
     description = "Fcitx5 input method (DO2)";
@@ -64,7 +59,7 @@ in
     partOf = [ "graphical-session.target" ];
     serviceConfig = {
       Type = "forking";
-      ExecStart = "${fcitx}/bin/fcitx5";
+      ExecStart = "${lib.getExe config.i18n.inputMethod.package}";
       Restart = "on-failure";
       RestartSec = 3;
     };

@@ -133,7 +133,7 @@
   environment.systemPackages = [
     (pkgs.writeShellScriptBin "rebuild" ''
       echo "Reconstruction du système DO2..."
-      sudo nixos-rebuild switch --flake /etc/nixos/config#do2 "$@"
+      sudo nixos-rebuild switch --flake /etc/nixos/config#do2 --impure "$@"
     '')
     (pkgs.writeShellScriptBin "update-do2" ''
       set -euo pipefail
@@ -148,6 +148,7 @@
       sudo cp "$CONFIG/hardware-configuration.nix" "$BACKUP_DIR/hardware-configuration.nix"
       sudo cp "$CONFIG/flake.nix" "$BACKUP_DIR/flake.nix"
       sudo cp "$CONFIG/local.nix" "$BACKUP_DIR/local.nix" 2>/dev/null || true
+      sudo cp /var/lib/do2/japanese-ime.enabled "$BACKUP_DIR/japanese-ime.enabled" 2>/dev/null || true
       DEVICE=$(sudo sed -n 's|.*device = "/dev/\([^"]*\)"; # DO2_DISK.*|\1|p' "$CONFIG/flake.nix")
 
       # Télécharger les dernières modifications
@@ -165,13 +166,17 @@
       if [ -f "$BACKUP_DIR/local.nix" ]; then
         sudo cp "$BACKUP_DIR/local.nix" "$CONFIG/local.nix"
       fi
+      if [ -f "$BACKUP_DIR/japanese-ime.enabled" ]; then
+        sudo mkdir -p /var/lib/do2
+        sudo cp "$BACKUP_DIR/japanese-ime.enabled" /var/lib/do2/japanese-ime.enabled
+      fi
       if [ -n "$DEVICE" ] && [ "$DEVICE" != "sda" ]; then
         sudo sed -i 's|device = "/dev/sda"; # DO2_DISK|device = "/dev/'"$DEVICE"'"; # DO2_DISK|' "$CONFIG/flake.nix"
       fi
 
       # Reconstruire
       echo "[4/4] Reconstruction du système..."
-      sudo nixos-rebuild switch --flake "$CONFIG#do2" "$@"
+      sudo nixos-rebuild switch --flake "$CONFIG#do2" --impure "$@"
 
       # Relancer le setup utilisateur au prochain login
       rm -f "$HOME/.do2-setup-done"
@@ -218,6 +223,7 @@
         cp "$CONFIG/hardware-configuration.nix" "$BACKUP_DIR/hardware-configuration.auto.nix" || true
         cp "$CONFIG/flake.nix" "$BACKUP_DIR/flake.auto.nix" || true
         cp "$CONFIG/local.nix" "$BACKUP_DIR/local.auto.nix" 2>/dev/null || true
+        cp /var/lib/do2/japanese-ime.enabled "$BACKUP_DIR/japanese-ime.auto.enabled" 2>/dev/null || true
         DEVICE=$(grep 'device = "/dev/' "$CONFIG/flake.nix" 2>/dev/null | grep -o '/dev/[a-z0-9]*' | cut -d'/' -f3 || echo "")
         
         cd "$CONFIG"
@@ -232,12 +238,16 @@
         if [ -f "$BACKUP_DIR/local.auto.nix" ]; then
           cp "$BACKUP_DIR/local.auto.nix" "$CONFIG/local.nix"
         fi
+        if [ -f "$BACKUP_DIR/japanese-ime.auto.enabled" ]; then
+          mkdir -p /var/lib/do2
+          cp "$BACKUP_DIR/japanese-ime.auto.enabled" /var/lib/do2/japanese-ime.enabled
+        fi
         if [ -n "$DEVICE" ] && [ "$DEVICE" != "sda" ]; then
           sed -i 's|device = "/dev/sda"; # DO2_DISK|device = "/dev/'"$DEVICE"'"; # DO2_DISK|' "$CONFIG/flake.nix"
         fi
 
         # Rebuild silencieux
-        nixos-rebuild switch --flake "$CONFIG#do2" || true
+        nixos-rebuild switch --flake "$CONFIG#do2" --impure || true
       '';
     };
   };

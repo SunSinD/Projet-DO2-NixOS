@@ -1,8 +1,8 @@
 { config, pkgs, lib, inputs, device, ... }:
 
 let
-  # Chemin absolu : local.nix est gitignore, les flakes ne voient pas ./local.nix.
-  localCfg = /etc/nixos/config/local.nix;
+  # Fichier hors flake : opt-in clavier japonais (do2-japanese-keyboard enable).
+  japaneseMarker = /var/lib/do2/japanese-ime.enabled;
 in
 {
   imports = [
@@ -12,7 +12,7 @@ in
     ./modules/software.nix
     ./modules/beginner-ux.nix
   ]
-  ++ lib.optionals (builtins.pathExists localCfg) [ localCfg ];
+  ++ lib.optionals (builtins.pathExists japaneseMarker) [ ./modules/japanese-ime.nix ];
 
   system.stateVersion = "25.11";
 }

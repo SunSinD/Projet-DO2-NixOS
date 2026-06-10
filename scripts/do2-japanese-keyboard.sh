@@ -3,11 +3,11 @@
 set -euo pipefail
 
 CONFIG="/etc/nixos/config"
-LOCAL="$CONFIG/local.nix"
-MARKER="$CONFIG/.do2-japanese-enabled"
+MARKER="/var/lib/do2/japanese-ime.enabled"
+LEGACY_LOCAL="$CONFIG/local.nix"
 
 enabled() {
-  [ -f "$LOCAL" ] && grep -q "japanese-ime.nix" "$LOCAL" 2>/dev/null
+  [ -f "$MARKER" ]
 }
 
 fcitx_installed() {
@@ -16,11 +16,19 @@ fcitx_installed() {
 
 rebuild() {
   echo ""
-  echo "=== Reconstruction du systeme (10 a 20 minutes) ==="
+  echo "=== Reconstruction du systeme ==="
   echo "Ne fermez pas le terminal."
   echo ""
-  sudo nixos-rebuild switch --flake "$CONFIG#do2"
+  sudo nixos-rebuild switch --flake "$CONFIG#do2" --impure
   echo ""
+}
+
+migrate_legacy() {
+  if [ -f "$LEGACY_LOCAL" ] && grep -q "japanese-ime" "$LEGACY_LOCAL" 2>/dev/null; then
+    sudo mkdir -p /var/lib/do2
+    sudo touch "$MARKER"
+    sudo rm -f "$LEGACY_LOCAL"
+  fi
 }
 
 verify_install() {
@@ -28,7 +36,7 @@ verify_install() {
     echo ""
     echo "ERREUR: fcitx5 absent du systeme apres le rebuild."
     echo "Lancez : update-do2"
-    echo "Puis   : do2-japanese-keyboard enable"
+    echo "Puis   : do2-japanese-keyboard repair"
     exit 1
   fi
 }
@@ -37,28 +45,29 @@ usage() {
   cat <<'EOF'
 do2-japanese-keyboard — clavier japonais (cet ordinateur seulement)
 
-  enable    Installe le clavier japonais (rebuild ~10-20 min, puis reboot)
-  disable   Retire le clavier japonais
-  status    Affiche si installe et si fcitx5 est present
-  repair    Reconstruit si deja active (apres une mise a jour DO2)
+  enable    Installe le clavier japonais, puis redemarrez
+  disable   Retire le clavier japonais, puis redemarrez
+  status    Verifie si le clavier japonais est installe
+  repair    Reconstruit si deja active (apres update-do2)
 
-Apres reboot : Ctrl + Maj + Espace pour basculer francais / japonais.
-(Maj = Shift, barre d'espace — pas la touche Esc)
+Apres reboot : Ctrl + Shift + Espace pour basculer francais / japonais.
 EOF
 }
 
 usage_after_enable() {
   cat <<'EOF'
 
-Francais par defaut. Ctrl + Maj + Espace = basculer vers le japonais.
+Francais par defaut. Ctrl + Shift + Espace = basculer vers le japonais.
 Icone clavier en bas a droite : Clavier (FR) ou Mozc (JP).
 
-Redemarrez maintenant : sudo reboot
+Redemarrez : sudo reboot
 
 EOF
 }
 
 enable_japanese() {
+  migrate_legacy
+
   if enabled; then
     echo "Deja active sur cet ordinateur."
     if fcitx_installed; then
@@ -68,13 +77,9 @@ enable_japanese() {
     echo "Mais fcitx5 manque — reconstruction..."
   else
     echo "Activation du clavier japonais sur cet ordinateur..."
-    sudo tee "$LOCAL" > /dev/null <<'EOF'
-# Active localement sur ce portable (preserve par update-do2).
-{ ... }: {
-  imports = [ /etc/nixos/config/modules/japanese-ime.nix ];
-}
-EOF
+    sudo mkdir -p /var/lib/do2
     sudo touch "$MARKER"
+    sudo rm -f "$LEGACY_LOCAL"
   fi
 
   rebuild
@@ -84,20 +89,24 @@ EOF
 }
 
 disable_japanese() {
+  migrate_legacy
+
   if ! enabled; then
     echo "Non installe sur cet ordinateur."
     return 0
   fi
 
   echo "Desactivation du clavier japonais..."
-  sudo rm -f "$LOCAL" "$MARKER"
+  sudo rm -f "$MARKER" "$LEGACY_LOCAL"
   rebuild
   echo "Clavier japonais desactive. Redemarrez : sudo reboot"
 }
 
 show_status() {
+  migrate_legacy
+
   if enabled; then
-    echo "Statut : active (local.nix present)"
+    echo "Statut : active"
     if fcitx_installed; then
       echo "fcitx5 : installe"
       if pgrep -x fcitx5 >/dev/null 2>&1; then
@@ -114,6 +123,8 @@ show_status() {
 }
 
 repair_japanese() {
+  migrate_legacy
+
   if ! enabled; then
     echo "Pas active. Lancez : do2-japanese-keyboard enable"
     exit 1
