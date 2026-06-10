@@ -17,8 +17,8 @@ rebuild() {
 
 enable_japanese() {
   if enabled; then
-    yad --info --title="Clavier japonais" --text="Le clavier japonais est deja active sur cet ordinateur.\n\nRaccourci : Ctrl + Maj + Espace" --button="OK" 2>/dev/null \
-      || echo "Le clavier japonais est deja active. Raccourci : Ctrl + Maj + Espace"
+    yad --info --title="Clavier japonais" --text="Le clavier japonais est deja active sur cet ordinateur.\n\nFrancais par defaut. Ctrl + Maj + Espace bascule entre francais et japonais.\nOu cliquez l'icone en bas a droite et choisissez le clavier." --button="OK" 2>/dev/null \
+      || echo "Deja active. Ctrl + Maj + Espace = basculer FR/JP."
     return 0
   fi
 
@@ -31,8 +31,8 @@ EOF
   sudo touch "$MARKER"
   rebuild
 
-  yad --info --title="Clavier japonais" --text="Clavier japonais active.\n\nRaccourci : Ctrl + Maj + Espace\n(Maj = touche Shift)\n\nRedemarrez si le raccourci ne fonctionne pas tout de suite." --button="OK" 2>/dev/null \
-    || echo "Clavier japonais active. Raccourci : Ctrl + Maj + Espace"
+  yad --info --title="Clavier japonais" --text="Clavier japonais installe sur cet ordinateur.\n\nLe francais reste par defaut.\nCtrl + Maj + Espace = basculer entre francais et japonais\n(Maj = touche Shift)\n\nRedemarrez si besoin." --button="OK" 2>/dev/null \
+    || echo "Installe. Francais par defaut. Ctrl + Maj + Espace = basculer."
 }
 
 disable_japanese() {
@@ -56,7 +56,7 @@ show_menu() {
   if enabled; then
     status="active"
     choice=$(yad --title="Clavier japonais" --width=420 \
-      --text="Statut : active sur cet ordinateur.\n\nRaccourci : Ctrl + Maj + Espace (Maj = Shift)\nTapez en alphabet latin, ex. konnichiha → こんにちは" \
+      --text="Statut : installe sur cet ordinateur.\n\nFrancais par defaut. Ctrl + Maj + Espace bascule FR/JP.\nIcone en bas a droite : choisir Clavier (FR) ou Mozc (JP).\nEx. konnichiha → こんにちは" \
       --button="Desactiver:1" --button="Fermer:0" 2>/dev/null || echo "0")
     [ "$choice" = "1" ] && disable_japanese
   else

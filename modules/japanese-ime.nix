@@ -21,7 +21,7 @@
             ShareInputState = "No";
           };
           Hotkey = {
-            EnumerateWithTriggerKeys = false;
+            EnumerateWithTriggerKeys = true;
             TriggerKeys = "Control+Shift+space";
           };
         };
@@ -30,9 +30,10 @@
           "Groups/0" = {
             Name = "Default";
             "Default Layout" = "ca";
-            DefaultIM = "mozc";
+            DefaultIM = "keyboard-ca";
           };
-          "Groups/0/Items/0".Name = "mozc";
+          "Groups/0/Items/0".Name = "keyboard-ca";
+          "Groups/0/Items/1".Name = "mozc";
         };
         addons = {
           classicui.globalSection = {
