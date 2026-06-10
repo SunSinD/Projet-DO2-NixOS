@@ -43,14 +43,4 @@
       };
     };
   };
-
-  # Demarrer fcitx5 apres Cinnamon (pas via systemd user : bloquait la session).
-  environment.etc."xdg/autostart/do2-fcitx5.desktop".text = ''
-    [Desktop Entry]
-    Type=Application
-    Name=Fcitx5
-    Exec=sh -c "sleep 2 && fcitx5 -d"
-    X-GNOME-Autostart-enabled=true
-    NoDisplay=true
-  '';
 }
