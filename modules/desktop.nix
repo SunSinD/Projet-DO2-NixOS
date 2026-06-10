@@ -66,9 +66,10 @@
   services.libinput.enable      = true;
   services.xserver.wacom.enable = true;
 
-  # ── Saisie japonaise (IME Mozc via fcitx5) ──────────────────────────────
-  # Le clavier JP dans Cinnamon ne suffit pas : il faut un IME pour convertir
-  # le romaji (ex. « konnichiha ») en hiragana/kanji (ex. « こんにちは »).
+  # ── Saisie japonaise optionnelle (IME Mozc via fcitx5) ─────────────────
+  # Installe pour les utilisateurs qui en ont besoin, mais le francais canadien
+  # reste le mode par defaut sur tous les portables DO2.
+  # Raccourci japonais : Ctrl+Espace (apres activation manuelle).
   i18n.inputMethod = {
     enable = true;
     type = "fcitx5";
@@ -82,9 +83,13 @@
       ];
       settings = {
         globalOptions = {
+          Behavior = {
+            ActiveByDefault = false;
+            ShareInputState = "No";
+          };
           Hotkey = {
             EnumerateWithTriggerKeys = true;
-            TriggerKeys = "Control+space Zenkakuhankaku";
+            TriggerKeys = "Control+space";
           };
         };
         inputMethod = {
