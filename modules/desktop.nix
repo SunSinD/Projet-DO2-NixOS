@@ -66,6 +66,41 @@
   services.libinput.enable      = true;
   services.xserver.wacom.enable = true;
 
+  # ── Saisie japonaise (IME Mozc via fcitx5) ──────────────────────────────
+  # Le clavier JP dans Cinnamon ne suffit pas : il faut un IME pour convertir
+  # le romaji (ex. « konnichiha ») en hiragana/kanji (ex. « こんにちは »).
+  i18n.inputMethod = {
+    enable = true;
+    type = "fcitx5";
+    fcitx5 = {
+      waylandFrontend  = false;
+      ignoreUserConfig = true;
+      addons = with pkgs; [
+        fcitx5-mozc
+        fcitx5-gtk
+        fcitx5-qt
+      ];
+      settings = {
+        globalOptions = {
+          Hotkey = {
+            EnumerateWithTriggerKeys = true;
+            TriggerKeys = "Control+space Zenkakuhankaku";
+          };
+        };
+        inputMethod = {
+          GroupOrder."0" = "Default";
+          "Groups/0" = {
+            Name = "Default";
+            "Default Layout" = "ca";
+            DefaultIM = "keyboard-ca";
+          };
+          "Groups/0/Items/0".Name = "keyboard-ca";
+          "Groups/0/Items/1".Name = "mozc";
+        };
+      };
+    };
+  };
+
   # ── Energie ─────────────────────────────────────────────────────────────
   services.upower.enable                = true;
   services.power-profiles-daemon.enable = true;
