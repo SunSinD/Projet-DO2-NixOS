@@ -113,12 +113,13 @@ start_fcitx() {
 usage_after_enable() {
   cat <<'EOF'
 
-Francais par defaut.
-
-  Ctrl + Shift + Espace  ou  Alt + Shift + J  = basculer FR / JP
-  Icone clavier en bas a droite : Clavier (FR) ou Mozc (JP)
+Clavier japonais installe sur cet ordinateur.
 
 Redemarrez : sudo reboot
+
+Apres le redemarrage, dans Chrome ou LibreOffice :
+  Ctrl + Shift + Espace = basculer francais / japonais
+  Icone clavier en bas a droite : Mozc (JP) ou Clavier (FR)
 
 EOF
 }
@@ -171,7 +172,7 @@ show_status() {
       if fcitx5_running; then
         echo "fcitx5 : en cours d'execution"
       else
-        echo "fcitx5 : arrete — lancez : do2-japanese-keyboard start"
+        echo "fcitx5 : arrete — redemarrez l'ordinateur"
       fi
     else
       echo "fcitx5 : MANQUANT — lancez : update-do2 puis do2-japanese-keyboard repair"
