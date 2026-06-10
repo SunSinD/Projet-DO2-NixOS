@@ -1,6 +1,6 @@
 # Saisie japonaise optionnelle (Mozc via fcitx5).
 # Active seulement si /var/lib/do2/japanese-ime.enabled existe.
-{ config, lib, pkgs, ... }:
+{ pkgs, ... }:
 
 {
   i18n.inputMethod = {
@@ -17,7 +17,7 @@
       settings = {
         globalOptions = {
           Behavior = {
-            ActiveByDefault = true;
+            ActiveByDefault = false;
             ShareInputState = "No";
           };
           Hotkey = {
@@ -44,24 +44,13 @@
     };
   };
 
+  # Demarrer fcitx5 apres Cinnamon (pas via systemd user : bloquait la session).
   environment.etc."xdg/autostart/do2-fcitx5.desktop".text = ''
     [Desktop Entry]
     Type=Application
     Name=Fcitx5
-    Exec=fcitx5 -d
+    Exec=sh -c "sleep 2 && fcitx5 -d"
     X-GNOME-Autostart-enabled=true
     NoDisplay=true
   '';
-
-  systemd.user.services.do2-fcitx5 = {
-    description = "Fcitx5 input method (DO2)";
-    wantedBy = [ "graphical-session.target" ];
-    partOf = [ "graphical-session.target" ];
-    serviceConfig = {
-      Type = "forking";
-      ExecStart = "${lib.getExe config.i18n.inputMethod.package}";
-      Restart = "on-failure";
-      RestartSec = 3;
-    };
-  };
 }

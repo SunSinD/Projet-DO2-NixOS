@@ -10,7 +10,7 @@
     device                = device;
     efiSupport            = true;
     efiInstallAsRemovable = true;
-    configurationLimit    = 1;
+    configurationLimit    = 5;
     theme                 = null;
     backgroundColor       = "#000000";
     splashImage           = null;
