@@ -147,7 +147,7 @@
       sudo mkdir -p "$BACKUP_DIR"
       sudo cp "$CONFIG/hardware-configuration.nix" "$BACKUP_DIR/hardware-configuration.nix"
       sudo cp "$CONFIG/flake.nix" "$BACKUP_DIR/flake.nix"
-      sudo cp "$CONFIG/local.nix" "$BACKUP_DIR/local.nix" 2>/dev/null || true
+      # Ne jamais creer le marqueur ici : clavier JP = do2-japanese-keyboard enable seulement.
       sudo cp /var/lib/do2/japanese-ime.enabled "$BACKUP_DIR/japanese-ime.enabled" 2>/dev/null || true
       DEVICE=$(sudo sed -n 's|.*device = "/dev/\([^"]*\)"; # DO2_DISK.*|\1|p' "$CONFIG/flake.nix")
 
@@ -163,9 +163,6 @@
 
       # Restaurer les fichiers propres à cette machine
       sudo cp "$BACKUP_DIR/hardware-configuration.nix" "$CONFIG/hardware-configuration.nix"
-      if [ -f "$BACKUP_DIR/local.nix" ]; then
-        sudo cp "$BACKUP_DIR/local.nix" "$CONFIG/local.nix"
-      fi
       if [ -f "$BACKUP_DIR/japanese-ime.enabled" ]; then
         sudo mkdir -p /var/lib/do2
         sudo cp "$BACKUP_DIR/japanese-ime.enabled" /var/lib/do2/japanese-ime.enabled
@@ -222,7 +219,6 @@
         mkdir -p "$BACKUP_DIR" || true
         cp "$CONFIG/hardware-configuration.nix" "$BACKUP_DIR/hardware-configuration.auto.nix" || true
         cp "$CONFIG/flake.nix" "$BACKUP_DIR/flake.auto.nix" || true
-        cp "$CONFIG/local.nix" "$BACKUP_DIR/local.auto.nix" 2>/dev/null || true
         cp /var/lib/do2/japanese-ime.enabled "$BACKUP_DIR/japanese-ime.auto.enabled" 2>/dev/null || true
         DEVICE=$(grep 'device = "/dev/' "$CONFIG/flake.nix" 2>/dev/null | grep -o '/dev/[a-z0-9]*' | cut -d'/' -f3 || echo "")
         
@@ -234,9 +230,6 @@
         # Restaurer la configuration locale
         if [ -f "$BACKUP_DIR/hardware-configuration.auto.nix" ]; then
           cp "$BACKUP_DIR/hardware-configuration.auto.nix" "$CONFIG/hardware-configuration.nix"
-        fi
-        if [ -f "$BACKUP_DIR/local.auto.nix" ]; then
-          cp "$BACKUP_DIR/local.auto.nix" "$CONFIG/local.nix"
         fi
         if [ -f "$BACKUP_DIR/japanese-ime.auto.enabled" ]; then
           mkdir -p /var/lib/do2

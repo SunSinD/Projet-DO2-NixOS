@@ -91,6 +91,7 @@
     source = ../scripts/do2-welcome.sh;
     mode   = "0755";
   };
+  # Commande disponible partout, mais le clavier JP ne s'installe que via enable.
   environment.etc."do2/do2-japanese-keyboard.sh" = {
     source = ../scripts/do2-japanese-keyboard.sh;
     mode   = "0755";
