@@ -29,21 +29,6 @@ prepare_mozc() {
   mkdir -p "$HOME/.config/mozc" "$HOME/.config/fcitx5"
 }
 
-wait_for_fcitx() {
-  local i
-  for i in 1 2 3 4 5 6 7 8; do
-    fcitx5_running && return 0
-    sleep 1
-  done
-  return 1
-}
-
-stop_fcitx() {
-  fcitx5-remote -e >/dev/null 2>&1 || true
-  pkill -x fcitx5 >/dev/null 2>&1 || true
-  sleep 1
-}
-
 rebuild() {
   echo ""
   echo "=== Reconstruction du systeme ==="
@@ -78,35 +63,10 @@ do2-japanese-keyboard — clavier japonais (cet ordinateur seulement)
   enable    Installe le clavier japonais, puis redemarrez
   disable   Retire le clavier japonais, puis redemarrez
   status    Verifie si le clavier japonais est installe
-  start     Demarre fcitx5 maintenant (si arrete)
   repair    Reconstruit si deja active (apres update-do2)
 
 Cliquez l'icone clavier en bas a droite → Mozc (JP) / Clavier (FR).
 EOF
-}
-
-start_fcitx() {
-  if ! enabled; then
-    echo "Clavier japonais non installe. Lancez : do2-japanese-keyboard enable"
-    exit 1
-  fi
-  if ! fcitx_installed; then
-    echo "fcitx5 manquant. Lancez : do2-japanese-keyboard repair"
-    exit 1
-  fi
-  if fcitx5_running; then
-    echo "fcitx5 deja en cours d'execution."
-    return 0
-  fi
-  stop_fcitx
-  prepare_mozc
-  DISPLAY="${DISPLAY:-:0}" fcitx5 -d
-  if wait_for_fcitx; then
-    echo "fcitx5 demarre. Cliquez l'icone clavier en bas a droite → Mozc (JP) / Clavier (FR)."
-  else
-    echo "Echec du demarrage. Essayez : fcitx5-diagnose | tail -30"
-    exit 1
-  fi
 }
 
 usage_after_enable() {
@@ -203,7 +163,6 @@ case "${1:-}" in
   enable)  enable_japanese ;;
   disable) disable_japanese ;;
   status)  show_status ;;
-  start)   start_fcitx ;;
   repair)  repair_japanese ;;
   help|-h|--help) usage ;;
   "")
