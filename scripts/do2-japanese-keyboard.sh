@@ -16,7 +16,17 @@ fcitx_installed() {
 
 fcitx5_running() {
   pgrep -x fcitx5 >/dev/null 2>&1 && return 0
-  fcitx5-remote -p >/dev/null 2>&1
+  DISPLAY="${DISPLAY:-:0}" fcitx5-remote -p >/dev/null 2>&1 && return 0
+  return 1
+}
+
+wait_for_fcitx() {
+  local i
+  for i in 1 2 3 4 5 6 7 8; do
+    fcitx5_running && return 0
+    sleep 1
+  done
+  return 1
 }
 
 stop_fcitx() {
@@ -81,12 +91,11 @@ start_fcitx() {
     return 0
   fi
   stop_fcitx
-  fcitx5 -dr
-  sleep 1
-  if fcitx5_running; then
+  DISPLAY="${DISPLAY:-:0}" fcitx5 -dr
+  if wait_for_fcitx; then
     echo "fcitx5 demarre. Essayez Ctrl + Shift + Espace ou Alt + Shift + J."
   else
-    echo "Echec du demarrage de fcitx5."
+    echo "fcitx5 ne repond pas encore. Attendez 5 s puis : do2-japanese-keyboard status"
     exit 1
   fi
 }
