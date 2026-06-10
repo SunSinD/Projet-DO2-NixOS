@@ -22,7 +22,8 @@
           };
           Hotkey = {
             EnumerateWithTriggerKeys = true;
-            TriggerKeys = "Control+Shift+space";
+            # Alt+Shift+J : secours si Ctrl+Shift+Espace ne passe pas (VMware, etc.)
+            TriggerKeys = "Control+Shift+space Alt+Shift+j";
           };
         };
         inputMethod = {
@@ -43,4 +44,16 @@
       };
     };
   };
+
+  # Demarrer fcitx5 apres Cinnamon (delai 3 s — pas de systemd, evite l'ecran noir).
+  environment.etc."xdg/autostart/do2-fcitx5.desktop".text = ''
+    [Desktop Entry]
+    Type=Application
+    Name=DO2 Fcitx5
+    Comment=Japanese input method
+    Exec=fcitx5 -d
+    X-GNOME-Autostart-enabled=true
+    X-GNOME-Autostart-Delay=3
+    NoDisplay=true
+  '';
 }

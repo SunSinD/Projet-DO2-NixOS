@@ -48,17 +48,44 @@ do2-japanese-keyboard — clavier japonais (cet ordinateur seulement)
   enable    Installe le clavier japonais, puis redemarrez
   disable   Retire le clavier japonais, puis redemarrez
   status    Verifie si le clavier japonais est installe
+  start     Demarre fcitx5 maintenant (si arrete)
   repair    Reconstruit si deja active (apres update-do2)
 
-Apres reboot : Ctrl + Shift + Espace pour basculer francais / japonais.
+Raccourcis : Ctrl + Shift + Espace  ou  Alt + Shift + J
+Ou cliquez l'icone clavier en bas a droite → Mozc (JP) / Clavier (FR).
 EOF
+}
+
+start_fcitx() {
+  if ! enabled; then
+    echo "Clavier japonais non installe. Lancez : do2-japanese-keyboard enable"
+    exit 1
+  fi
+  if ! fcitx_installed; then
+    echo "fcitx5 manquant. Lancez : do2-japanese-keyboard repair"
+    exit 1
+  fi
+  if pgrep -x fcitx5 >/dev/null 2>&1; then
+    echo "fcitx5 deja en cours d'execution."
+    return 0
+  fi
+  fcitx5 -d
+  sleep 1
+  if pgrep -x fcitx5 >/dev/null 2>&1; then
+    echo "fcitx5 demarre. Essayez Ctrl + Shift + Espace ou Alt + Shift + J."
+  else
+    echo "Echec du demarrage de fcitx5."
+    exit 1
+  fi
 }
 
 usage_after_enable() {
   cat <<'EOF'
 
-Francais par defaut. Ctrl + Shift + Espace = basculer vers le japonais.
-Icone clavier en bas a droite : Clavier (FR) ou Mozc (JP).
+Francais par defaut.
+
+  Ctrl + Shift + Espace  ou  Alt + Shift + J  = basculer FR / JP
+  Icone clavier en bas a droite : Clavier (FR) ou Mozc (JP)
 
 Redemarrez : sudo reboot
 
@@ -112,7 +139,7 @@ show_status() {
       if pgrep -x fcitx5 >/dev/null 2>&1; then
         echo "fcitx5 : en cours d'execution"
       else
-        echo "fcitx5 : arrete (redemarrez ou lancez : fcitx5 -d)"
+        echo "fcitx5 : arrete — lancez : do2-japanese-keyboard start"
       fi
     else
       echo "fcitx5 : MANQUANT — lancez : update-do2 puis do2-japanese-keyboard repair"
@@ -144,6 +171,7 @@ case "${1:-}" in
   enable)  enable_japanese ;;
   disable) disable_japanese ;;
   status)  show_status ;;
+  start)   start_fcitx ;;
   repair)  repair_japanese ;;
   help|-h|--help) usage ;;
   "")
