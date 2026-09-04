@@ -1,2 +1,8 @@
 # Hide HTML from GitHub language statistics (it's documentation/portal, not source)
 *.html linguist-detectable=false
+
+# Nix expressions and executable scripts must retain LF endings.  Nix embeds
+# shell snippets verbatim; CRLF conversion makes those generated scripts fail.
+*.nix text eol=lf
+*.sh text eol=lf
+do2 text eol=lf

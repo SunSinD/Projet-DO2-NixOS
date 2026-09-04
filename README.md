@@ -89,6 +89,24 @@ Le projet DO2 redonne vie à des ordinateurs usagés du Collège Montmorency pou
 
 ---
 
+## Version 1.0.0 — ISO prête à l'emploi
+
+<br/>
+
+La version **v1.0.0** est la première publication officielle de DO2. Vous préférez éviter les étapes d'installation dans le terminal? Téléchargez l'image ISO prête à l'emploi depuis Archive.org, créez une clé USB amorçable, puis démarrez l'ordinateur à partir de cette clé.
+
+L'image contient la même configuration DO2, l'interface Cinnamon en français et les applications incluses dans ce projet. C'est la méthode la plus simple pour essayer ou déployer DO2 sans exécuter les commandes ci-dessous.
+
+**1.** Téléchargez l'[ISO DO2 v1.0.0 sur Archive.org](https://archive.org/details/montmorency-do-2-v-1.0.0).
+
+**2.** Écrivez l'image sur une clé USB avec Rufus ou balenaEtcher, puis démarrez l'ordinateur à partir de cette clé.
+
+> Identifiants par défaut — Utilisateur : `user` · Mot de passe : `pass`
+
+<br/>
+
+---
+
 ## Installation
 
 <br/>
