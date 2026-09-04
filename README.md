@@ -2,6 +2,7 @@
 
 <p align="center">
   <a href="https://github.com/SunSinD/Projet-DO2-NixOS/blob/main/LICENSE">
+      </a>
     <img src="https://img.shields.io/badge/Licence-MIT-0078D4?style=for-the-badge&logo=github&logoColor=white" alt="Licence MIT" />
   </a>
   <img src="https://img.shields.io/badge/NixOS-25.11-5277C3?style=for-the-badge&logo=nixos&logoColor=white" alt="NixOS 25.11" />
