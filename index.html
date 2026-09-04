@@ -67,7 +67,7 @@
       display: flex; align-items: center; gap: 8px;
       position: relative;
     }
-    /* Shared nav button base — ensures identical sizing */
+    /* Shared nav button base: ensures identical sizing */
     .nav-github,
     .nav-contact {
       display: inline-flex; align-items: center; gap: 8px;
@@ -932,11 +932,9 @@
 <header>
   <div class="hero-inner">
     <div class="badge">
-      NixOS
-      <span class="badge-sep">·</span>
+      NixOS,
       <span style="color: #003A70; font-weight: 600;">Collège</span> <span style="color: #78BE20; font-weight: 600;">Montmorency</span>
-      <span class="badge-sep">·</span>
-      Hiver 2026
+      , Hiver 2026
     </div>
     <h1 id="hero-title">Dons d'ordinateurs,<br/><em>deuxième vie</em></h1>
     <p class="subtitle">
@@ -1027,17 +1025,17 @@
 
     <div class="install-pane active" id="tab-iso">
       <div class="install-box">
-        <div class="terminal-bar">ISO DO2 v1.0.0 - Démarrer sans installation manuelle dans le terminal</div>
+        <div class="terminal-bar">ISO DO2 v1.0.0 : démarrer sans installation manuelle dans le terminal</div>
         <div class="install-body">
 
-          <div class="step-badge">Version v1.0.0 disponible — la méthode la plus simple pour essayer ou déployer DO2</div>
+          <div class="step-badge">Version v1.0.0 disponible. La méthode la plus simple pour essayer ou déployer DO2.</div>
 
           <div class="step">
             <div class="step-number">1</div>
             <div class="step-content">
               <div class="step-title">Télécharger l'image ISO DO2 v1.0.0</div>
               <p style="font-size:0.9rem;margin:0 0 8px;">Téléchargez l'image officielle v1.0.0 depuis Archive.org avant de créer votre clé USB.</p>
-              <a href="https://archive.org/details/montmorency-do-2-v-1.0.0" class="footer-pill footer-pill-primary" target="_blank" rel="noopener">Télécharger l'ISO v1.0.0</a>
+              <a href="https://archive.org/details/montmorency-do-2-v-1.0.0" class="footer-pill footer-pill-primary" target="_blank" rel="noopener">Télécharger sur Archive.org</a>
             </div>
           </div>
 
@@ -1203,8 +1201,8 @@ sudo nmcli con up "Montmorency-WiFi"</code></pre>
               </div>
               <div class="step-note">
                 <strong>⚠ À modifier avant d'exécuter :</strong><br/>
-                — <code style="color:#f87171;">VOTRE_IDENTIFIANT</code> → votre numéro d'étudiant du Collège (ex. <code>2477966</code>)<br/>
-                — <code style="color:#f87171;">VOTRE_MOT_DE_PASSE</code> → votre mot de passe du portail Omnivox
+                <code style="color:#f87171;">VOTRE_IDENTIFIANT</code> : votre numéro d'étudiant du Collège (ex. <code>2477966</code>)<br/>
+                <code style="color:#f87171;">VOTRE_MOT_DE_PASSE</code> : votre mot de passe du portail Omnivox
               </div>
             </div>
           </div>
@@ -1455,7 +1453,7 @@ sudo nmcli con up "Montmorency-WiFi"</code></pre>
       </div>
 
       <div class="footer-bottom">
-        <div class="footer-copyright">© 2026 Projet DO2  ·  Collège Montmorency</div>
+        <div class="footer-copyright">© 2026 Projet DO2, Collège Montmorency</div>
 
         <div class="footer-badge">
           <span>Réalisé avec</span>
@@ -1737,7 +1735,7 @@ sudo nmcli con up "Montmorency-WiFi"</code></pre>
   window.addEventListener('resize', onScrollFooter, { passive: true });
   onScrollFooter(); // initialize
 
-  // Browsers restore scroll position asynchronously on refresh — poll aggressively for 1s
+  // Browsers restore scroll position asynchronously on refresh; poll aggressively for 1s
   var footerInitInterval = setInterval(onScrollFooter, 50);
   setTimeout(function() { clearInterval(footerInitInterval); }, 1000);
 
@@ -2305,7 +2303,7 @@ class CanvAscii {
       ctx2.fillStyle = grad;
       ctx2.fill();
 
-      // border glow stroke — drawn after clip so it stays inside
+      // Border glow stroke, drawn after the clip so it stays inside.
       ctx2.strokeStyle = 'rgba(126,184,201,0.35)';
       ctx2.lineWidth   = 1;
       ctx2.stroke();

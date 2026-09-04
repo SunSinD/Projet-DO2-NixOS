@@ -1,12 +1,11 @@
 <a id="readme-top"></a>
 
-<p align="left">
+<p align="center">
   <a href="https://github.com/SunSinD/Projet-DO2-NixOS/blob/main/LICENSE">
-      </a>
-    <img src="https://img.shields.io/github/license/SunSinD/Projet-DO2-NixOS.svg?style=for-the-badge&color=0078D4&logo=github&logoColor=white&labelColor=333" alt="MIT License" />
+    <img src="https://img.shields.io/badge/Licence-MIT-0078D4?style=for-the-badge&logo=github&logoColor=white" alt="Licence MIT" />
   </a>
-  <img src="https://img.shields.io/badge/NixOS-25.11-5277C3?style=for-the-badge&logo=nixos&logoColor=white&labelColor=333" alt="NixOS 25.11" />
-  <img src="https://img.shields.io/badge/Cinnamon-Français-4A86CF?style=for-the-badge&logo=linux&logoColor=white&labelColor=333" alt="Cinnamon Français" />
+  <img src="https://img.shields.io/badge/NixOS-25.11-5277C3?style=for-the-badge&logo=nixos&logoColor=white" alt="NixOS 25.11" />
+  <img src="https://img.shields.io/badge/Cinnamon-Français-4A86CF?style=for-the-badge&logo=linux&logoColor=white" alt="Cinnamon Français" />
 </p>
 
 <div align="center">
@@ -89,19 +88,19 @@ Le projet DO2 redonne vie à des ordinateurs usagés du Collège Montmorency pou
 
 ---
 
-## Version 1.0.0 — ISO prête à l'emploi
+## ISO prête à l'emploi (v1.0.0)
 
 <br/>
 
-La version **v1.0.0** est la première publication officielle de DO2. Vous préférez éviter les étapes d'installation dans le terminal? Téléchargez l'image ISO prête à l'emploi depuis Archive.org, créez une clé USB amorçable, puis démarrez l'ordinateur à partir de cette clé.
+Vous voulez éviter les étapes d'installation dans le terminal? Téléchargez l'image ISO prête à l'emploi depuis Archive.org, créez une clé USB amorçable, puis démarrez l'ordinateur à partir de cette clé.
 
-L'image contient la même configuration DO2, l'interface Cinnamon en français et les applications incluses dans ce projet. C'est la méthode la plus simple pour essayer ou déployer DO2 sans exécuter les commandes ci-dessous.
+L'image v1.0.0 contient la configuration DO2, Cinnamon en français et les applications incluses dans ce projet.
 
 **1.** Téléchargez l'[ISO DO2 v1.0.0 sur Archive.org](https://archive.org/details/montmorency-do-2-v-1.0.0).
 
 **2.** Écrivez l'image sur une clé USB avec Rufus ou balenaEtcher, puis démarrez l'ordinateur à partir de cette clé.
 
-> Identifiants par défaut — Utilisateur : `user` · Mot de passe : `pass`
+**Identifiants par défaut :** `user` / `pass`
 
 <br/>
 
@@ -136,7 +135,7 @@ Le script vous guide pour le reste. Durée : **5 à 15 minutes**.
 
 <br/>
 
-> Identifiants par défaut -- Utilisateur : `user` · Mot de passe : `pass`
+> Identifiants par défaut : utilisateur `user`, mot de passe `pass`
 
 <br/>
 
@@ -155,4 +154,4 @@ sudo reboot
 
 ---
 
-*Collège Montmorency · Département de technologie de génie électrique · 243-44A-MO · Hiver 2026*
+*Collège Montmorency, Département de technologie de génie électrique, 243-44A-MO, Hiver 2026*
