@@ -15,7 +15,7 @@
   </a>
 </div>
 
-<h1 align="center">Projet-DO2-NixOS</h1>
+<h1 align="center">Projet DO2 NixOS</h1>
 <h3 align="center">2<sup>e</sup> Vie Pour Les Ordinateurs</h3>
 
 <div align="center">
@@ -80,7 +80,7 @@ Le projet DO2 redonne vie à des ordinateurs usagés du Collège Montmorency pou
 | OBS Studio | Enregistrement vidéo |
 | Audacity | Édition audio |
 | Flameshot | Capture d'écran |
-| Éditeur de texte | Bloc-notes |
+| Éditeur de texte | Édition de texte simple |
 | qBittorrent | Client torrent |
 | Excalidraw | Dessin collaboratif |
 | Logiciels | Installation d'apps (Flatpak) |
@@ -113,7 +113,7 @@ L'image ISO préconfigurée inclut l'environnement complet (Cinnamon en françai
 
 <br/>
 
-**2.** Connectez-vous au réseau (tethering USB ou Wi-Fi).
+**2.** Connectez l'ordinateur au réseau (tethering USB ou wifi).
 
 <br/>
 
