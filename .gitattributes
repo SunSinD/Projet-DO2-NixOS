@@ -5,4 +5,5 @@
 # shell snippets verbatim; CRLF conversion makes those generated scripts fail.
 *.nix text eol=lf
 *.sh text eol=lf
+*.patch text eol=lf
 do2 text eol=lf

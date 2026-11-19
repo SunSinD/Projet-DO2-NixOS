@@ -1,7 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
-W=/tmp/do2config
-echo "DO2 - telechargement du dernier installateur..."
-rm -rf "$W"
-git clone https://github.com/SunSinD/Projet-DO2-NixOS.git "$W"
-exec bash "$W/scripts/do2-install.sh"
+
+if [[ $EUID -ne 0 ]]; then
+  echo "Lancez l'installateur avec sudo." >&2
+  exit 1
+fi
+
+work=$(mktemp -d -t do2.XXXXXXXX)
+trap 'rm -rf -- "$work"' EXIT
+
+echo "Téléchargement de l'installateur DO2…"
+git clone --depth 1 --branch release https://github.com/SunSinD/Projet-DO2-NixOS.git "$work"
+bash "$work/scripts/do2-install.sh"

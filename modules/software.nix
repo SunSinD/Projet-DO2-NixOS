@@ -1,10 +1,10 @@
 # Applications pre-installees, applications web, Flatpak, logitheque.
-{ config, pkgs, lib, ... }:
+{ pkgs, lib, live, ... }:
 
 let
-  # Chrome avec les bons drapeaux (pas de popup de trousseau ni de premier lancement)
+  # Chrome sans assistant de premier lancement.
   chrome = pkgs.google-chrome.override {
-    commandLineArgs = "--password-store=basic --no-first-run --no-default-browser-check";
+    commandLineArgs = "--no-first-run --no-default-browser-check";
   };
 
   # Fonction pour créer une application web Chrome
@@ -14,6 +14,8 @@ let
     + "--disable-backgrounding-occluded-windows "
     + "--disable-renderer-backgrounding "
     + "--app=${url}";
+
+  browser = if live then "firefox.desktop" else "google-chrome.desktop";
 
 in
 {
@@ -42,17 +44,12 @@ in
   environment.systemPackages = with pkgs; [
     # Navigateur
     pkgs.adwaita-qt
-    chrome
     firefox
 
     # Bureautique
-    libreoffice-still
+    libreoffice
     anki
     xournalpp
-
-    # Communication
-    zoom-us
-    teamviewer
 
     # Médias
     vlc
@@ -79,17 +76,13 @@ in
     gawk
     sudo
 
-    # Shutdown/reboot instantané (remplace cinnamon-session-quit)
-    (lib.hiPrio (pkgs.writeShellScriptBin "cinnamon-session-quit" ''
-      case "$*" in
-        *--power-off*) ${pkgs.kbd}/bin/chvt 1; exec systemctl poweroff ;;
-        *--reboot*)    ${pkgs.kbd}/bin/chvt 1; exec systemctl reboot ;;
-        *) exec /run/current-system/sw/lib/cinnamon-session/cinnamon-session-quit "$@" ;;
-      esac
-    ''))
+  ] ++ lib.optionals (!live) [
+    chrome
+    zoom-us
+    teamviewer
 
     # ── Applications web (raccourcis Chrome) ────────────────────────────
-    (makeDesktopItem {
+    (pkgs.makeDesktopItem {
       name        = "microsoft-teams-web";
       desktopName = "Microsoft Teams";
       exec        = chromeApp "https://teams.microsoft.com";
@@ -97,7 +90,7 @@ in
       categories  = [ "Network" "InstantMessaging" ];
       comment     = "Microsoft Teams (web)";
     })
-    (makeDesktopItem {
+    (pkgs.makeDesktopItem {
       name        = "outlook-web";
       desktopName = "Outlook";
       exec        = chromeApp "https://outlook.live.com";
@@ -105,7 +98,7 @@ in
       categories  = [ "Network" "Email" ];
       comment     = "Microsoft Outlook (web)";
     })
-    (makeDesktopItem {
+    (pkgs.makeDesktopItem {
       name        = "excalidraw-web";
       desktopName = "Excalidraw";
       exec        = chromeApp "https://excalidraw.com";
@@ -113,7 +106,7 @@ in
       categories  = [ "Graphics" "2DGraphics" ];
       comment     = "Tableau de dessin collaboratif (web)";
     })
-    (makeDesktopItem {
+    (pkgs.makeDesktopItem {
       name        = "google-meet-web";
       desktopName = "Google Meet";
       exec        = chromeApp "https://meet.google.com";
@@ -123,10 +116,10 @@ in
     })
 
     # Gestionnaire de lien zoommtg://
-    (makeDesktopItem {
+    (pkgs.makeDesktopItem {
       name         = "zoommtg-handler";
       desktopName  = "Zoom URI Handler";
-      exec         = "${zoom-us}/bin/zoom-us %u";
+      exec         = "${pkgs.zoom-us}/bin/zoom-us %u";
       mimeTypes    = [ "x-scheme-handler/zoommtg" "x-scheme-handler/zoomus" ];
       noDisplay    = true;
       type         = "Application";
@@ -144,7 +137,7 @@ in
   };
 
   # ── TeamViewer (daemon nécessaire pour fonctionner) ─────────────────────
-  services.teamviewer.enable = true;
+  services.teamviewer.enable = !live;
 
   # Flathub (declaratif via nix-flatpak — les utilisateurs installent ce qu'ils veulent)
   services.flatpak.remotes = [{
@@ -154,12 +147,13 @@ in
 
   # ── Associations de fichiers par défaut ─────────────────────────────────
   xdg.mime.defaultApplications = {
-    "text/html"                = "google-chrome.desktop";
-    "x-scheme-handler/http"    = "google-chrome.desktop";
-    "x-scheme-handler/https"   = "google-chrome.desktop";
-    "x-scheme-handler/about"   = "google-chrome.desktop";
-    "x-scheme-handler/unknown" = "google-chrome.desktop";
-    "application/pdf"          = "google-chrome.desktop";
+    "text/html"                = browser;
+    "x-scheme-handler/http"    = browser;
+    "x-scheme-handler/https"   = browser;
+    "x-scheme-handler/about"   = browser;
+    "x-scheme-handler/unknown" = browser;
+    "application/pdf"          = browser;
+    "inode/directory"           = "nemo.desktop";
     "x-scheme-handler/zoommtg" = "zoommtg-handler.desktop";
     "x-scheme-handler/zoomus"  = "zoommtg-handler.desktop";
   };

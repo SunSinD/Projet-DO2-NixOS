@@ -1,16 +1,12 @@
 #!/usr/bin/env bash
-# Setup bureau utilisateur - v11
 set -euo pipefail
 
-SETUP_VERSION="12"
+SETUP_VERSION="13:$(readlink /run/current-system)"
 MARKER="$HOME/.do2-setup-done"
-if [ -f "$MARKER" ]; then
-  [ "$(cat "$MARKER" 2>/dev/null)" = "$SETUP_VERSION" ] && exit 0
-fi
+[ -f "$MARKER" ] && [ "$(cat "$MARKER")" = "$SETUP_VERSION" ] && exit 0
 
 APPS_DIR="/run/current-system/sw/share/applications"
 LOCAL_APPS="$HOME/.local/share/applications"
-mkdir -p "$HOME/Desktop" "$HOME/Documents" "$HOME/Downloads" "$HOME/Pictures"
 mkdir -p "$LOCAL_APPS" "$HOME/.config"
 
 # Charger les règles partagées de nettoyage du menu
@@ -24,8 +20,8 @@ else
 fi
 
 # ── Fonctions ─────────────────────────────────────────────────────────────
-hide_app() {
-  cat > "$LOCAL_APPS/$1.desktop" << HIDE
+hidden_entry() {
+  cat << HIDE
 [Desktop Entry]
 Name=$1
 Type=Application
@@ -34,15 +30,15 @@ Hidden=true
 HIDE
 }
 
-move_to_office() {
-  local src="$1"
-  local bname=$(basename "$src")
-  cp "$src" "$LOCAL_APPS/$bname"
-  if grep -q '^Categories=' "$LOCAL_APPS/$bname"; then
-    sed -i 's/^Categories=.*/Categories=Office;/' "$LOCAL_APPS/$bname"
-  else
-    echo "Categories=Office;" >> "$LOCAL_APPS/$bname"
-  fi
+office_entry() {
+  sed 's/^Categories=.*/Categories=Office;/' "$1"
+}
+
+managed_override() {
+  grep -qx 'X-DO2-Managed=true' "$1" ||
+    cmp -s "$1" <(hidden_entry "$2") ||
+    { [[ -f "$3" ]] && cmp -s "$1" <(office_entry "$3"); } ||
+    { [[ -f "$4" ]] && cmp -s "$1" <(office_entry "$4"); }
 }
 
 # ── Copier config Cinnamon ────────────────────────────────────────────────
@@ -51,92 +47,56 @@ if [ -d /etc/do2/config/cinnamon/spices ]; then
   cp -rn /etc/do2/config/cinnamon/spices/* "$HOME/.config/cinnamon/spices/" 2>/dev/null || true
 fi
 
-# ── Raccourcis bureau ─────────────────────────────────────────────────────
-cat > "$HOME/Desktop/libreoffice-writer.desktop" << 'EOF'
+desktop_shortcut() {
+  local file="$desktop/$1.desktop" name=$2 command=$3 icon=$4
+  [[ -e "$file" || -L "$file" ]] && return 0
+  cat > "$file" << EOF
 [Desktop Entry]
-Name=LibreOffice Writer
-Exec=libreoffice --writer %U
-Icon=libreoffice-writer
-Terminal=false
-Type=Application
-Categories=Office;
-EOF
-chmod +x "$HOME/Desktop/libreoffice-writer.desktop"
-
-cat > "$HOME/Desktop/libreoffice-calc.desktop" << 'EOF'
-[Desktop Entry]
-Name=LibreOffice Calc
-Exec=libreoffice --calc %U
-Icon=libreoffice-calc
-Terminal=false
-Type=Application
-Categories=Office;
-EOF
-chmod +x "$HOME/Desktop/libreoffice-calc.desktop"
-
-cat > "$HOME/Desktop/Guide-DO2.desktop" << 'EOF'
-[Desktop Entry]
-Name=Guide DO2
-Exec=xdg-open /etc/do2/guides/Guide-DO2.html
-Icon=help-contents
+Name=$name
+Exec=$command
+Icon=$icon
 Terminal=false
 Type=Application
 EOF
-chmod +x "$HOME/Desktop/Guide-DO2.desktop"
+  chmod +x "$file"
+}
 
-# ── Associations de fichiers ──────────────────────────────────────────────
-cat > "$HOME/.config/mimeapps.list" << 'EOF'
-[Default Applications]
-text/html=google-chrome.desktop
-x-scheme-handler/http=google-chrome.desktop
-x-scheme-handler/https=google-chrome.desktop
-application/pdf=google-chrome.desktop
-inode/directory=nemo.desktop
-EOF
+desktop=$(xdg-user-dir DESKTOP 2>/dev/null) || desktop="$HOME/Desktop"
+if [[ ! -f "$MARKER" && -n "$desktop" && "$desktop" != "$HOME" ]]; then
+  mkdir -p "$desktop"
+  desktop_shortcut libreoffice-writer "LibreOffice Writer" "libreoffice --writer %U" libreoffice-writer
+  desktop_shortcut libreoffice-calc "LibreOffice Calc" "libreoffice --calc %U" libreoffice-calc
+  desktop_shortcut Guide-DO2 "Guide DO2" "xdg-open /etc/do2/guides/Guide-DO2.html" help-contents
+  if [[ -e "$APPS_DIR/do2-install.desktop" && ! -e "$desktop/Installer-DO2.desktop" ]]; then
+    install -m 755 "$APPS_DIR/do2-install.desktop" "$desktop/Installer-DO2.desktop"
+  fi
+fi
 
-# ══════════════════════════════════════════════════════════════════════════
-# NETTOYAGE DU MENU
-# Catégories autorisées : Bureautique (Office), Graphisme (Graphics), Internet (Network)
-# Tout le reste est masqué ou déplacé vers Bureautique.
-# ══════════════════════════════════════════════════════════════════════════
+for override in "$LOCAL_APPS"/*.desktop; do
+  [[ -f "$override" ]] || continue
+  file=${override##*/}
+  if managed_override "$override" "${file%.desktop}" "$APPS_DIR/$file" "/run/booted-system/sw/share/applications/$file"; then
+    rm -- "$override"
+  fi
+done
 
-# Nettoyer les anciens overrides (sauf ceux pre-crees par l'installateur)
-# On les recree tous dans les passes suivantes de toute facon
-
-# ── PASS 1 : Masquer les apps inutiles (par nom) ─────────────────────────
 for f in "$APPS_DIR"/*.desktop; do
   [ -f "$f" ] || continue
-  bname=$(basename "$f" .desktop)
+  file=${f##*/}
+  bname=${file%.desktop}
+  override="$LOCAL_APPS/$file"
+  [[ ! -e "$override" ]] || continue
   name=$(grep '^Name=' "$f" 2>/dev/null | head -1 | cut -d= -f2- || true)
   cats=$(grep '^Categories=' "$f" 2>/dev/null | head -1 | cut -d= -f2- || true)
 
   if should_hide_app "$bname" "$name" "$cats"; then
-    hide_app "$bname"
-  fi
-done
-
-# ── PASS 2 : Déplacer les apps des catégories non autorisées ─────────────
-# Autorisées : Office (Bureautique), Graphics (Graphisme), Network (Internet)
-# Tout le reste → Office (Bureautique)
-for f in "$APPS_DIR"/*.desktop; do
-  [ -f "$f" ] || continue
-  bname=$(basename "$f" .desktop)
-
-  # Sauter si déjà traité (masqué dans pass 1)
-  [ -f "$LOCAL_APPS/$bname.desktop" ] && continue
-
-  cats=$(grep '^Categories=' "$f" 2>/dev/null | head -1 | cut -d= -f2- || true)
-  [ -z "$cats" ] && continue
-
-  # Si l'app a une catégorie non autorisée, forcer vers Office
-  # (même si elle a aussi Office, pour retirer Science/Utility/etc.)
-  # Si que des catégories autorisées, ne rien faire
-  if ! has_disallowed_categories "$cats"; then
+    hidden_entry "$bname" > "$override"
+  elif has_disallowed_categories "$cats"; then
+    office_entry "$f" > "$override"
+  else
     continue
   fi
-
-  # Forcer vers Office (Bureautique)
-  move_to_office "$f"
+  sed -i '/^\[Desktop Entry\]$/a X-DO2-Managed=true' "$override"
 done
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -153,6 +113,6 @@ dbus-send --session --type=method_call --dest=org.Cinnamon \
 
 echo "$SETUP_VERSION" > "$MARKER"
 
-if [ ! -f "$HOME/.do2-welcome-shown" ]; then
+if [ ! -f "$HOME/.do2-welcome-shown" ] && ! command -v do2-install >/dev/null; then
   /etc/do2/do2-welcome.sh &
 fi
