@@ -1,7 +1,7 @@
 { do2Source, lib, pkgs, ... }:
 
 {
-  image.fileName = "Montmorency-DO2-v1.1.0-x86_64.iso";
+  image.baseName = lib.mkForce "Montmorency-DO2-v1.1.0-x86_64";
   isoImage = {
     volumeID = "DO2_1_1_0";
     appendToMenuLabel = " DO2";
