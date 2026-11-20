@@ -150,7 +150,7 @@
         };
         # Session : pas de delai pour shutdown/reboot/logout
         "org/cinnamon/desktop/session" = {
-          idle-delay  = lib.gvariant.mkUint32 900;
+          idle-delay = lib.gvariant.mkUint32 (if live then 0 else 900);
         };
         "org/gnome/SessionManager" = {
           logout-prompt = false;
@@ -171,7 +171,7 @@
 
         # Ecran de verrouillage
         "org/cinnamon/desktop/screensaver" = {
-          lock-enabled = true;
+          lock-enabled = !live;
           lock-delay   = lib.gvariant.mkUint32 0;
         };
       };

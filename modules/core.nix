@@ -1,11 +1,10 @@
 # Demarrage, reseau, utilisateurs, localisation, Nix, impression, Chromebook.
-{ pkgs, lib, device, live, ... }:
+{ pkgs, lib, live, ... }:
 
 {
   # ── Chargeur d'amorçage (BIOS + UEFI) ──────────────────────────────────
   boot.loader.grub = {
     enable                = true;
-    device                = device;
     efiSupport            = true;
     efiInstallAsRemovable = true;
     configurationLimit    = 5;

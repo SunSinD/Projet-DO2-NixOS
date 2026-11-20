@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+umask 077
 
 CONFIG=/etc/nixos/config
 exec 9>/run/lock/do2-rebuild.lock
@@ -29,10 +30,12 @@ if [[ -f "$CONFIG/local.nix" ]]; then
   cp "$CONFIG/local.nix" "$next/local.nix"
 fi
 sed -i "s|device = \"/dev/sda\"; # DO2_DISK|device = \"$device\"; # DO2_DISK|" "$next/flake.nix"
+tar -C /etc/nixos -czf "$work/config.previous.tar.gz" config
 
 echo "[2/3] Reconstruction du système…"
 nixos-rebuild switch --flake "path:$next#do2" --impure "$@"
 
 echo "[3/3] Enregistrement de la configuration…"
+mv -fT -- "$work/config.previous.tar.gz" "$CONFIG.previous.tar.gz"
 mv -T --exchange --no-copy -- "$next" "$CONFIG"
 echo "Mise à jour terminée. Redémarrez avec sudo reboot."

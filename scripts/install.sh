@@ -1,10 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-bootstrap=$(dirname -- "$0")/../do2
-if [[ -f "$bootstrap" ]]; then
-  exec bash "$bootstrap"
+if [[ -f "${BASH_SOURCE[0]:-}" ]]; then
+  bootstrap=$(dirname -- "${BASH_SOURCE[0]}")/../do2
+  if [[ -f "$bootstrap" ]]; then
+    exec bash "$bootstrap"
+  fi
 fi
 
-set -o pipefail
-curl --proto '=https' -fsSL https://sunsind.github.io/Projet-DO2-NixOS/do2 | bash
+bootstrap=$(mktemp -t do2-bootstrap.XXXXXXXX)
+trap 'rm -f -- "$bootstrap"' EXIT
+curl --proto '=https' -fsSL https://raw.githubusercontent.com/SunSinD/Projet-DO2-NixOS/release/do2 -o "$bootstrap"
+bash "$bootstrap"

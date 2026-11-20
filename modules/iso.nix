@@ -1,10 +1,11 @@
 { do2Source, lib, pkgs, ... }:
 
 {
+  image.fileName = "Montmorency-DO2-v1.1.0-x86_64.iso";
   isoImage = {
-    isoName = "Montmorency-DO2-v1.1.0-x86_64.iso";
     volumeID = "DO2_1_1_0";
     appendToMenuLabel = " DO2";
+    squashfsCompression = "zstd -Xcompression-level 10";
     contents = [{
       source = do2Source;
       target = "/do2";
@@ -13,6 +14,7 @@
 
   boot.loader.timeout = lib.mkForce 5;
   boot.plymouth.enable = lib.mkForce false;
+  boot.zfs.forceImportRoot = false;
   services.displayManager.autoLogin = {
     enable = true;
     user = "nixos";
@@ -35,9 +37,8 @@
     (pkgs.makeDesktopItem {
       name = "do2-install";
       desktopName = "Installer DO2";
-      exec = "do2-install";
+      exec = "${pkgs.xterm}/bin/xterm -hold -e do2-install";
       icon = "drive-harddisk";
-      terminal = true;
       categories = [ "Utility" ];
     })
   ];

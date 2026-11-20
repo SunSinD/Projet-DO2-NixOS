@@ -22,7 +22,7 @@ iso_source=$(findmnt -nro SOURCE --mountpoint /iso) || {
   exit 1
 }
 iso_disks=$(lsblk -snrpo NAME "$iso_source") || {
-  echo "Impossible d'identifier le support d'installation." >&2
+  echo "Impossible d'identifier la clé. Redémarrez sur l'entrée normale du menu NixOS." >&2
   exit 1
 }
 
@@ -82,6 +82,7 @@ if [[ ! "$choice" =~ ^(0|[1-9][0-9]{0,3})$ ]] || (( choice >= ${#disks[@]} )); t
   exit 1
 fi
 device=${disks[choice]}
+boot_disk=$(stable_disk_path "$device")
 
 if (( $(lsblk -bdnro SIZE "$device") < 32000000000 )); then
   echo "Le disque doit avoir au moins 32 Go." >&2
@@ -97,15 +98,14 @@ fi
 
 cd "$WORK_DIR"
 echo "[1/5] Vérification de la configuration et préparation du partitionnement…"
-nix eval --no-write-lock-file --raw "path:.#nixosConfigurations.do2.config.system.build.toplevel.drvPath" >/dev/null
+nix eval --impure --no-write-lock-file --raw "path:.#nixosConfigurations.do2.config.system.build.toplevel.drvPath" >/dev/null
 nix build --no-link --no-write-lock-file "path:.#disko"
 
 target_is_free
-if [[ "$(lsblk -dnro MAJ:MIN "$device")" != "${ids[choice]}" ]] || ! disk_is_available "$device"; then
+if [[ "$(lsblk -dnro MAJ:MIN "$device")" != "${ids[choice]}" || ! "$boot_disk" -ef "$device" ]] || ! disk_is_available "$device"; then
   echo "Le disque sélectionné a changé ou est utilisé." >&2
   exit 1
 fi
-boot_disk=$(stable_disk_path "$device")
 sed -i "s|device = \"/dev/sda\"; # DO2_DISK|device = \"$boot_disk\"; # DO2_DISK|" flake.nix
 
 echo "[2/5] Partitionnement de $device…"

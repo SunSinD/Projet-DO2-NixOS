@@ -61,7 +61,6 @@
             ./scripts
           ];
         };
-        device = "/dev/sda";
         live = true;
       };
       modules = [

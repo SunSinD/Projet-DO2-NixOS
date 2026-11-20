@@ -42,7 +42,7 @@ Sur la clé DO2, utilisez Firefox pour essayer le bureau. Chrome, Zoom, TeamView
 
 ## Mettre à jour un poste
 
-Sur un ordinateur installé avec les scripts DO2, ouvrez le terminal et lancez :
+Sur un ordinateur installé avec DO2 v1.1.0 ou une version plus récente, ouvrez le terminal et lancez :
 
 ```bash
 update-do2
@@ -50,6 +50,10 @@ sudo reboot
 ```
 
 La commande récupère la branche `release`. Attendez la confirmation avant de redémarrer. Une erreur de téléchargement ou de compilation laisse la configuration en place. Sur un poste qui utilise encore l’ancien mot de passe `pass`, changez-le avec `passwd`. En cas de problème au démarrage, choisissez une génération précédente dans le menu GRUB.
+
+La configuration d’avant la dernière mise à jour est sauvegardée dans `/etc/nixos/config.previous.tar.gz`.
+
+L’ancien outil de mise à jour de la version 1.0.0 suit encore la branche `main`. Vérifiez l’état du poste et sauvegardez les fichiers avant de choisir une mise à niveau ou une réinstallation.
 
 ## Préparer la prochaine session
 
