@@ -97,9 +97,9 @@ if [[ "$confirm" != "$device" ]]; then
 fi
 
 cd "$WORK_DIR"
-echo "[1/5] Vérification de la configuration et préparation du partitionnement…"
+echo "[1/5] Vérification de la configuration et des téléchargements…"
 nix eval --impure --no-write-lock-file --raw "path:.#nixosConfigurations.do2.config.system.build.toplevel.drvPath" >/dev/null
-nix build --no-link --no-write-lock-file "path:.#disko"
+nix build --no-link --no-write-lock-file "path:.#disko" "path:.#app-downloads"
 
 target_is_free
 if [[ "$(lsblk -dnro MAJ:MIN "$device")" != "${ids[choice]}" || ! "$boot_disk" -ef "$device" ]] || ! disk_is_available "$device"; then

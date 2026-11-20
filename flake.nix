@@ -8,7 +8,7 @@
     nix-flatpak.url = "github:gmodena/nix-flatpak/?ref=latest";
   };
 
-  outputs = inputs@{ nixpkgs, ... }:
+  outputs = inputs@{ self, nixpkgs, ... }:
   let
     nemoOverlay = {
       nixpkgs.overlays = [
@@ -23,6 +23,13 @@
     };
   in {
     packages.x86_64-linux.disko = inputs.disko.packages.x86_64-linux.disko;
+    packages.x86_64-linux.app-downloads =
+      let
+        pkgs = self.nixosConfigurations.do2.pkgs;
+      in pkgs.linkFarm "do2-app-downloads" (builtins.map (pkg: {
+        name = pkg.pname;
+        path = pkg.src;
+      }) [ pkgs.google-chrome pkgs.zoom-us.unpacked pkgs.teamviewer ]);
 
     nixosConfigurations.do2 = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
