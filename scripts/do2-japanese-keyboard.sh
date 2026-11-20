@@ -11,11 +11,7 @@ enabled() {
 }
 
 fcitx_installed() {
-  command -v fcitx5 >/dev/null 2>&1
-}
-
-prepare_mozc() {
-  mkdir -p "$HOME/.config/mozc" "$HOME/.config/fcitx5"
+  [[ -x /run/current-system/sw/bin/fcitx5 ]]
 }
 
 rebuild() {
@@ -23,15 +19,14 @@ rebuild() {
   echo "=== Reconstruction du systeme ==="
   echo "Ne fermez pas le terminal."
   echo ""
-  sudo nixos-rebuild switch --flake "$CONFIG#do2" --impure
-  echo ""
+  nixos-rebuild switch --flake "path:$CONFIG#do2" --impure
 }
 
 migrate_legacy() {
   if [ -f "$LEGACY_LOCAL" ] && grep -q "japanese-ime" "$LEGACY_LOCAL" 2>/dev/null; then
-    sudo mkdir -p /var/lib/do2
-    sudo touch "$MARKER"
-    sudo rm -f "$LEGACY_LOCAL"
+    mkdir -p /var/lib/do2
+    touch "$MARKER"
+    mv -- "$LEGACY_LOCAL" /var/lib/do2/japanese-ime.legacy.nix
   fi
 }
 
@@ -73,8 +68,6 @@ EOF
 }
 
 enable_japanese() {
-  migrate_legacy
-
   if enabled; then
     echo "Le clavier japonais est deja actif sur cet ordinateur."
     if fcitx_installed; then
@@ -84,35 +77,39 @@ enable_japanese() {
     echo "Mais le systeme de saisie japonais manque — reconstruction..."
   else
     echo "Ajout du clavier japonais sur cet ordinateur..."
-    sudo mkdir -p /var/lib/do2
-    sudo touch "$MARKER"
-    sudo rm -f "$LEGACY_LOCAL"
+    mkdir -p /var/lib/do2
+    touch "$MARKER"
+    if ! rebuild; then
+      rm -f "$MARKER"
+      return 1
+    fi
+    verify_install
+    usage_after_enable
+    return
   fi
 
   rebuild
   verify_install
-  prepare_mozc
   echo "Le clavier japonais est maintenant disponible."
   usage_after_enable
 }
 
 disable_japanese() {
-  migrate_legacy
-
   if ! enabled; then
     echo "Le clavier japonais n'est pas actif sur cet ordinateur."
     return 0
   fi
 
   echo "Retrait du clavier japonais..."
-  sudo rm -f "$MARKER" "$LEGACY_LOCAL"
-  rebuild
+  rm -f "$MARKER"
+  if ! rebuild; then
+    touch "$MARKER"
+    return 1
+  fi
   echo "Le clavier japonais a ete retire. Redemarrez : sudo reboot"
 }
 
 show_status() {
-  migrate_legacy
-
   if enabled; then
     if fcitx_installed; then
       echo "Statut : disponible"
@@ -125,8 +122,6 @@ show_status() {
 }
 
 repair_japanese() {
-  migrate_legacy
-
   if ! enabled; then
     echo "Le clavier japonais n'est pas actif. Lancez : do2-japanese-keyboard enable"
     exit 1
@@ -137,16 +132,17 @@ repair_japanese() {
   echo "OK. Redemarrez : sudo reboot"
 }
 
-if [ "$(id -u)" -eq 0 ]; then
-  echo "Lancez sans sudo : do2-japanese-keyboard enable"
-  exit 1
-fi
-
 case "${1:-}" in
-  enable)  enable_japanese ;;
-  disable) disable_japanese ;;
+  enable|disable|repair)
+    if [[ $EUID -ne 0 ]]; then
+      exec sudo -- "$0" "$1"
+    fi
+    exec 9>/run/lock/do2-rebuild.lock
+    flock -n 9 || { echo "Une autre mise à jour DO2 est en cours." >&2; exit 1; }
+    migrate_legacy
+    "${1}_japanese"
+    ;;
   status)  show_status ;;
-  repair)  repair_japanese ;;
   help|-h|--help) usage ;;
   "")
     usage

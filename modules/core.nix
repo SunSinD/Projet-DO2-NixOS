@@ -1,13 +1,10 @@
 # Demarrage, reseau, utilisateurs, localisation, Nix, impression, Chromebook.
-{ config, pkgs, lib, device, ... }:
+{ pkgs, lib, live, ... }:
 
 {
-  imports = [ ./chromebook.nix ];
-
   # ── Chargeur d'amorçage (BIOS + UEFI) ──────────────────────────────────
   boot.loader.grub = {
     enable                = true;
-    device                = device;
     efiSupport            = true;
     efiInstallAsRemovable = true;
     configurationLimit    = 5;
@@ -16,7 +13,7 @@
     splashImage           = null;
   };
   boot.loader.efi.efiSysMountPoint = "/boot";
-  boot.loader.timeout = 0;
+  boot.loader.timeout = 3;
 
   # Plymouth (ecran de demarrage avec logo College Montmorency)
   boot.plymouth = {
@@ -49,7 +46,7 @@
   networking.networkmanager.enable = true;
 
   # ── Localisation (tout en francais canadien) ────────────────────────────
-  time.timeZone      = "America/Montreal";
+  time.timeZone      = "America/Toronto";
   i18n.defaultLocale = "fr_CA.UTF-8";
   i18n.extraLocaleSettings = {
     LC_ADDRESS        = "fr_CA.UTF-8";
@@ -65,11 +62,12 @@
   console.keyMap = "cf";
 
   # ── Utilisateur par défaut ──────────────────────────────────────────────
-  users.users.user = {
-    isNormalUser    = true;
-    description     = "Utilisateur";
-    extraGroups     = [ "networkmanager" "wheel" "video" "input" ];
-    initialPassword = "pass";
+  users.users = lib.optionalAttrs (!live) {
+    user = {
+      isNormalUser = true;
+      description  = "Utilisateur";
+      extraGroups  = [ "networkmanager" "wheel" "video" "input" ];
+    };
   };
 
   # ── Mémoire virtuelle ──────────────────────────────────────────────────
@@ -130,118 +128,21 @@
   services.fstrim.enable = true;
 
   # ── Commandes utilitaires ───────────────────────────────────────────────
-  environment.systemPackages = [
+  environment.systemPackages = lib.optionals (!live) [
     (pkgs.writeShellScriptBin "rebuild" ''
       echo "Reconstruction du système DO2..."
-      sudo nixos-rebuild switch --flake /etc/nixos/config#do2 --impure "$@"
+      sudo flock -n /run/lock/do2-rebuild.lock nixos-rebuild switch --flake path:/etc/nixos/config#do2 --impure "$@"
     '')
-    (pkgs.writeShellScriptBin "update-do2" ''
-      set -euo pipefail
-      CONFIG="/etc/nixos/config"
-
-      echo "=== Mise à jour DO2 ==="
-
-      # Sauvegarder les fichiers propres à cette machine
-      echo "[1/4] Sauvegarde de la config matérielle..."
-      BACKUP_DIR="/var/lib/do2-backups"
-      sudo mkdir -p "$BACKUP_DIR"
-      sudo cp "$CONFIG/hardware-configuration.nix" "$BACKUP_DIR/hardware-configuration.nix"
-      sudo cp "$CONFIG/flake.nix" "$BACKUP_DIR/flake.nix"
-      # Ne jamais creer le marqueur ici : clavier JP = do2-japanese-keyboard enable seulement.
-      sudo cp /var/lib/do2/japanese-ime.enabled "$BACKUP_DIR/japanese-ime.enabled" 2>/dev/null || true
-      DEVICE=$(sudo sed -n 's|.*device = "/dev/\([^"]*\)"; # DO2_DISK.*|\1|p' "$CONFIG/flake.nix")
-
-      # Télécharger les dernières modifications
-      echo "[2/4] Téléchargement des mises à jour..."
-      sudo git -C "$CONFIG" fetch origin
-
-      # Mettre à jour depuis GitHub
-      echo "[3/4] Application des mises à jour..."
-      sudo git -C "$CONFIG" fetch origin main
-      sudo git -C "$CONFIG" reset --hard origin/main
-      sudo git -C "$CONFIG" clean -fd
-
-      # Restaurer les fichiers propres à cette machine
-      sudo cp "$BACKUP_DIR/hardware-configuration.nix" "$CONFIG/hardware-configuration.nix"
-      if [ -f "$BACKUP_DIR/japanese-ime.enabled" ]; then
-        sudo mkdir -p /var/lib/do2
-        sudo cp "$BACKUP_DIR/japanese-ime.enabled" /var/lib/do2/japanese-ime.enabled
-      fi
-      if [ -n "$DEVICE" ] && [ "$DEVICE" != "sda" ]; then
-        sudo sed -i 's|device = "/dev/sda"; # DO2_DISK|device = "/dev/'"$DEVICE"'"; # DO2_DISK|' "$CONFIG/flake.nix"
-      fi
-
-      # Reconstruire
-      echo "[4/4] Reconstruction du système..."
-      sudo nixos-rebuild switch --flake "$CONFIG#do2" --impure "$@"
-
-      # Relancer le setup utilisateur au prochain login
-      rm -f "$HOME/.do2-setup-done"
-
-      # Forcer la mise à jour du cache des polices (contournement pour Qt6/GoldenDict-ng)
-      echo "[5/5] Rafraîchissement du cache des polices..."
-      fc-cache -f -v >/dev/null || true
-      sudo fc-cache -f -v >/dev/null || true
-
-      echo "=== Mise à jour terminée! ==="
-      echo "Redémarrez pour voir les changements : sudo reboot"
+    (let
+      updater = pkgs.writeShellScript "do2-update" (
+        builtins.readFile ../scripts/do2-hardware.sh
+        + builtins.readFile ../scripts/do2-update.sh
+      );
+    in pkgs.writeShellScriptBin "update-do2" ''
+      exec sudo ${updater} "$@"
     '')
     (pkgs.writeShellScriptBin "do2-japanese-keyboard" ''
       exec /etc/do2/do2-japanese-keyboard.sh "$@"
     '')
   ];
-
-  # ── Mise à jour automatique au démarrage réseau ─────────────────────────
-  systemd.services.do2-auto-update = {
-    description = "DO2 — mise à jour automatique au démarrage réseau";
-    wants = [ "network-online.target" ];
-    after = [ "network-online.target" ];
-    wantedBy = [ "multi-user.target" ];
-    path = [ pkgs.git pkgs.nixos-rebuild pkgs.coreutils pkgs.gnugrep pkgs.iputils ];
-    serviceConfig = {
-      Type = "oneshot";
-      RemainAfterExit = true;
-      ExecStart = pkgs.writeShellScript "do2-auto-update" ''
-        set -euo pipefail
-        
-        # Vérification finale de l'accès à GitHub
-        if ! ping -c 1 -W 5 github.com >/dev/null 2>&1; then
-          exit 0
-        fi
-
-        CONFIG="/etc/nixos/config"
-        if [ ! -d "$CONFIG" ]; then
-          exit 0
-        fi
-
-        # Sauvegarder config locale avant reset
-        BACKUP_DIR="/var/lib/do2-backups"
-        mkdir -p "$BACKUP_DIR" || true
-        cp "$CONFIG/hardware-configuration.nix" "$BACKUP_DIR/hardware-configuration.auto.nix" || true
-        cp "$CONFIG/flake.nix" "$BACKUP_DIR/flake.auto.nix" || true
-        cp /var/lib/do2/japanese-ime.enabled "$BACKUP_DIR/japanese-ime.auto.enabled" 2>/dev/null || true
-        DEVICE=$(grep 'device = "/dev/' "$CONFIG/flake.nix" 2>/dev/null | grep -o '/dev/[a-z0-9]*' | cut -d'/' -f3 || echo "")
-        
-        cd "$CONFIG"
-        git fetch origin main || exit 0
-        git reset --hard origin/main || exit 0
-        git clean -fd || true
-        
-        # Restaurer la configuration locale
-        if [ -f "$BACKUP_DIR/hardware-configuration.auto.nix" ]; then
-          cp "$BACKUP_DIR/hardware-configuration.auto.nix" "$CONFIG/hardware-configuration.nix"
-        fi
-        if [ -f "$BACKUP_DIR/japanese-ime.auto.enabled" ]; then
-          mkdir -p /var/lib/do2
-          cp "$BACKUP_DIR/japanese-ime.auto.enabled" /var/lib/do2/japanese-ime.enabled
-        fi
-        if [ -n "$DEVICE" ] && [ "$DEVICE" != "sda" ]; then
-          sed -i 's|device = "/dev/sda"; # DO2_DISK|device = "/dev/'"$DEVICE"'"; # DO2_DISK|' "$CONFIG/flake.nix"
-        fi
-
-        # Rebuild silencieux
-        nixos-rebuild switch --flake "$CONFIG#do2" --impure || true
-      '';
-    };
-  };
 }

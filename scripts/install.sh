@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Bootstrap : clone le repo et lance le vrai installateur.
-# Utilisation depuis l'ISO NixOS Minimal :
+if [[ -f "${BASH_SOURCE[0]:-}" ]]; then
+  bootstrap=$(dirname -- "${BASH_SOURCE[0]}")/../do2
+  if [[ -f "$bootstrap" ]]; then
+    exec bash "$bootstrap"
+  fi
+fi
 
-REPO="https://github.com/SunSinD/Projet-DO2-NixOS.git"
-WORK="/tmp/do2config"
-
-echo "DO2 - telechargement du dernier installateur..."
-rm -rf "$WORK"
-git clone "$REPO" "$WORK"
-exec bash "$WORK/scripts/do2-install.sh"
+bootstrap=$(mktemp -t do2-bootstrap.XXXXXXXX)
+trap 'rm -f -- "$bootstrap"' EXIT
+curl --proto '=https' -fsSL https://raw.githubusercontent.com/SunSinD/Projet-DO2-NixOS/release/do2 -o "$bootstrap"
+bash "$bootstrap"

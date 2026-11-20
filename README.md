@@ -1,154 +1,70 @@
-<a id="readme-top"></a>
+# Projet DO2 NixOS
 
-<p align="center">
-  <a href="https://github.com/SunSinD/Projet-DO2-NixOS/blob/main/LICENSE">
-      </a>
-    <img src="https://img.shields.io/badge/Licence-MIT-0078D4?style=for-the-badge&logo=github&logoColor=white" alt="Licence MIT" />
-  </a>
-  <img src="https://img.shields.io/badge/NixOS-25.11-5277C3?style=for-the-badge&logo=nixos&logoColor=white" alt="NixOS 25.11" />
-  <img src="https://img.shields.io/badge/Cinnamon-Français-4A86CF?style=for-the-badge&logo=linux&logoColor=white" alt="Cinnamon Français" />
-</p>
+Le projet DO2 remet en état des ordinateurs usagés du Collège Montmorency pour les donner à des personnes qui en ont besoin. Cette configuration installe NixOS avec le bureau Cinnamon en français canadien et des applications pour le travail, les études et les appels vidéo.
 
-<div align="center">
-  <a href="#readme-top">
-    <img src="https://i.imgur.com/B2AEZvK.png" alt="Projet DO2 Logo" width="600" />
-  </a>
-</div>
+[Site du projet](https://sunsind.github.io/Projet-DO2-NixOS/) | [Guide d’utilisation](https://sunsind.github.io/Projet-DO2-NixOS/guides/Guide-DO2.html)
 
-<h1 align="center">Projet DO2 NixOS</h1>
-<h3 align="center">2<sup>e</sup> Vie Pour Les Ordinateurs</h3>
+## Installer sur un ordinateur
 
-<div align="center">
-  <p align="center">
-    Configuration NixOS automatisée pour le Projet DO2 du Collège Montmorency.<br/>
-    Installation en une commande, prête à l'emploi.
-  </p>
-  <a href="https://sunSinD.github.io/Projet-DO2-NixOS"><strong>Site Web du Projet</strong></a>
-</div>
+Il faut un ordinateur x86_64, un disque interne d’au moins 32 Go et une connexion Internet pour installer DO2. L’installation efface le disque choisi. Sauvegardez les fichiers à garder et débranchez les autres disques externes. Désactivez Secure Boot dans les réglages UEFI s’il est actif.
 
-<br/>
+1. Téléchargez l’[image DO2 v1.1.0](https://github.com/SunSinD/Projet-DO2-NixOS/releases/tag/v1.1.0). Comparez son empreinte SHA256 au fichier `SHA256SUMS` publié avec la version.
+2. Écrivez l’image sur une clé USB avec Rufus ou balenaEtcher. Démarrez sur la clé depuis le menu de démarrage de l’ordinateur. La touche dépend du modèle. Essayez F12 ou Échap.
+3. Attendez l’ouverture du bureau Cinnamon. Vous pouvez essayer le bureau depuis la clé. Pour installer DO2, connectez la machine à Internet et ouvrez le raccourci **Installer DO2**.
+4. Vérifiez le modèle et la taille du disque. Tapez son chemin complet, par exemple `/dev/nvme0n1`, pour confirmer. Le temps d’installation dépend de la machine et de la connexion.
+5. À la fin, choisissez le mot de passe du compte `user`. Quand le script confirme la réussite, lancez `sudo reboot`. Retirez la clé USB au redémarrage et ouvrez la session avec le mot de passe choisi.
 
----
+### Avec la clé NixOS minimale
 
-## À propos
+Démarrez sur l’[ISO minimale de NixOS 26.05](https://channels.nixos.org/nixos-26.05/latest-nixos-minimal-x86_64-linux.iso). Connectez la machine par Ethernet, par partage USB ou avec `sudo nmcli --ask device wifi connect "NOM_DU_WIFI"`. Dans le terminal, lancez les commandes suivantes :
 
-Le projet DO2 redonne vie à des ordinateurs usagés du Collège Montmorency pour les donner à des personnes qui en ont besoin.
+```bash
+curl --proto '=https' -fsSL https://raw.githubusercontent.com/SunSinD/Projet-DO2-NixOS/release/do2 -o do2-install && sudo bash do2-install
+```
 
-<br/>
+### Vérifier le poste avant la remise
 
-<table>
-  <tbody>
-    <tr>
-      <td><strong>Distribution</strong></td>
-      <td>NixOS 25.11 (Flake)</td>
-    </tr>
-    <tr>
-      <td><strong>Bureau</strong></td>
-      <td>Cinnamon, interface en français</td>
-    </tr>
-    <tr>
-      <td><strong>Installation</strong></td>
-      <td>Automatisée, une commande, environ 10 min</td>
-    </tr>
-  </tbody>
-</table>
+Avant de remettre l’ordinateur, redémarrez sans la clé et testez la connexion, le son, le micro, la caméra, le clavier, la luminosité et l’ouverture des applications. Le raccourci Guide DO2 est sur le bureau.
 
-<br/>
+## Applications du système installé
 
----
-
-## Applications incluses
-
-<br/>
-
-| Application | Usage |
+| Usage | Applications |
 |---|---|
-| Google Chrome | Navigateur web |
-| Firefox | Navigateur web |
-| LibreOffice | Bureautique (Writer, Calc, Draw, Impress, Math, Base) |
-| Anki | Cartes mémoire (flashcards) |
-| Xournal++ | Annotation PDF / prise de notes |
-| Microsoft Teams | Messagerie et appels vidéo |
-| Outlook | Courriel Microsoft |
-| Zoom | Vidéoconférence |
-| Google Meet | Vidéoconférence |
-| TeamViewer | Contrôle à distance / support technique |
-| Dialect | Traducteur |
-| GoldenDict | Dictionnaire multilingue hors ligne |
-| GIMP | Éditeur d'images |
-| VLC | Lecteur multimédia |
-| OBS Studio | Enregistrement vidéo |
-| Audacity | Édition audio |
-| Flameshot | Capture d'écran |
-| Éditeur de texte | Édition de texte simple |
-| qBittorrent | Client torrent |
-| Excalidraw | Dessin collaboratif |
-| Logiciels | Installation d'apps (Flatpak) |
+| Web | Chrome, Firefox |
+| Bureautique et études | LibreOffice, Anki, Xournal++, éditeur de texte, calculatrice |
+| Communication | Zoom, TeamViewer, raccourcis web pour Teams, Outlook et Google Meet |
+| Images et multimédia | GIMP, VLC, OBS Studio, Audacity, Flameshot, Excalidraw |
+| Autres | Dialect, GoldenDict NG (ajoutez vos dictionnaires pour les utiliser hors ligne), qBittorrent, Logiciels (Flathub) |
 
-<br/>
+Le clavier japonais peut être ajouté sur un poste avec `do2-japanese-keyboard enable`. Redémarrez ensuite et choisissez Mozc dans le panneau.
 
----
+Sur la clé DO2, utilisez Firefox pour essayer le bureau. Chrome, Zoom, TeamViewer et les raccourcis web associés sont téléchargés pour le système installé.
 
-## Déploiement par image ISO (v1.0.0)
+## Mettre à jour un poste
 
-L'image ISO préconfigurée inclut l'environnement complet (Cinnamon en français, configuration DO2 et toutes les applications requises). Il s'agit de la méthode d'installation la plus directe.
-
-**1.** Téléchargez l'[ISO DO2 v1.0.0 sur Archive.org](https://archive.org/details/montmorency-do-2-v-1.0.0).
-
-**2.** Flashez l'image sur une clé USB à l'aide de Rufus ou balenaEtcher, puis démarrez l'ordinateur à partir de cette clé.
-
-> **Identifiants par défaut :** `user` / `pass`
-
-<br/>
-
----
-
-## Installation
-
-<br/>
-
-**1.** Démarrer depuis la clé USB NixOS (ISO minimal). Appuyez sur `F12` au démarrage.
-
-> **Hint :** Si `F12` ne fonctionne pas, essayez `F10`, `F11` ou `Del`.
-
-<br/>
-
-**2.** Connectez l'ordinateur au réseau (tethering USB ou wifi).
-
-<br/>
-
-**3.** Vérifiez la connexion :
-```bash
-nmcli device status
-```
-
-<br/>
-
-**4.** Lancez l'installation :
-```bash
-curl -sL sunsind.github.io/Projet-DO2-NixOS/do2 | sudo bash
-```
-Le script vous guide pour le reste. Durée : **5 à 15 minutes**.
-
-<br/>
-
-> Identifiants par défaut : utilisateur `user`, mot de passe `pass`
-
-<br/>
-
----
-
-## Mise à jour
-
-<br/>
+Sur un ordinateur installé avec DO2 v1.1.0 ou une version plus récente, ouvrez le terminal et lancez :
 
 ```bash
 update-do2
 sudo reboot
 ```
 
-<br/>
+La commande récupère la branche `release`. Attendez la confirmation avant de redémarrer. Une erreur de téléchargement ou de compilation laisse la configuration en place. Sur un poste qui utilise encore l’ancien mot de passe `pass`, changez-le avec `passwd`. En cas de problème au démarrage, choisissez une génération précédente dans le menu GRUB.
 
----
+La configuration d’avant la dernière mise à jour est sauvegardée dans `/etc/nixos/config.previous.tar.gz`.
 
-*Collège Montmorency, Département de technologie de génie électrique, 243-44A-MO, Hiver 2026*
+L’ancien outil de mise à jour de la version 1.0.0 suit encore la branche `main`. Vérifiez l’état du poste et sauvegardez les fichiers avant de choisir une mise à niveau ou une réinstallation.
+
+## Préparer la prochaine session
+
+Les dépendances sont épinglées dans `flake.lock`. NixOS 26.05 reçoit des mises à jour de sécurité jusqu’au 31 décembre 2026. Pour la session d’hiver 2027, passez à la version stable alors prise en charge et mettez à jour le fichier de verrouillage et les liens vers l’ISO minimale. Testez le démarrage de l’image, l’installation et la mise à jour sur un poste de test avant de faire avancer la branche `release`.
+
+```bash
+nix flake update
+nix build .#nixosConfigurations.do2.config.system.build.toplevel
+nix build .#nixosConfigurations.do2-iso.config.system.build.isoImage
+```
+
+L’image est dans `result/iso`. Calculez l’empreinte avec `sha256sum` avant de la publier.
+
+L’[image DO2 v1.0.0](https://archive.org/details/montmorency-do-2-v-1.0.0) reste disponible comme archive. Pour un nouveau poste, suivez les étapes d’installation ci-dessus.

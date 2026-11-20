@@ -1,4 +1,4 @@
-{ config, pkgs, lib, inputs, device, ... }:
+{ lib, chromebook, ... }:
 
 let
   # Fichier hors flake : opt-in clavier japonais (do2-japanese-keyboard enable).
@@ -10,9 +10,9 @@ in
     ./modules/core.nix
     ./modules/desktop.nix
     ./modules/software.nix
-    ./modules/beginner-ux.nix
   ]
-  ++ lib.optionals (builtins.pathExists japaneseMarker) [ ./modules/japanese-ime.nix ];
+  ++ lib.optionals (builtins.pathExists japaneseMarker) [ ./modules/japanese-ime.nix ]
+  ++ lib.optionals chromebook [ ./modules/chromebook.nix ];
 
   system.stateVersion = "25.11";
 }

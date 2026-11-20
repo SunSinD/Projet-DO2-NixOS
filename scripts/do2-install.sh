@@ -1,162 +1,141 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# DO2 - installateur complet (telecharge par le bootstrap `do2` ou `install.sh`).
-INSTALL_SCRIPT_REV="2026-04-18.2"
+WORK_DIR=$(cd -- "$(dirname -- "$0")/.." && pwd)
+source "$WORK_DIR/scripts/do2-hardware.sh"
+SOURCE="path:$WORK_DIR"
+TARGET=/mnt
+SWAPFILE="$TARGET/var/lib/swapfile"
+MOUNT_STARTED=false
+SWAP_ACTIVE=false
 
-FLAKE_ATTR="do2"
-WORK_DIR="/tmp/do2config"
+export NIX_CONFIG="${NIX_CONFIG:-}
+extra-experimental-features = nix-command flakes"
 
-export NIX_CONFIG="experimental-features = nix-command flakes"
-
-cleanup() {
-  sudo swapoff /mnt/var/lib/swapfile 2>/dev/null || true
-  sudo umount -lR /mnt               2>/dev/null || true
-}
-trap cleanup EXIT
-
-echo ""
-echo "  ╔══════════════════════════════════════╗"
-echo "  ║   DO2 - Dons d'ordinateurs, 2e vie   ║"
-echo "  ║   Installation automatique NixOS     ║"
-echo "  ╚══════════════════════════════════════╝"
-echo ""
-
-sudo umount -lR /mnt 2>/dev/null || true
-sudo swapoff -a      2>/dev/null || true
-
-echo "  [1/6] Preparation de la configuration..."
-cd "$WORK_DIR"
-
-# ── Sélection du disque ──────────────────────────────────────────────────
-ISO_SOURCE=$(findmnt -n -o SOURCE /iso 2>/dev/null || true)
-ISO_DISK=""
-if [[ -n "$ISO_SOURCE" ]]; then
-  ISO_DISK=$(lsblk -no PKNAME "$ISO_SOURCE" 2>/dev/null || true)
-fi
-
-mapfile -t DISK_NAMES < <(
-  lsblk -dn -o NAME,TYPE -e 7 \
-    | awk '$2 == "disk" { print $1 }' \
-    | { if [[ -n "$ISO_DISK" ]]; then grep -v "^${ISO_DISK}$" || true; else cat; fi; }
-)
-
-if [[ ${#DISK_NAMES[@]} -eq 0 ]]; then
-  echo "  ERREUR : aucun disque détecté."
+if [[ $EUID -ne 0 ]] || ! command -v nixos-install >/dev/null; then
+  echo "Démarrez sur la clé NixOS minimale et lancez l'installation avec sudo." >&2
   exit 1
 fi
 
-echo ""
-echo "  Disques disponibles :"
-echo ""
-
-idx=0
-for disk_name in "${DISK_NAMES[@]}"; do
-  disk_size=$(lsblk -dno SIZE "/dev/${disk_name}" 2>/dev/null || echo "?")
-  disk_model=$(lsblk -dno MODEL "/dev/${disk_name}" 2>/dev/null || echo "")
-  echo "    [$idx]  /dev/${disk_name}  ${disk_size}  ${disk_model}"
-  idx=$((idx + 1))
-done
-
-echo ""
 exec < /dev/tty
-read -rp "  Choisissez un disque [0-$((${#DISK_NAMES[@]} - 1))] : " CHOICE
+iso_source=$(findmnt -nro SOURCE --mountpoint /iso) || {
+  echo "Clé d'installation NixOS introuvable sur /iso." >&2
+  exit 1
+}
+iso_disks=$(lsblk -snrpo NAME "$iso_source") || {
+  echo "Impossible d'identifier la clé. Redémarrez sur l'entrée normale du menu NixOS." >&2
+  exit 1
+}
 
-if ! [[ "$CHOICE" =~ ^[0-9]+$ ]] || [[ "$CHOICE" -ge ${#DISK_NAMES[@]} ]]; then
-  echo "  ERREUR : choix invalide."
+exec 9>/run/lock/do2-install.lock
+flock -n 9 || { echo "Une installation DO2 est déjà en cours." >&2; exit 1; }
+
+target_is_free() {
+  local mounts
+  mounts=$(findmnt -rn -o TARGET) || return 1
+  if grep -Eq '^/mnt(/|$)' <<< "$mounts"; then
+    echo "Un système de fichiers est déjà monté dans /mnt." >&2
+    return 1
+  fi
+}
+
+disk_is_available() {
+  local disk=$1 mounts transport
+  mounts=$(lsblk -nrpo MOUNTPOINTS "$disk") || return 1
+  transport=$(lsblk -dnro TRAN "$disk") || return 1
+  [[ -z "$mounts" && "$transport" != usb ]] &&
+    ! grep -Fxq -- "$disk" <<< "$iso_disks"
+}
+
+unmount_target() {
+  if $SWAP_ACTIVE; then
+    swapoff "$SWAPFILE" || return 1
+    SWAP_ACTIVE=false
+  fi
+  if $MOUNT_STARTED && mountpoint -q "$TARGET"; then
+    umount -R "$TARGET" || return 1
+  fi
+  MOUNT_STARTED=false
+}
+
+trap 'unmount_target || echo "Impossible de démonter /mnt." >&2' EXIT
+
+echo "Installation DO2 pour le Collège Montmorency"
+target_is_free
+disks=()
+ids=()
+while read -r disk kind removable readonly id; do
+  if [[ "$kind" == disk && "$removable" == 0 && "$readonly" == 0 && "$disk" != /dev/mmcblk*boot* ]] && disk_is_available "$disk"; then
+    printf '  [%s] %s\n' "${#disks[@]}" "$(lsblk -dno PATH,SIZE,MODEL "$disk")"
+    disks+=("$disk")
+    ids+=("$id")
+  fi
+done < <(lsblk -dnrpo NAME,TYPE,RM,RO,MAJ:MIN)
+
+if [[ ${#disks[@]} -eq 0 ]]; then
+  echo "Aucun disque interne libre détecté." >&2
   exit 1
 fi
 
-DEV="/dev/${DISK_NAMES[$CHOICE]}"
+read -rp "Choisissez un numéro de disque : " choice
+if [[ ! "$choice" =~ ^(0|[1-9][0-9]{0,3})$ ]] || (( choice >= ${#disks[@]} )); then
+  echo "Choix invalide." >&2
+  exit 1
+fi
+device=${disks[choice]}
+boot_disk=$(stable_disk_path "$device")
 
-if lsblk -no TRAN "$DEV" 2>/dev/null | grep -q "usb"; then
-  echo "  ERREUR : $DEV est une clé USB. Choisissez le disque interne."
+if (( $(lsblk -bdnro SIZE "$device") < 32000000000 )); then
+  echo "Le disque doit avoir au moins 32 Go." >&2
   exit 1
 fi
 
-echo ""
-echo "  Disque sélectionné : $DEV"
-echo ""
-read -rp "  TOUTES LES DONNÉES SUR $DEV SERONT EFFACÉES. Confirmer ? (oui/non) : " CONFIRM
+printf '\nToutes les données sur %s seront effacées.\n' "$device"
+read -rp "Pour confirmer, tapez $device : " confirm
+if [[ "$confirm" != "$device" ]]; then
+  echo "Installation annulée."
+  exit 0
+fi
 
-if [[ "$CONFIRM" != "oui" ]]; then
-  echo "  Installation annulée."
+cd "$WORK_DIR"
+configure_machine "$boot_disk" flake.nix
+echo "[1/5] Vérification de la configuration et des téléchargements…"
+nix eval --impure --no-write-lock-file --raw "$SOURCE#nixosConfigurations.do2.config.system.build.toplevel.drvPath" >/dev/null
+nix build --no-link --no-write-lock-file "$SOURCE#disko" "$SOURCE#app-downloads"
+
+target_is_free
+if [[ "$(lsblk -dnro MAJ:MIN "$device")" != "${ids[choice]}" || ! "$boot_disk" -ef "$device" ]] || ! disk_is_available "$device"; then
+  echo "Le disque sélectionné a changé ou est utilisé." >&2
   exit 1
 fi
+echo "[2/5] Partitionnement de $device…"
+MOUNT_STARTED=true
+nix run --no-write-lock-file "$SOURCE#disko" -- \
+  --mode destroy,format,mount --yes-wipe-all-disks --flake "$SOURCE#do2"
+mountpoint -q "$TARGET" || { echo "/mnt n'est pas monté." >&2; exit 1; }
+mountpoint -q "$TARGET/boot" || { echo "/mnt/boot n'est pas monté." >&2; exit 1; }
 
-echo ""
-echo "  [2/6] Partitionnement de $DEV..."
-sed -i "s|device = \"/dev/[^\"]*\"; # DO2_DISK|device = \"$DEV\"; # DO2_DISK|" flake.nix
-git add flake.nix
-echo "{ }" > hardware-configuration.nix
-git add hardware-configuration.nix
-sudo nix --extra-experimental-features "nix-command flakes" run \
-  github:nix-community/disko/latest -- \
-  --mode destroy,format,mount \
-  --yes-wipe-all-disks \
-  --flake ".#$FLAKE_ATTR" 2>&1 | { grep -v '^warning:' || true; }
+echo "[3/5] Détection du matériel et préparation du swap…"
+nixos-generate-config --root "$TARGET" --no-filesystems
+cp "$TARGET/etc/nixos/hardware-configuration.nix" hardware-configuration.nix
 
-echo ""
-echo "  [3/6] Détection du matériel..."
-sudo nixos-generate-config --root /mnt --no-filesystems 2>/dev/null
-sudo cp /mnt/etc/nixos/hardware-configuration.nix "$WORK_DIR/hardware-configuration.nix"
-git add hardware-configuration.nix
+swap_gb=$(awk '/MemTotal/ { n = int($2 / 1048576 + 0.5); print n < 2 ? 2 : (n > 8 ? 8 : n) }' /proc/meminfo)
+install -d "$TARGET/var/lib"
+install -m 600 /dev/null "$SWAPFILE"
+fallocate -l "${swap_gb}G" "$SWAPFILE"
+mkswap "$SWAPFILE"
+swapon "$SWAPFILE"
+SWAP_ACTIVE=true
 
-nix --extra-experimental-features "nix-command flakes" flake update 2>/dev/null || true
-git add . 2>/dev/null
-git -c user.email="do2@montmorency.qc.ca" \
-    -c user.name="DO2-Installer" \
-    commit -q --allow-empty -m "Configuration locale pour $(hostname)" 2>/dev/null || true
+echo "[4/5] Installation de NixOS…"
+nixos-install --root "$TARGET" --flake "$SOURCE#do2" --no-root-passwd --no-channel-copy --impure
 
-echo ""
-echo "  [4/6] Configuration du swap..."
-ram_gb=$(awk '/MemTotal/ { printf "%d", ($2/1024/1024)+0.5 }' /proc/meminfo)
-if [[ "$ram_gb" -lt 2 ]]; then
-  swap_gb=2
-elif [[ "$ram_gb" -gt 8 ]]; then
-  swap_gb=8
-else
-  swap_gb="$ram_gb"
-fi
-echo "  Taille du swap choisie : ${swap_gb}G (RAM détectée: ${ram_gb}G)"
-sudo mkdir -p /mnt/var/lib
-sudo fallocate -l "${swap_gb}G" /mnt/var/lib/swapfile
-sudo chmod 600       /mnt/var/lib/swapfile
-sudo mkswap          /mnt/var/lib/swapfile
-sudo swapon          /mnt/var/lib/swapfile
-
-echo ""
-echo "  [5/6] Installation de NixOS (5-15 minutes)..."
-sudo nixos-install \
-  --root /mnt \
-  --flake "$WORK_DIR#$FLAKE_ATTR" \
-  --no-root-passwd \
-  --impure \
-  --option "extra-experimental-features" "nix-command flakes" 2>&1 | { grep -v '^warning:' || true; }
-
-echo ""
-echo "  [6/6] Sauvegarde de la configuration..."
-sudo mkdir -p /mnt/etc/nixos
-sudo cp -r "$WORK_DIR" /mnt/etc/nixos/config
-
-# Pre-creer les overrides de menu pour eviter les 11 categories au premier boot
-USER_APPS="/mnt/home/user/.local/share/applications"
-sudo mkdir -p "$USER_APPS"
-for app in xterm yelp nm-connection-editor orca onboard bulky file-roller gnome-disk-utility gnome-disks baobab; do
-  sudo tee "$USER_APPS/$app.desktop" > /dev/null <<HIDE
-[Desktop Entry]
-Name=$app
-Type=Application
-NoDisplay=true
-Hidden=true
-HIDE
+echo "[5/5] Sauvegarde de la configuration et création du mot de passe…"
+cp -a --no-preserve=ownership "$WORK_DIR" "$TARGET/etc/nixos/config"
+echo "Choisissez le mot de passe du compte user dans la disposition actuelle du clavier."
+until nixos-enter --root "$TARGET" -c '/nix/var/nix/profiles/system/sw/bin/passwd user'; do
+  echo "Le mot de passe n'a pas été défini. Réessayez ou faites Ctrl+C pour arrêter." >&2
 done
-sudo chown -R 1000:100 /mnt/home/user/
 
-echo ""
-echo "  ╔══════════════════════════════════════╗"
-echo "  ║       Installation terminee!         ║"
-echo "  ║       Redemarrage en cours...        ║"
-echo "  ╚══════════════════════════════════════╝"
-echo ""
-sudo reboot
+unmount_target
+echo "Installation terminée. Lancez sudo reboot et retirez la clé USB au redémarrage."
