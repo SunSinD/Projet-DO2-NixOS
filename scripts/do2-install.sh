@@ -3,6 +3,7 @@ set -euo pipefail
 
 WORK_DIR=$(cd -- "$(dirname -- "$0")/.." && pwd)
 source "$WORK_DIR/scripts/do2-hardware.sh"
+SOURCE="path:$WORK_DIR"
 TARGET=/mnt
 SWAPFILE="$TARGET/var/lib/swapfile"
 MOUNT_STARTED=false
@@ -99,8 +100,8 @@ fi
 cd "$WORK_DIR"
 configure_machine "$boot_disk" flake.nix
 echo "[1/5] Vérification de la configuration et des téléchargements…"
-nix eval --impure --no-write-lock-file --raw "path:.#nixosConfigurations.do2.config.system.build.toplevel.drvPath" >/dev/null
-nix build --no-link --no-write-lock-file "path:.#disko" "path:.#app-downloads"
+nix eval --impure --no-write-lock-file --raw "$SOURCE#nixosConfigurations.do2.config.system.build.toplevel.drvPath" >/dev/null
+nix build --no-link --no-write-lock-file "$SOURCE#disko" "$SOURCE#app-downloads"
 
 target_is_free
 if [[ "$(lsblk -dnro MAJ:MIN "$device")" != "${ids[choice]}" || ! "$boot_disk" -ef "$device" ]] || ! disk_is_available "$device"; then
@@ -109,8 +110,8 @@ if [[ "$(lsblk -dnro MAJ:MIN "$device")" != "${ids[choice]}" || ! "$boot_disk" -
 fi
 echo "[2/5] Partitionnement de $device…"
 MOUNT_STARTED=true
-nix run --no-write-lock-file "path:.#disko" -- \
-  --mode destroy,format,mount --yes-wipe-all-disks --flake "path:.#do2"
+nix run --no-write-lock-file "$SOURCE#disko" -- \
+  --mode destroy,format,mount --yes-wipe-all-disks --flake "$SOURCE#do2"
 mountpoint -q "$TARGET" || { echo "/mnt n'est pas monté." >&2; exit 1; }
 mountpoint -q "$TARGET/boot" || { echo "/mnt/boot n'est pas monté." >&2; exit 1; }
 
@@ -127,10 +128,10 @@ swapon "$SWAPFILE"
 SWAP_ACTIVE=true
 
 echo "[4/5] Installation de NixOS…"
-nixos-install --root "$TARGET" --flake "path:$WORK_DIR#do2" --no-root-passwd --no-channel-copy --impure
+nixos-install --root "$TARGET" --flake "$SOURCE#do2" --no-root-passwd --no-channel-copy --impure
 
 echo "[5/5] Sauvegarde de la configuration et création du mot de passe…"
-cp -a "$WORK_DIR" "$TARGET/etc/nixos/config"
+cp -a --no-preserve=ownership "$WORK_DIR" "$TARGET/etc/nixos/config"
 echo "Choisissez le mot de passe du compte user dans la disposition actuelle du clavier."
 until nixos-enter --root "$TARGET" -c '/nix/var/nix/profiles/system/sw/bin/passwd user'; do
   echo "Le mot de passe n'a pas été défini. Réessayez ou faites Ctrl+C pour arrêter." >&2
