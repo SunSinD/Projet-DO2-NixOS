@@ -2,7 +2,7 @@
 set -euo pipefail
 
 WORK_DIR=$(cd -- "$(dirname -- "$0")/.." && pwd)
-source "$WORK_DIR/scripts/do2-disk.sh"
+source "$WORK_DIR/scripts/do2-hardware.sh"
 TARGET=/mnt
 SWAPFILE="$TARGET/var/lib/swapfile"
 MOUNT_STARTED=false
@@ -97,6 +97,7 @@ if [[ "$confirm" != "$device" ]]; then
 fi
 
 cd "$WORK_DIR"
+configure_machine "$boot_disk" flake.nix
 echo "[1/5] Vérification de la configuration et des téléchargements…"
 nix eval --impure --no-write-lock-file --raw "path:.#nixosConfigurations.do2.config.system.build.toplevel.drvPath" >/dev/null
 nix build --no-link --no-write-lock-file "path:.#disko" "path:.#app-downloads"
@@ -106,8 +107,6 @@ if [[ "$(lsblk -dnro MAJ:MIN "$device")" != "${ids[choice]}" || ! "$boot_disk" -
   echo "Le disque sélectionné a changé ou est utilisé." >&2
   exit 1
 fi
-sed -i "s|device = \"/dev/sda\"; # DO2_DISK|device = \"$boot_disk\"; # DO2_DISK|" flake.nix
-
 echo "[2/5] Partitionnement de $device…"
 MOUNT_STARTED=true
 nix run --no-write-lock-file "path:.#disko" -- \

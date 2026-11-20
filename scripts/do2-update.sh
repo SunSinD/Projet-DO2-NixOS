@@ -29,7 +29,7 @@ cp "$CONFIG/hardware-configuration.nix" "$next/hardware-configuration.nix"
 if [[ -f "$CONFIG/local.nix" ]]; then
   cp "$CONFIG/local.nix" "$next/local.nix"
 fi
-sed -i "s|device = \"/dev/sda\"; # DO2_DISK|device = \"$device\"; # DO2_DISK|" "$next/flake.nix"
+configure_machine "$device" "$next/flake.nix"
 tar -C /etc/nixos -czf "$work/config.previous.tar.gz" config
 
 echo "[2/3] Reconstruction du système…"

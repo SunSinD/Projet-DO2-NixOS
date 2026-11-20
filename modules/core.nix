@@ -135,7 +135,7 @@
     '')
     (let
       updater = pkgs.writeShellScript "do2-update" (
-        builtins.readFile ../scripts/do2-disk.sh
+        builtins.readFile ../scripts/do2-hardware.sh
         + builtins.readFile ../scripts/do2-update.sh
       );
     in pkgs.writeShellScriptBin "update-do2" ''

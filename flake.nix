@@ -35,8 +35,9 @@
       system = "x86_64-linux";
       specialArgs = {
         live = false;
-        # do2-install.sh replaces this line (marker must stay: # DO2_DISK)
+        # These values are set for each laptop by the installer and updater.
         device = "/dev/sda"; # DO2_DISK
+        chromebook = false; # DO2_CHROMEBOOK
       };
       modules = [
         nemoOverlay
@@ -50,6 +51,7 @@
     nixosConfigurations.do2-iso = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       specialArgs = {
+        chromebook = false;
         do2Source = nixpkgs.lib.fileset.toSource {
           root = ./.;
           fileset = nixpkgs.lib.fileset.unions [
